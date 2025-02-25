@@ -1,0 +1,373 @@
+@mixin display-1($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 84px;
+}
+
+@mixin display-2($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 56px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 78px;
+}
+
+@mixin display-3 ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 68px;
+}
+
+@mixin display-4 ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 46px;
+}
+
+@mixin heading-1 ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 38px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 52px;
+}
+
+@mixin heading-2 ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 32px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 44px;
+}
+
+@mixin heading-3 ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 26px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 36px;
+}
+
+@mixin heading-4 ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 22px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 30px;
+}
+
+@mixin heading-5 ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+}
+
+@mixin heading-6 ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 21px;
+}
+
+@mixin paragraph-lead ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 28px;
+}
+
+@mixin paragraph ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px;
+}
+
+@mixin paragraph-medium ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 22px;
+}
+
+@mixin paragraph-semi-bold ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 22px;
+}
+
+@mixin paragraph-bold ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 22px;
+}
+
+@mixin paragraph-small ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 20px;
+}
+
+@mixin paragraph-small-semi-bold ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 14px;
+}
+
+@mixin paragraph-small-bold ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+@mixin delete($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    text-decoration-line: strikethrough;
+}
+
+@mixin italicized($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    text-transform: lowercase;
+}
+
+@mixin underline($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+    text-decoration-line: underline;
+    text-decoration-style: solid;
+    text-decoration-skip-ink: none;
+    text-decoration-thickness: auto;
+    text-underline-offset: auto;
+    text-underline-position: from-font;
+}
+
+@mixin caption($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 11px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 14px;
+}
+
+@mixin button-lg ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 17px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 22px;
+    letter-spacing: 0.43px;
+}
+
+
+@mixin button ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    letter-spacing: 0.43px;
+}
+
+@mixin button-sm ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 16px;
+    letter-spacing: 0.43px;
+}
+
+@mixin label-lg ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+@mixin label ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+@mixin label-sm ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+@mixin input-lg ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+@mixin input ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+@mixin input-sm ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+@mixin placeholder-lg ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}
+
+@mixin placeholder ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 24px;
+}
+
+@mixin placeholder-sm ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 21px;
+}
+
+@mixin table-header ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 13px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+@mixin menu-active ($color: #4B465C) {
+    color: $color;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 23px;
+}
