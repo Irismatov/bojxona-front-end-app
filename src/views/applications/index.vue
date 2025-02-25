@@ -198,9 +198,8 @@ function formatUzPhoneNumber(phone) {
 <template>
   <Table :data-source="list" :columns="columns" :custom-row="customRow">
   </Table>
-  <Modal :open="open" @cancel="closeModal" title="Diqqat">
+  <Modal :open="open" @cancel="closeModal" title="Diqqat" subtitle="Mazkur murojaatni qayta ishlashga o'zingizga yuklab olishga rozimisiz?">
     <div class="warning">
-      <span class="warning-text">Mazkur murojaatni qayta ishlashga o'zingizga yuklab olishga rozimisiz?</span>
       <div class="warning-action">
         <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF">YO'Q</Button>
         <Button>HA</Button>
@@ -215,17 +214,6 @@ function formatUzPhoneNumber(phone) {
 .warning {
   display: flex;
   flex-direction: column;
-
-  &-text {
-    color: #4B465C;
-    font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
-    font-size: 15px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 22px;
-    margin-bottom: 16px;
-  }
 
   &-action {
     align-self: flex-end;

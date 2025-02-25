@@ -130,7 +130,7 @@ const state = reactive({
       </div>
     </Form>
   </Card>
-  <Modal :open="openCancel" @cancel="closeCancelModal" title="Ushbu murojaatni nima sababdan qaytarmoqchisiz?">
+  <Modal :open="openCancel" @cancel="closeCancelModal" title="Diqqat" subtitle="Ushbu murojaatni nima sababdan qaytarmoqchisiz?">
     <div class="modal modal-cancel">
       <div class="modal-actions">
         <CheckboxGroup :options="options" v-model:value="state.checkedList" />
@@ -142,8 +142,7 @@ const state = reactive({
     </div>
   </Modal>
 
-  <Modal :open="openApply" @cancel="closeApplyModal" title="Diqqat">
-    <span class="modal-subtitle">Siz ushbu murojaatni rasmiylashtirmoqchimisz</span>
+  <Modal :open="openApply" @cancel="closeApplyModal" title="Diqqat" subtitle="Siz ushbu murojaatni rasmiylashtirmoqchimisiz">
     <div class="modal modal-cancel">
       <div class="modal-actions">
         <div class="modal-actions__btns">
