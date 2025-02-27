@@ -15,12 +15,13 @@ async function requestToChangeStatus() {
 
 async function fetchData() {
   const response = await axios.get("/declarations", {
-    type: activeTab.value,
-    status: 0
+    params: {
+      type: activeTab.value,
+      status: 0
+    }
   });
   list.value = response.data.content;
 }
-
 const tabs = [
   {
     value: null,
@@ -43,7 +44,7 @@ const tabs = [
 const activeTab = ref(null);
 
 const handleTabChange = (value) => {
-  activeTab.value = value; 
+  activeTab.value = value;
   console.log(activeTab.value);
   fetchData();
 };
