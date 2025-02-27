@@ -17,30 +17,31 @@ const columns = [
     }
   },
   {
-    title: "Turi",
+    title: "Тури",
     dataIndex: "type",
   },
   {
-    title: "Raqami",
+    title: "Рақами",
     dataIndex: "number",
   },
   {
-    title: "Jo'natilgan vaqt",
+    title: "Жўнатилган вақт",
     dataIndex: "sentTime",
   },
   {
-    title: "Qabul vaqti",
+    title: "Қабул вақти",
     dataIndex: "receivedTime",
   },
   {
-    title: "Timer",
+    title: "Таймер",
     dataIndex: "timer",
   },
   {
-    title: "Munosabat",
+    title: "Муносабат",
     key: "action",
   },
 ];
+
 const list = [
   {
     type: "IMEI",
@@ -83,7 +84,7 @@ const list = [
           </button> -->
           <RouterLink :to="`/applications/detail/1`">
             <Button class="action-link__btn _2">
-              Ko'rish
+              Кўриш
             </Button>
           </RouterLink>
         </div>

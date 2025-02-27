@@ -5,11 +5,24 @@ const router = createRouter({
   routes: [
     {
       path: "/",
-      component: () => import("@/views/index.vue")
+      component: () => import("@/views/index.vue"),
+      meta: {
+        layout: "main"
+      }
+    },
+    {
+      path: "/auth",
+      component: () => import("@/views/auth.vue"),
+      meta: {
+        layout: "auth"
+      }
     },
     {
       path: "/applications",
       component: () => import("@/views/applications.vue"),
+      meta: {
+        layout: "main"
+      },
       children: [
         {
           path: "",
@@ -29,19 +42,33 @@ const router = createRouter({
         },
         {
           path: "detail/:id",
-          component: () => import("@/views/applications/[id].vue")
+          component: () => import("@/views/applications/[id].vue"),
         }
       ]
     },
     {
       path: "/employees",
-      component: () => import("@/views/employees.vue")
+      component: () => import("@/views/employees.vue"),
+      meta: {
+        layout: "main"
+      }
     },
     {
       path: "/reports",
-      component: () => import("@/views/reports.vue")
+      component: () => import("@/views/reports.vue"),
+      meta: {
+        layout: "main"
+      }
     }
   ],
 })
 
 export default router
+
+router.beforeEach(setLayout);
+
+async function setLayout(route) {
+  let layout = route.meta?.layout ?? 'default';
+  let layoutComponent = await import(`@/components/local/layouts/${layout}.vue`);
+  route.meta.layoutComponent = layoutComponent.default;
+}

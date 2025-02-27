@@ -6,7 +6,7 @@
         <Icon name="notification" />
       </button>
       <button class="header-user">
-        <img src="/images/avatar.png" alt="avatar" />
+        <Icon class="header-user__icon" name="person"/>
       </button>
     </div>
   </header>
@@ -48,6 +48,13 @@
     border-radius: 50%;
     background-color: rgba(115, 103, 240, 1);
     overflow: hidden;
+
+  
+
+    .icon {
+      --icon-color: #FFF;
+      --icon-size: 20px;
+    }
   }
 }
 </style>

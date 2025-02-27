@@ -1,8 +1,39 @@
 <script setup>
-import { Table } from "ant-design-vue";
+import { Table, message } from "ant-design-vue";
 import { useModal } from "@/utils/composable/modal.js";
+import { ref } from "vue";
+import axios from "@/plugins/axios";
 
 const { open, closeModal, openModal } = useModal();
+const currentItem = ref();
+
+
+async function requestToChangeStatus() {
+  message.success("Ushbu murojaat sizga yuklab olindi");
+  closeModal();
+}
+
+const tabs = [
+  {
+    value: "all",
+    label: "Барчаси"
+  },
+  {
+    value: "imei",
+    label: "IMEI"
+  },
+  {
+    value: "at",
+    label: "АТ"
+  },
+  {
+    value: "mb",
+    label: "МБ"
+  }
+];
+
+
+const activeTab = ref('all');
 
 
 const columns = [
@@ -13,29 +44,30 @@ const columns = [
     },
   },
   {
-    title: "Turi",
+    title: "Тури",
     dataIndex: "type",
   },
   {
-    title: "Raqami",
+    title: "Рақами",
     dataIndex: "number",
   },
   {
-    title: "Jo'natilgan vaqt",
+    title: "Жўнатилган вақт",
     dataIndex: "time",
   },
   {
-    title: "Pochta",
+    title: "Почта",
     dataIndex: "email",
   },
   {
-    title: "Telefon",
+    title: "Телефон",
     customRender: ({ record }) => formatUzPhoneNumber(record.phone),
   },
-
 ];
+
 const list = [
   {
+    id: 1,
     type: "IMEI",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -43,6 +75,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 2,
     type: "AT",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -50,6 +83,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "MB",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -57,6 +91,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "MB",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -64,6 +99,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "AT",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -71,6 +107,8 @@ const list = [
     phone: "971234567",
   },
   {
+
+    id: 3,
     type: "IMEI",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -79,6 +117,7 @@ const list = [
   },
 
   {
+    id: 3,
     key: "1",
     type: "MB",
     number: 202501019557,
@@ -87,6 +126,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "AT",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -94,6 +134,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     key: "1",
     type: "IMEI",
     number: 202501019557,
@@ -102,6 +143,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "MB",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -109,6 +151,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "AT",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -116,6 +159,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "IMEI",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -123,6 +167,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "MB",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -130,6 +175,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "AT",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -137,6 +183,7 @@ const list = [
     phone: "971234567",
   },
   {
+    id: 3,
     type: "IMEI",
     number: 202501019557,
     time: "01.02.2025 09:55",
@@ -169,6 +216,7 @@ const list = [
 const customRow = (record) => {
   return {
     onClick: () => {
+      currentItem.value = record.id;
       openModal();
     },
     style: {
@@ -196,17 +244,24 @@ function formatUzPhoneNumber(phone) {
 }
 </script>
 <template>
+
+  <Tab :list="tabs" v-model="activeTab" />
+
+
   <Table :data-source="list" :columns="columns" :custom-row="customRow">
+
   </Table>
-  <Modal :open="open" @cancel="closeModal" title="Diqqat" subtitle="Mazkur murojaatni qayta ishlashga o'zingizga yuklab olishga rozimisiz?">
+  <Modal :open="open" @cancel="closeModal" title="Диққат"
+    subtitle="Мазкур мурожаатни қайта ишлашга ўзингизга юклаб олишга розимисиз?">
     <div class="warning">
       <div class="warning-action">
-        <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF">YO'Q</Button>
-        <Button>HA</Button>
+        <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF" @click="closeModal">ЙЎҚ</Button>
+        <Button @click="requestToChangeStatus()">ҲА</Button>
       </div>
     </div>
   </Modal>
 </template>
+
 
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;

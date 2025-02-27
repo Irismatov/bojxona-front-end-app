@@ -15,9 +15,7 @@ const props = defineProps({
 </script>
 <template>
   <div class="input">
-    <FormItem label="Telefon raqam:" name="">
       <Input placeholder="Kiriting" />
-    </FormItem>
   </div>
 </template>
 

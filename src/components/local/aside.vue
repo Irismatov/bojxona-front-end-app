@@ -1,30 +1,31 @@
 <script setup>
 const menu = [
   {
-    title: "Bosh sahifa",
+    title: "Бош саҳифа",
     link: "/",
     icon: "home",
   },
   {
-    title: "Xodimlar",
+    title: "Ходимлар",
     link: "/employees",
     icon: "employees",
   },
   {
-    title: "Murojaatlar",
+    title: "Мурожаатлар",
     link: "/applications",
     icon: "applications",
   },
   {
-    title: "Xisobotlar",
+    title: "Ҳисоботлар",
     link: "/reports",
     icon: "reports",
   },
 ];
+
 </script>
 <template>
   <aside class="aside">
-    <span class="aside-logo"> Bojxona Hamkor </span>
+    <span class="aside-logo">Божхона Ҳамкор</span>
     <ul class="aside-menu">
       <li class="aside-menu__item" v-for="item in menu">
         <RouterLink class="aside-menu__link" :to="item.link">
