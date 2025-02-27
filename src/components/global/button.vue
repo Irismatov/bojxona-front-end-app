@@ -14,6 +14,10 @@ const props = defineProps({
   borderColor: {
     type: String,
     default: "var(--local-color)"
+  },
+  isDisabled: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -27,7 +31,7 @@ const styles = computed(() => {
 </script>
 
 <template>
-  <button class="button" :style="styles">
+  <button class="button" :style="styles" :disabled="props.isDisabled">
     <slot></slot>
   </button>
 </template>

@@ -79,9 +79,9 @@ const list = [
     <template #bodyCell="{ column }">
       <template v-if="column.key === 'action'">
         <div class="action">
-          <!-- <button class="action-link__btn _1">
+          <Button class="action-link__btn _1">
             <Icon name="mail" />
-          </button> -->
+          </Button>
           <RouterLink :to="`/applications/detail/1`">
             <Button class="action-link__btn _2">
               Кўриш
@@ -105,11 +105,15 @@ const list = [
 
     &__btn {
       &._1 {
-        @include btn-clean;
+        &:hover {
+          .icon {
+            --icon-color: white;
+          }
+        }
       }
 
       .icon {
-        --icon-color: #FF9F43;
+        --icon-color: #7367F0;
       }
     }
   }

@@ -1,7 +1,7 @@
 <script setup>
 import { Table, message } from "ant-design-vue";
 import { useModal } from "@/utils/composable/modal.js";
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "@/plugins/axios";
 
 const { open, closeModal, openModal } = useModal();
@@ -13,28 +13,40 @@ async function requestToChangeStatus() {
   closeModal();
 }
 
+async function fetchData() {
+  const response = await axios.get("/declarations", {
+    type: activeTab.value,
+    status: 0
+  });
+  list.value = response.data.content;
+}
+
 const tabs = [
   {
-    value: "all",
+    value: null,
     label: "Барчаси"
   },
   {
-    value: "imei",
+    value: "0",
     label: "IMEI"
   },
   {
-    value: "at",
+    value: "1",
     label: "АТ"
   },
   {
-    value: "mb",
+    value: "2",
     label: "МБ"
   }
 ];
 
+const activeTab = ref(null);
 
-const activeTab = ref('all');
-
+const handleTabChange = (value) => {
+  activeTab.value = value; 
+  console.log(activeTab.value);
+  fetchData();
+};
 
 const columns = [
   {
@@ -45,7 +57,7 @@ const columns = [
   },
   {
     title: "Тури",
-    dataIndex: "type",
+    customRender: ({ record }) => formatType(record.type),
   },
   {
     title: "Рақами",
@@ -53,7 +65,7 @@ const columns = [
   },
   {
     title: "Жўнатилган вақт",
-    dataIndex: "time",
+    dataIndex: "createdAt",
   },
   {
     title: "Почта",
@@ -65,153 +77,157 @@ const columns = [
   },
 ];
 
-const list = [
-  {
-    id: 1,
-    type: "IMEI",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 2,
-    type: "AT",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "MB",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "MB",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "AT",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
+// const list = [
 
-    id: 3,
-    type: "IMEI",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
+//   {
+//     id: 1,
+//     type: "IMEI",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 2,
+//     type: "AT",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "MB",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "MB",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "AT",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
 
-  {
-    id: 3,
-    key: "1",
-    type: "MB",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "AT",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    key: "1",
-    type: "IMEI",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "MB",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "AT",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "IMEI",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "MB",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "AT",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    id: 3,
-    type: "IMEI",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    type: "MB",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    type: "AT",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-  {
-    type: "IMEI",
-    number: 202501019557,
-    time: "01.02.2025 09:55",
-    email: "abdullaev@mail.com",
-    phone: "971234567",
-  },
-];
+//     id: 3,
+//     type: "IMEI",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+
+//   {
+//     id: 3,
+//     key: "1",
+//     type: "MB",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "AT",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     key: "1",
+//     type: "IMEI",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "MB",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "AT",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "IMEI",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "MB",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "AT",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     id: 3,
+//     type: "IMEI",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     type: "MB",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     type: "AT",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+//   {
+//     type: "IMEI",
+//     number: 202501019557,
+//     time: "01.02.2025 09:55",
+//     email: "abdullaev@mail.com",
+//     phone: "971234567",
+//   },
+// ];
+
+const list = ref([]);
+
 
 const customRow = (record) => {
   return {
@@ -242,10 +258,25 @@ function formatUzPhoneNumber(phone) {
     "$1 ($2) $3 $4 $5"
   );
 }
+
+function formatType(type) {
+  if (type === 0) {
+    return "МБ"
+  } else if (type === 1) {
+    return "AT"
+  } else {
+    return "ИМЕИ"
+  }
+}
+
+onMounted(() => {
+  fetchData();
+});
+
 </script>
 <template>
 
-  <Tab :list="tabs" v-model="activeTab" />
+  <Tab :list="tabs" v-model="activeTab" @change="handleTabChange" />
 
 
   <Table :data-source="list" :columns="columns" :custom-row="customRow">
