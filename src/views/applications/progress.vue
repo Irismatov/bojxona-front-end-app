@@ -1,22 +1,22 @@
 <script setup>
-import { Table } from "ant-design-vue";
+import { Table, message } from "ant-design-vue";
 import Icon from "../../components/global/icon.vue";
-import { useRouter } from "vue-router";
 import axios from "@/plugins/axios";
-import { ref, onMounted, computed } from "vue";
-
-const router = useRouter();
-
+import { ref, onMounted } from "vue";
 
 
 async function fetchData() {
-  const response = await axios.get(`/declarations`, {
+  const response = await axios.get(`/api/declarations/status/1/type/${activeTab.value}`, {
     params: {
-      status: 1,
-      type: activeTab.value
+      page: 0
     }
   });
-  list.value = response.data.content;
+  if (response.data.resultCode === 0) {
+    list.value = response.data.list;
+    message.info("Murojaatlar yuklandi");
+  } else {
+    message.error("Murojaatlarni yuklashda xatolik yuz berdi", response.resultNote);
+  }
 }
 
 
@@ -63,65 +63,13 @@ function formatType(type) {
   }
 }
 
-function updateTimer(time) {
-      const pastDate = new Date(this.time.replace(' ', 'T'));
-      const currentDate = new Date();
-      
-      // Farqni millisekundlarda hisoblash
-      const diffMs = currentDate - pastDate;
-      
-      // Farqni kun, soat, daqiqa va sekundlarga aylantirish
-      const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
-      
-      // Natijani formatlash
-      let result = '';
-      if (days > 0) result += `${days} kun `;
-      if (hours > 0) result += `${hours} soat `;
-      if (minutes > 0) result += `${minutes} daqiqa `;
-      result += `${seconds} sekund`;
-      
-      return result;
-};
 
 const list = ref([]);
 
-// const list = [
-//   {
-//     type: "IMEI",
-//     number: 202501019557,
-//     sentTime: "01.02.2025 09:55",
-//     receivedTime: "01.02.2025 09:55",
-//     timer: "3 min",
-//   },
-//   {
-//     type: "IMEI",
-//     number: 202501019557,
-//     sentTime: "01.02.2025 09:55",
-//     receivedTime: "01.02.2025 09:55",
-//     timer: "3 min",
-//   },
-//   {
-//     type: "IMEI",
-//     number: 202501019557,
-//     sentTime: "01.02.2025 09:55",
-//     receivedTime: "01.02.2025 09:55",
-//     timer: "3 min",
-//   },
-//   {
-//     type: "IMEI",
-//     number: 202501019557,
-//     sentTime: "01.02.2025 09:55",
-//     receivedTime: "01.02.2025 09:55",
-//     timer: "3 min",
-//   },
-// ];
 
 const tabs = [
   {
-    value: null,
+    value: -1,
     label: "Барчаси"
   },
   {
@@ -138,7 +86,7 @@ const tabs = [
   }
 ];
 
-const activeTab = ref(null);
+const activeTab = ref(-1);
 
 const handleTabChange = (value) => {
   activeTab.value = value;

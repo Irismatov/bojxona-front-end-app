@@ -2,7 +2,7 @@
 import { Form, CheckboxGroup, Checkbox, Textarea, Select, FormItem, message } from "ant-design-vue";
 import { useRoute } from "vue-router";
 import { useModal } from "@/utils/composable";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, reactive } from "vue";
 import axios from "@/plugins/axios";
 
 const route = useRoute();
@@ -11,30 +11,51 @@ const { openModal: openApplyModal, open: openApply, closeModal: closeApplyModal 
 
 
 async function fetchData() {
-  const response = await axios.get(`/declarations/${route.params.id}`);
-  console.log(response);
-  data.value = response.data;
-  console.log(data);
+  const response = await axios.get(`/api/declarations/${route.params.id}`);
+  if (response.data.resultCode === 0) {
+    data.value = response.data;
+    console.log(data.value);
+    fetchDocs(data.value.documents);
+  } else {
+    message.error("Xatolik yuz berdi");
+  }
 }
 
+const documents = reactive([]);
+
+async function fetchDocs(docIds) {
+  for (const docId of docIds) {
+    const response = await axios.get(`/api/declaration_docs/${docId}`);
+
+    if (response.data.resultCode === 0) {
+      documents.push({
+        value: response.data.value,
+        type: response.data.type
+      });
+    }
+  }
+}
+
+
+
 async function requestToChangeStatus() {
-  const response = await axios.put(`/declarations/${route.params.id}`, {
-    status: '2'
-  });
-  if (response.status >= 200 && response.status < 300) {
-    closeApplyModal();
-    message.success("Ushbu murojaat rasmiylashitirildi");
+  const response = await axios.put(`/declarations/${currentItem.value}`, {
+    status: '1'
+  })
+  if (response.resultCode === 0) {
+    message.success("Ushbu murojaat sizga yuklandi");
     console.log(response.data);
   } else {
     message.error("Xatolik yuz berdi");
   }
+  closeApplyModal();
 }
 
 
 const data = ref({});
 
 
-// const data = {
+
 //   title: "AT - yukli avtotransport",
 //   number: 2025070799111,
 //   startTime: "09:55 01.02.2025",
@@ -135,14 +156,14 @@ function formatType(type) {
       <ACol span="24">
         <Info label="Ҳужжатлар" color-value="#7367F0">
           <template #value>
-            <template v-for="(item, index) in data.documents">
+            <template v-for="(item, index) in documents">
               <a :href="`data:image/jpeg;base64,${item.value}`" :data-fancybox="`document-${index}`"
                 style="display: block;">
                 {{ item.type }}
               </a>
 
-              <!-- <a :href="item.links[0]" :data-fancybox="`document-${index}`" style="display: block;">
-                {{ item.title }}
+              <!-- <a :href="item.images[0]" :data-fancybox="`document-${index}`" style="display: block;">
+                {{ "Doc " + index+1 }}
               </a>
               <a :href="link" v-for="link in item.links.slice(1)" :data-fancybox="`document-${index}`" v-show="false">
               </a> -->

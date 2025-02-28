@@ -9,10 +9,10 @@ const currentItem = ref();
 
 
 async function requestToChangeStatus() {
-  const response = await axios.put(`/declarations/${currentItem.value}`, {
+  const response = await axios.put(`/api/declarations/${currentItem.value}`, {
     status: '1'
   })
-  if (response.status >= 200 && response.status < 300) {
+  if (response.resultCode === 0) {
     message.success("Ushbu murojaat sizga yuklandi");
     console.log(response.data);
   } else {
@@ -21,18 +21,26 @@ async function requestToChangeStatus() {
   closeModal();
 }
 
+
 async function fetchData() {
-  const response = await axios.get("/declarations", {
+  const response = await axios.get(`/api/declarations/status/0/type/-1/`, {
     params: {
-      type: activeTab.value,
-      status: 0
+      page: 0,
+      size: 10
     }
   });
-  list.value = response.data.content;
+  if (response.data.resultCode === 0) {
+    list.value = response.data.list;
+    message.info("Murojaatlar yuklandi");
+  } else {
+    message.error("Murojaatlarni yuklashda xatolik yuz berdi", response.resultNote);
+  }
 }
+
+
 const tabs = [
   {
-    value: null,
+    value: -1,
     label: "Барчаси"
   },
   {
@@ -49,7 +57,7 @@ const tabs = [
   }
 ];
 
-const activeTab = ref(null);
+const activeTab = ref(-1);
 
 const handleTabChange = (value) => {
   activeTab.value = value;
@@ -78,13 +86,27 @@ const columns = [
   },
   {
     title: "Почта",
-    dataIndex: "email",
+    customRender: ({ record }) => {
+      if (record.email != null) {
+        return record.email;
+      } else {
+        return '-'
+      }
+    }
   },
   {
     title: "Телефон",
-    customRender: ({ record }) => formatUzPhoneNumber(record.phone),
+    customRender: ({ record }) => {
+      if (record.phone != null) {
+        return record.phone;
+      } else {
+        return '-'
+      }
+    }
   },
 ];
+
+
 
 // const list = [
 

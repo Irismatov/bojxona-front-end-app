@@ -1,5 +1,5 @@
 <script setup>
-import { Table } from "ant-design-vue";
+import { Table, message } from "ant-design-vue";
 import { useModal } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import { ref, onMounted, computed } from "vue";
@@ -25,13 +25,17 @@ async function requestToChangeStatus() {
 
 
 async function fetchData() {
-    const response = await axios.get(`/declarations`, {
+    const response = await axios.get(`/api/declarations/status/1/type/${activeTab.value}`, {
         params: {
-            status: 2,
-            type: activeTab.value
+            page: 0
         }
     });
-    list.value = response.data.content;
+    if (response.data.resultCode === 0) {
+        list.value = response.data.list;
+        message.info("Murojaatlar yuklandi");
+    } else {
+        message.error("Murojaatlarni yuklashda xatolik yuz berdi", response.resultNote);
+    }
 }
 
 
@@ -84,7 +88,7 @@ const list = ref([]);
 
 const tabs = [
     {
-        value: null,
+        value: -1,
         label: "Барчаси"
     },
     {
@@ -101,7 +105,7 @@ const tabs = [
     }
 ];
 
-const activeTab = ref(null);
+const activeTab = ref(-1);
 
 const handleTabChange = (value) => {
     activeTab.value = value;
@@ -136,8 +140,7 @@ onMounted(() => {
             </template>
         </template>
     </Table>
-    <Modal :open="open" @cancel="closeModal" title="Диққат"
-        subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
+    <Modal :open="open" @cancel="closeModal" title="Диққат" subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
         <div class="warning">
             <div class="warning-action">
                 <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF"
@@ -151,6 +154,7 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
+
 .warning {
     display: flex;
     flex-direction: column;
