@@ -74,11 +74,11 @@ const columns = [
   },
   {
     title: "Тури",
-    customRender: ({ record }) => formatType(record.type),
+    customRender: ({ record }) => formatType(record.declType.type),
   },
   {
     title: "Рақами",
-    dataIndex: "number",
+    dataIndex: "declNumber",
   },
   {
     title: "Жўнатилган вақт",
@@ -263,7 +263,7 @@ const list = ref([]);
 const customRow = (record) => {
   return {
     onClick: () => {
-      currentItem.value = record.id;
+      currentItem.value = record.declId;
       openModal();
     },
     style: {
