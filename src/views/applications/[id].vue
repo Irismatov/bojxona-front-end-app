@@ -9,6 +9,18 @@ const route = useRoute();
 const { openModal: openCancelModal, open: openCancel, closeModal: closeCancelModal } = useModal();
 const { openModal: openApplyModal, open: openApply, closeModal: closeApplyModal } = useModal();
 
+async function requestToChangeStatus() {
+  console.log(data.value.declId);
+  const response = await axios.put(`/api/declarations/${data.value.declId}/status/3`)
+  if (response.data.resultCode === 0) {
+    message.success("Murojaat rasmilyashtirildi");
+    console.log(response.data);
+  } else {
+    message.error("Xatolik yuz berdi");
+  }
+  closeApplyModal();
+}
+
 
 async function fetchData() {
   const response = await axios.get(`/api/declarations/${route.params.id}`);
@@ -66,20 +78,6 @@ function formatTimestamp(timestamp) {
     return `${year}-${month}-${day} --- ${hours}:${minutes}`;
   }
   return "-";
-}
-
-
-async function requestToChangeStatus() {
-  const response = await axios.put(`/declarations/${currentItem.value}`, {
-    status: '1'
-  })
-  if (response.resultCode === 0) {
-    message.success("Ushbu murojaat sizga yuklandi");
-    console.log(response.data);
-  } else {
-    message.error("Xatolik yuz berdi");
-  }
-  closeApplyModal();
 }
 
 

@@ -9,10 +9,8 @@ const currentItem = ref();
 
 
 async function requestToChangeStatus() {
-  const response = await axios.put(`/api/declarations/${currentItem.value}`, {
-    status: '2'
-  })
-  if (response.resultCode === 0) {
+  const response = await axios.put(`/api/declarations/${currentItem.value}/status/2`)
+  if (response.data.resultCode === 0) {
     message.success("Ushbu murojaat sizga yuklandi");
     console.log(response.data);
   } else {
