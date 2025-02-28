@@ -30,7 +30,7 @@ async function fetchData() {
     }
   });
   if (response.data.resultCode === 0) {
-    list.value = response.data.list;
+    list.value = response.data.declarations;
     message.info("Murojaatlar yuklandi");
   } else {
     message.error("Murojaatlarni yuklashda xatolik yuz berdi", response.resultNote);
