@@ -1,67 +1,91 @@
 <script setup>
-import { Form, CheckboxGroup, Checkbox, Textarea, Select, FormItem } from "ant-design-vue";
-
+import { Form, CheckboxGroup, Checkbox, Textarea, Select, FormItem, message } from "ant-design-vue";
+import { useRoute } from "vue-router";
 import { useModal } from "@/utils/composable";
-import { ref } from "vue";
+import { ref, onMounted, computed } from "vue";
+import axios from "@/plugins/axios";
 
-
+const route = useRoute();
 const { openModal: openCancelModal, open: openCancel, closeModal: closeCancelModal } = useModal();
 const { openModal: openApplyModal, open: openApply, closeModal: closeApplyModal } = useModal();
 
 
+async function fetchData() {
+  const response = await axios.get(`/declarations/${route.params.id}`);
+  console.log(response);
+  data.value = response.data;
+  console.log(data);
+}
 
-const data = {
-  title: "AT - yukli avtotransport",
-  number: 2025070799111,
-  startTime: "09:55 01.02.2025",
-  duration: "16 min",
-  docs: [
-    {
-      title: "Texpasport oldi taraf",
-      links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-    },
-    {
-      title: "Texpasport orqa taraf",
-      link: "/images/doc-2.jpg",
-      links: ["/images/doc-2.jpg", "/images/doc-2.jpg", "/images/doc-2.jpg"],
-    },
-    {
-      title: "Pasport oldi taraf",
-      link: "/images/doc-1.jpg",
-      links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-    },
-    {
-      title: "Pasport orqa taraf",
-      link: "/images/doc-2.jpg",
-      links: ["/images/doc-2.jpg", "/images/doc-2.jpg", "/images/doc-2.jpg"],
-    },
-    {
-      title: "Dozvol",
-      link: "/images/doc-1.jpg",
-      links: ["/images/doc-2.jpg", "/images/doc-2.jpg", "/images/doc-2.jpg"],
-    },
-    {
-      title: "CMR",
-      link: "/images/doc-2.jpg",
-      links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-    },
-    {
-      title: "Invoys",
-      link: "/images/doc-1.jpg",
-      links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-    },
-    {
-      title: "Notarif hujjatlar",
-      link: "/images/doc-2.jpg",
-      links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-    },
-    {
-      title: "Kafolat hujjatlari",
-      link: "/images/doc-1.jpg",
-      links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-    },
-  ],
-};
+async function requestToChangeStatus() {
+  const response = await axios.put(`/declarations/${route.params.id}`, {
+    status: '2'
+  });
+  if (response.status >= 200 && response.status < 300) {
+    closeApplyModal();
+    message.success("Ushbu murojaat rasmiylashitirildi");
+    console.log(response.data);
+  } else {
+    message.error("Xatolik yuz berdi");
+  }
+}
+
+
+const data = ref({});
+
+
+// const data = {
+//   title: "AT - yukli avtotransport",
+//   number: 2025070799111,
+//   startTime: "09:55 01.02.2025",
+//   duration: "16 min",
+//   docs: [
+//     {
+//       title: "Texpasport oldi taraf",
+//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
+//     },
+//     {
+//       title: "Texpasport orqa taraf",
+//       link: "/images/doc-2.jpg",
+//       links: ["/images/doc-2.jpg", "/images/doc-2.jpg", "/images/doc-2.jpg"],
+//     },
+//     {
+//       title: "Pasport oldi taraf",
+//       link: "/images/doc-1.jpg",
+//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
+//     },
+//     {
+//       title: "Pasport orqa taraf",
+//       link: "/images/doc-2.jpg",
+//       links: ["/images/doc-2.jpg", "/images/doc-2.jpg", "/images/doc-2.jpg"],
+//     },
+//     {
+//       title: "Dozvol",
+//       link: "/images/doc-1.jpg",
+//       links: ["/images/doc-2.jpg", "/images/doc-2.jpg", "/images/doc-2.jpg"],
+//     },
+//     {
+//       title: "CMR",
+//       link: "/images/doc-2.jpg",
+//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
+//     },
+//     {
+//       title: "Invoys",
+//       link: "/images/doc-1.jpg",
+//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
+//     },
+//     {
+//       title: "Notarif hujjatlar",
+//       link: "/images/doc-2.jpg",
+//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
+//     },
+//     {
+//       title: "Kafolat hujjatlari",
+//       link: "/images/doc-1.jpg",
+//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
+//     },
+//   ],
+// };
 
 const cancelOptions = ref([]);
 
@@ -69,22 +93,25 @@ const applySelectOptions = ref([
   {
     value: '1',
     label: 'Bitta dokument',
-  },
-  {
-    value: 'lucy',
-    label: 'Lucy',
-  },
-  {
-    value: 'disabled',
-    label: 'Disabled',
-  },
-  {
-    value: 'yiminghe',
-    label: 'Yiminghe',
-  },
+  }
 ]);
 
 const applySelectValue = ref("1");
+
+onMounted(() => {
+  fetchData();
+})
+
+
+function formatType(type) {
+  if (type === 0) {
+    return "МБ"
+  } else if (type === 1) {
+    return "AT"
+  } else {
+    return "ИМЕИ"
+  }
+}
 
 </script>
 
@@ -94,13 +121,13 @@ const applySelectValue = ref("1");
   <Card title="Маълумотлар">
     <ARow :gutter="[12, 24]">
       <ACol span="6">
-        <Info label="Мурожаат тури" :value="data.title || '-'" />
+        <Info label="Мурожаат тури" :value="formatType(data.type) || '-'" />
       </ACol>
       <ACol span="6">
         <Info label="Мурожаат рақами" :value="data.number || '-'" />
       </ACol>
       <ACol span="6">
-        <Info label="Мурожаат вақти" :value="data.startTime || '-'" />
+        <Info label="Мурожаат вақти" :value="data.createdAt || '-'" />
       </ACol>
       <ACol span="6">
         <Info label="Мурожаат давомийлиги" :value="data.duration || '-'" />
@@ -108,12 +135,17 @@ const applySelectValue = ref("1");
       <ACol span="24">
         <Info label="Ҳужжатлар" color-value="#7367F0">
           <template #value>
-            <template v-for="(item, index) in data.docs">
-              <a :href="item.links[0]" :data-fancybox="`document-${index}`" style="display: block;">
+            <template v-for="(item, index) in data.documents">
+              <a :href="`data:image/jpeg;base64,${item.value}`" :data-fancybox="`document-${index}`"
+                style="display: block;">
+                {{ item.type }}
+              </a>
+
+              <!-- <a :href="item.links[0]" :data-fancybox="`document-${index}`" style="display: block;">
                 {{ item.title }}
               </a>
               <a :href="link" v-for="link in item.links.slice(1)" :data-fancybox="`document-${index}`" v-show="false">
-              </a>
+              </a> -->
             </template>
           </template>
         </Info>
@@ -184,14 +216,15 @@ const applySelectValue = ref("1");
   <Modal :open="openApply" @cancel="closeApplyModal" title="Диққат"
     subtitle="Сиз ушбу мурожаатни расмийлаштирмоқчимисиз">
     <div class="modal modal-apply">
-      <p class="modal-apply__text">Танланг: </p>
+      <!-- <p class="modal-apply__text">Танланг: </p>
       <Select ref="select" v-model:value="applySelectValue" :options="applySelectOptions" @focus="focus"
-        @change="handleChange"></Select>
+        @change="handleChange"></Select> -->
 
       <div class="modal-actions">
         <div class="modal-actions__btns">
-          <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF">ЙЎҚ</Button>
-          <Button>ҲА</Button>
+          <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" @click="closeApplyModal"
+            borderColor="#FFF">ЙЎҚ</Button>
+          <Button @click="requestToChangeStatus">ҲА</Button>
         </div>
       </div>
     </div>

@@ -9,7 +9,15 @@ const currentItem = ref();
 
 
 async function requestToChangeStatus() {
-  message.success("Ushbu murojaat sizga yuklab olindi");
+  const response = await axios.put(`/declarations/${currentItem.value}`, {
+    status: '1'
+  })
+  if (response.status >= 200 && response.status < 300) {
+    message.success("Ushbu murojaat sizga yuklandi");
+    console.log(response.data);
+  } else {
+    message.error("Xatolik yuz berdi");
+  }
   closeModal();
 }
 
@@ -29,7 +37,7 @@ const tabs = [
   },
   {
     value: "0",
-    label: "IMEI"
+    label: "МБ"
   },
   {
     value: "1",
@@ -37,7 +45,7 @@ const tabs = [
   },
   {
     value: "2",
-    label: "МБ"
+    label: "ИМЕИ"
   }
 ];
 
