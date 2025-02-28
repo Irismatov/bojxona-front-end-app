@@ -15,7 +15,7 @@ async function fetchData() {
   if (response.data.resultCode === 0) {
     data.value = response.data;
     console.log(data.value);
-    fetchDocs(data.value.documents);
+    fetchDocs(data.value.docIds);
   } else {
     message.error("Xatolik yuz berdi");
   }
@@ -24,18 +24,49 @@ async function fetchData() {
 const documents = reactive([]);
 
 async function fetchDocs(docIds) {
-  for (const docId of docIds) {
-    const response = await axios.get(`/api/declaration_docs/${docId}`);
+  for (const doc of docIds) {
+    const response = await axios.get(`/api/declaration_docs/id/${doc.docId}`);
 
     if (response.data.resultCode === 0) {
       documents.push({
-        value: response.data.value,
-        type: response.data.type
+        value: response.data.image,
+        type: doc.docType
       });
     }
   }
 }
 
+function formatDocName(type) {
+  if (type === 0) {
+    return "Паспорт олди"
+  } else if (type === 1) {
+    return "Паспорт орка"
+  } else if (type === 2) {
+    return "Техпаспорт олди"
+  } else if (type === 3) {
+    return "Техпаспорт орка"
+  } else if (type === 4) {
+    return "Юк ташиш рухсатномаси"
+  } else {
+    return type
+  }
+}
+
+
+function formatTimestamp(timestamp) {
+  if (timestamp) {
+    const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day} --- ${hours}:${minutes}`;
+  }
+  return "-";
+}
 
 
 async function requestToChangeStatus() {
@@ -142,13 +173,13 @@ function formatType(type) {
   <Card title="Маълумотлар">
     <ARow :gutter="[12, 24]">
       <ACol span="6">
-        <Info label="Мурожаат тури" :value="formatType(data.type) || '-'" />
+        <Info label="Мурожаат тури" :value="formatType(data.declType) || '-'" />
       </ACol>
       <ACol span="6">
-        <Info label="Мурожаат рақами" :value="data.number || '-'" />
+        <Info label="Мурожаат рақами" :value="data.declNumber || '-'" />
       </ACol>
       <ACol span="6">
-        <Info label="Мурожаат вақти" :value="data.createdAt || '-'" />
+        <Info label="Мурожаат вақти" :value="formatTimestamp(data.createdAt) || '-'" />
       </ACol>
       <ACol span="6">
         <Info label="Мурожаат давомийлиги" :value="data.duration || '-'" />
@@ -159,7 +190,7 @@ function formatType(type) {
             <template v-for="(item, index) in documents">
               <a :href="`data:image/jpeg;base64,${item.value}`" :data-fancybox="`document-${index}`"
                 style="display: block;">
-                {{ item.type }}
+                {{ formatDocName(item.type) }}
               </a>
 
               <!-- <a :href="item.images[0]" :data-fancybox="`document-${index}`" style="display: block;">

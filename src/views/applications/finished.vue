@@ -117,6 +117,18 @@ const onClickTableButton = (value) => {
 onMounted(() => {
     fetchData();
 });
+
+function formatTimestamp(timestamp) {
+  const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} --- ${hours}:${minutes}`;
+}
 </script>
 
 <template>

@@ -10,7 +10,7 @@ const currentItem = ref();
 
 async function requestToChangeStatus() {
   const response = await axios.put(`/api/declarations/${currentItem.value}`, {
-    status: '1'
+    status: '2'
   })
   if (response.resultCode === 0) {
     message.success("Ushbu murojaat sizga yuklandi");
@@ -23,7 +23,7 @@ async function requestToChangeStatus() {
 
 
 async function fetchData() {
-  const response = await axios.get(`/api/declarations/status/0/type/-1/`, {
+  const response = await axios.get(`/api/declarations/status/1/type/${activeTab.value}/`, {
     params: {
       page: 0,
       size: 10
@@ -74,7 +74,7 @@ const columns = [
   },
   {
     title: "Тури",
-    customRender: ({ record }) => formatType(record.declType.type),
+    customRender: ({ record }) => formatType(record.declType),
   },
   {
     title: "Рақами",
@@ -82,7 +82,7 @@ const columns = [
   },
   {
     title: "Жўнатилган вақт",
-    dataIndex: "createdAt",
+    customRender: ({record}) => formatTimestamp(record.createdAt)
   },
   {
     title: "Почта",
@@ -106,7 +106,17 @@ const columns = [
   },
 ];
 
-
+function formatTimestamp(timestamp) {
+  const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  
+  return `${year}-${month}-${day} --- ${hours}:${minutes}`;
+}
 
 // const list = [
 
