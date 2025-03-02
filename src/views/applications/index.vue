@@ -1,38 +1,26 @@
 <script setup>
 import { Table, message } from "ant-design-vue";
-import { useModal } from "@/utils/composable/modal.js";
+import { useModal, useDeclarations } from "@/utils/composable";
 import { ref, onMounted } from "vue";
 import axios from "@/plugins/axios";
 
 const { open, closeModal, openModal } = useModal();
 const currentItem = ref();
+const { list, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 
 
 async function requestToChangeStatus() {
-  const response = await axios.put(`/api/declarations/${currentItem.value}/status/2`)
-  if (response.data.resultCode === 0) {
-    message.success("Ushbu murojaat sizga yuklandi");
-    console.log(response.data);
-  } else {
-    message.error("Xatolik yuz berdi");
-  }
+  await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat sizga yuklandi");
   closeModal();
+  fetchData();
 }
 
 
 async function fetchData() {
-  const response = await axios.get(`/api/declarations/status/1/type/${activeTab.value}/`, {
-    params: {
-      page: 0,
-      size: 10
-    }
+  await getDeclarations(1, activeTab.value , {
+    page: 0,
+    size: 10
   });
-  if (response.data.resultCode === 0) {
-    list.value = response.data.declarations;
-    message.info("Murojaatlar yuklandi");
-  } else {
-    message.error("Murojaatlarni yuklashda xatolik yuz berdi", response.resultNote);
-  }
 }
 
 
@@ -80,7 +68,7 @@ const columns = [
   },
   {
     title: "Жўнатилган вақт",
-    customRender: ({record}) => formatTimestamp(record.createdAt)
+    customRender: ({ record }) => formatTimestamp(record.createdAt)
   },
   {
     title: "Почта",
@@ -106,167 +94,15 @@ const columns = [
 
 function formatTimestamp(timestamp) {
   const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
-  
+
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
   const day = String(date.getDate()).padStart(2, '0');
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
-  
+
   return `${year}-${month}-${day} --- ${hours}:${minutes}`;
 }
-
-// const list = [
-
-//   {
-//     id: 1,
-//     type: "IMEI",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 2,
-//     type: "AT",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "MB",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "MB",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "AT",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-
-//     id: 3,
-//     type: "IMEI",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-
-//   {
-//     id: 3,
-//     key: "1",
-//     type: "MB",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "AT",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     key: "1",
-//     type: "IMEI",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "MB",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "AT",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "IMEI",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "MB",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "AT",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     id: 3,
-//     type: "IMEI",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     type: "MB",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     type: "AT",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-//   {
-//     type: "IMEI",
-//     number: 202501019557,
-//     time: "01.02.2025 09:55",
-//     email: "abdullaev@mail.com",
-//     phone: "971234567",
-//   },
-// ];
-
-const list = ref([]);
-
 
 const customRow = (record) => {
   return {
@@ -277,34 +113,6 @@ const customRow = (record) => {
     style: {
       cursor: 'pointer',
     }
-  }
-}
-
-function formatUzPhoneNumber(phone) {
-  // Faqat raqamlarni qoldiramiz
-  phone = phone.replace(/\D/g, "");
-
-  // Uzbekistan kodi bilan tekshiramiz va qo'shamiz
-  if (phone.startsWith("998")) {
-    phone = "+" + phone;
-  } else if (phone.length === 9) {
-    phone = "+998" + phone;
-  }
-
-  // Formati: +998 (XX) XXX XX XX
-  return phone.replace(
-    /^(\+998)(\d{2})(\d{3})(\d{2})(\d{2})$/,
-    "$1 ($2) $3 $4 $5"
-  );
-}
-
-function formatType(type) {
-  if (type === 0) {
-    return "МБ"
-  } else if (type === 1) {
-    return "AT"
-  } else {
-    return "ИМЕИ"
   }
 }
 

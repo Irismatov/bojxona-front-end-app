@@ -3,35 +3,21 @@ import { Table } from "ant-design-vue";
 import { useModal } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import { ref, onMounted, computed } from "vue";
+import { useDeclarations } from "@/utils/composable"
 
 const { open, closeModal, openModal } = useModal();
-
+const { list, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 
 const currentItem = ref();
 
-async function requestToChangeStatus() {
-    const response = await axios.put(`/declarations/${currentItem.value}`, {
-        status: '1'
-    });
-    if (response.status >= 200 && response.status < 300) {
-        closeModal();
-        message.success("Ushbu murojaat ortga qaytarildi");
-        console.log(response.data);
-        fetchData();
-    } else {
-        message.error("Xatolik yuz berdi");
-    }
-}
-
-
 async function fetchData() {
-    const response = await axios.get(`/declarations`, {
-        params: {
-            status: 3,
-            type: activeTab.value
-        }
-    });
-    list.value = response.data.content;
+    await getDeclarations(1, activeTab.value);
+};
+
+async function requestToChangeStatus() {
+   await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat sizga yuklandi");
+   closeModal();
+   fetchData();
 }
 
 
@@ -68,18 +54,9 @@ const columns = [
     },
 ];
 
-function formatType(type) {
-    if (type === 0) {
-        return "МБ"
-    } else if (type === 1) {
-        return "AT"
-    } else {
-        return "ИМЕИ"
-    }
-}
 
 
-const list = ref([]);
+
 
 
 const tabs = [
@@ -119,15 +96,15 @@ onMounted(() => {
 });
 
 function formatTimestamp(timestamp) {
-  const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
-  
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  
-  return `${year}-${month}-${day} --- ${hours}:${minutes}`;
+    const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day} --- ${hours}:${minutes}`;
 }
 </script>
 
@@ -148,8 +125,7 @@ function formatTimestamp(timestamp) {
             </template>
         </template>
     </Table>
-    <Modal :open="open" @cancel="closeModal" title="Диққат"
-        subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
+    <Modal :open="open" @cancel="closeModal" title="Диққат" subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
         <div class="warning">
             <div class="warning-action">
                 <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF"
@@ -163,6 +139,7 @@ function formatTimestamp(timestamp) {
 
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
+
 .warning {
     display: flex;
     flex-direction: column;

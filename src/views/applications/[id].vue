@@ -10,8 +10,7 @@ const { openModal: openCancelModal, open: openCancel, closeModal: closeCancelMod
 const { openModal: openApplyModal, open: openApply, closeModal: closeApplyModal } = useModal();
 
 async function requestToChangeStatus() {
-  console.log(data.value.declId);
-  const response = await axios.put(`/api/declarations/${data.value.declId}/status/3`)
+  const response = await axios.put(`/api/declarations/${data.value.id}/status/3`)
   if (response.data.resultCode === 0) {
     message.success("Murojaat rasmilyashtirildi");
     console.log(response.data);

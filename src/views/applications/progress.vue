@@ -122,7 +122,7 @@ onMounted(() => {
           <Button class="action-link__btn _1">
             <Icon name="mail" />
           </Button>
-          <RouterLink :to="`/applications/detail/${record.declId}`">
+          <RouterLink :to="`/applications/detail/${record.id}`">
             <Button class="action-link__btn _2">
               Кўриш
             </Button>
