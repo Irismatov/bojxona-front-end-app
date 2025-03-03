@@ -8,39 +8,61 @@ import axios from "@/plugins/axios";
 const route = useRoute();
 const { openModal: openCancelModal, open: openCancel, closeModal: closeCancelModal } = useModal();
 const { openModal: openApplyModal, open: openApply, closeModal: closeApplyModal } = useModal();
-const {isLoading, changeDeclarationStatus, formatType } = useDeclarations();
+const { isLoading, changeDeclarationStatus, formatType } = useDeclarations();
 
 async function requestToChangeStatus() {
   await changeDeclarationStatus(route.params.id, 3, "Murojaat rasmiylashtirildi");
   closeApplyModal();
 }
 
+const optionsFancyBox = {
+  Toolbar: {
+    display: {
+      left: ["infobar"],
+      middle: [
+        "zoomIn",
+        "zoomOut",
+        "toggle1to1",
+        "rotateCCW",
+        "rotateCW",
+        "flipX",
+        "flipY",
+      ],
+      right: ["slideshow", "thumbs", "close"],
+    },
+  },
+};
+
+
 
 async function fetchData() {
   const response = await axios.get(`/api/declarations/${route.params.id}`);
   if (response.data.resultCode === 0) {
     data.value = response.data;
-    console.log(data.value);
-    fetchDocs(data.value.docIds);
+    documents.value = data.value.documents;
+
+    console.log(documents.value);
+    //fetchDocs(data.value.docIds);
   } else {
     message.error("Xatolik yuz berdi");
   }
 }
 
-const documents = reactive([]);
+const documents = ref([]);
 
-async function fetchDocs(docIds) {
-  for (const doc of docIds) {
-    const response = await axios.get(`/api/declaration_docs/id/${doc.docId}`);
 
-    if (response.data.resultCode === 0) {
-      documents.push({
-        value: response.data.image,
-        type: doc.docType
-      });
-    }
-  }
-}
+// async function fetchDocs(docIds) {
+//   for (const doc of docIds) {
+//     const response = await axios.get(`/api/declaration_docs/id/${doc.docId}`);
+
+//     if (response.data.resultCode === 0) {
+//       documents.push({
+//         value: response.data.image,
+//         type: doc.docType
+//       });
+//     }
+//   }
+// }
 
 function formatDocName(type) {
   if (type === 0) {
@@ -94,9 +116,66 @@ onMounted(() => {
 })
 
 
+// rasmni yuklash uchun bu qismi o'chirib yuboriladi
+const file = ref(null);
+const preview = ref(null);
+const declType = ref(0);
+
+const handleFileChange = (event) => {
+  const selectedFile = event.target.files[0];
+  if (selectedFile) {
+    file.value = selectedFile;
+
+    // Rasmni oldindan ko'rish uchub
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      preview.value = e.target.result;
+    }
+    reader.readAsDataURL(selectedFile);
+  }
+}
+
+const uploadImage = async () => {
+  if (!file.value) {
+    message.warn("Iltimos, rasm yuklang!");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("file", file.value);
+  formData.append("type", declType.value);
+
+  try {
+    const response = await axios.post(`/declaration-docs/${route.params.id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    fetchData();
+    message.success("Rasm yuklandi");
+  } catch (error) {
+    message.error("Xatolik yuz berdi");
+    console.error("Xatolik", error);
+  }
+}
+
 </script>
 
 <template>
+  <!-- rasm yuklash uchun bu qismi ochirib yuboriladi -->
+  <div class="upload">
+    <input type="file" @change="handleFileChange" accept="image/*"/>
+    <input type="number" v-model="declType" max="3" min="0" value="0"/>
+    <Button @click="uploadImage">Rasmni yuklash</Button>
+    <div v-if="preview">
+      <h3>Tanlangan rasm: </h3>
+      <img :src="preview" width="200"/>
+    </div>
+  </div>
+
+  
+
+
   <Card title="Маълумотлар">
     <ARow :gutter="[12, 24]">
       <ACol span="6">
@@ -115,10 +194,13 @@ onMounted(() => {
         <Info label="Ҳужжатлар" color-value="#7367F0">
           <template #value>
             <template v-for="(item, index) in documents">
-              <a :href="`data:image/jpeg;base64,${item.value}`" :data-fancybox="`document-${index}`"
+              <a :href="`data:image/jpeg;base64,${item.value}`"  :data-fancybox="`document`" :data-caption="formatDocName(item.type)"
                 style="display: block;">
                 {{ formatDocName(item.type) }}
               </a>
+              
+
+
 
               <!-- <a :href="item.images[0]" :data-fancybox="`document-${index}`" style="display: block;">
                 {{ "Doc " + index+1 }}
