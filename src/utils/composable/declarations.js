@@ -9,7 +9,7 @@ export function useDeclarations() {
     async function getDeclarations(status, type, params = { }) {
         const data = await fetchData(`api/declarations/status/${status}/type/${type}/`, params);
         list.value = data.declarations;
-        totalElements = data.totalElements;
+        totalElements.value = data.totalElements;
         return data;
     }
 

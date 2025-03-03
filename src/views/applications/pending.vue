@@ -5,23 +5,29 @@ import axios from "@/plugins/axios";
 import { ref, onMounted, computed, reactive } from "vue";
 
 const { open, closeModal, openModal } = useModal();
-const {list, totalElements ,isLoading, getDeclarations, changeDeclarationStatus, formatType} = useDeclarations();
+const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 
 
 const currentItem = ref();
 
 async function requestToChangeStatus() {
     await changeDeclarationStatus(currentItem.value, 2, "Murojaat jarayonda holatiga o'zgartirildi");
+    fetchData()
     closeModal();
 }
 
 
 async function fetchData() {
-    await getDeclarations(3, activeTab.value);
+    console.log(pagination.page);
+    console.log(totalElements);
+    await getDeclarations(3, activeTab.value, {
+        page: 1,
+        size: 10
+    });
 }
 
 const pagination = reactive({
-    page: 0,
+    page: 1,
     total: totalElements
 });
 
@@ -42,11 +48,11 @@ const columns = [
     },
     {
         title: "Жўнатилган вақт",
-        customRender: ({record}) => formatTimestamp(record.createdAt)
+        customRender: ({ record }) => formatTimestamp(record.createdAt)
     },
     {
         title: "Қабул вақти",
-        customRender: ({record}) => formatTimestamp(record.receivedAt)
+        customRender: ({ record }) => formatTimestamp(record.receivedAt)
     },
     {
         title: "Тугатилган вақти",
@@ -82,7 +88,7 @@ const activeTab = ref(-1);
 
 const handleTabChange = (value) => {
     activeTab.value = value;
-    console.log(activeTab.value);
+    pagination.page = 1;
     fetchData();
 };
 
@@ -96,15 +102,15 @@ onMounted(() => {
 });
 
 function formatTimestamp(timestamp) {
-  const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
-  
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  
-  return `${year}-${month}-${day} --- ${hours}:${minutes}`;
+    const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+
+    return `${year}-${month}-${day} --- ${hours}:${minutes}`;
 }
 </script>
 
@@ -126,7 +132,7 @@ function formatTimestamp(timestamp) {
         </template>
     </Table>
 
-  <Pagination :pagination="pagination" :fetchData="fetchData"/>
+    <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData" />
 
     <Modal :open="open" @cancel="closeModal" title="Диққат" subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
         <div class="warning">

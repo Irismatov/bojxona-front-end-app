@@ -7,11 +7,11 @@ import { ref, onMounted, reactive } from "vue";
 const {list, totalElements, getDeclarations,  formatType} = useDeclarations();
 
 async function fetchData() {
-  await getDeclarations(2, activeTab.value, {page: 0, size: 10})
+  await getDeclarations(2, activeTab.value, {page: pagination.page-1, size: 10})
 }
 
 const pagination = reactive({
-  page: 0,
+  page: 1,
   total: totalElements
 });
 
@@ -71,7 +71,7 @@ const activeTab = ref(-1);
 
 const handleTabChange = (value) => {
   activeTab.value = value;
-  console.log(activeTab.value);
+  pagination.page = 1;
   fetchData();
 };
 
@@ -112,7 +112,7 @@ onMounted(() => {
       </template>
     </template>
   </Table>
-  <Pagination :pagination="pagination" :fetchData="fetchData" />
+  <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData" />
 
 
 </template>

@@ -78,59 +78,6 @@ function formatTimestamp(timestamp) {
 const data = ref({});
 
 
-
-//   title: "AT - yukli avtotransport",
-//   number: 2025070799111,
-//   startTime: "09:55 01.02.2025",
-//   duration: "16 min",
-//   docs: [
-//     {
-//       title: "Texpasport oldi taraf",
-//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-//     },
-//     {
-//       title: "Texpasport orqa taraf",
-//       link: "/images/doc-2.jpg",
-//       links: ["/images/doc-2.jpg", "/images/doc-2.jpg", "/images/doc-2.jpg"],
-//     },
-//     {
-//       title: "Pasport oldi taraf",
-//       link: "/images/doc-1.jpg",
-//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-//     },
-//     {
-//       title: "Pasport orqa taraf",
-//       link: "/images/doc-2.jpg",
-//       links: ["/images/doc-2.jpg", "/images/doc-2.jpg", "/images/doc-2.jpg"],
-//     },
-//     {
-//       title: "Dozvol",
-//       link: "/images/doc-1.jpg",
-//       links: ["/images/doc-2.jpg", "/images/doc-2.jpg", "/images/doc-2.jpg"],
-//     },
-//     {
-//       title: "CMR",
-//       link: "/images/doc-2.jpg",
-//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-//     },
-//     {
-//       title: "Invoys",
-//       link: "/images/doc-1.jpg",
-//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-//     },
-//     {
-//       title: "Notarif hujjatlar",
-//       link: "/images/doc-2.jpg",
-//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-//     },
-//     {
-//       title: "Kafolat hujjatlari",
-//       link: "/images/doc-1.jpg",
-//       links: ["/images/doc-1.jpg", "/images/doc-1.jpg", "/images/doc-1.jpg"],
-//     },
-//   ],
-// };
-
 const cancelOptions = ref([]);
 
 const applySelectOptions = ref([
@@ -148,8 +95,6 @@ onMounted(() => {
 
 
 </script>
-
-
 
 <template>
   <Card title="Маълумотлар">

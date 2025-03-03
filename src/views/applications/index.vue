@@ -1,5 +1,5 @@
 <script setup>
-import { Table, message } from "ant-design-vue";
+import { Table  } from "ant-design-vue";
 import { useModal, useDeclarations } from "@/utils/composable";
 import { ref, onMounted, reactive } from "vue";
 const { open, closeModal, openModal } = useModal();
@@ -15,7 +15,7 @@ async function requestToChangeStatus() {
 
 const pagination = reactive(
   {
-    page: 0,
+    page: 1,
     total: totalElements,
   }
 );
@@ -23,7 +23,7 @@ const pagination = reactive(
 
 async function fetchData() {
   await getDeclarations(1, activeTab.value , {
-    page: 0,
+    page: pagination.page - 1,
     size: 10
   });
 }
@@ -52,7 +52,7 @@ const activeTab = ref(-1);
 
 const handleTabChange = (value) => {
   activeTab.value = value;
-  console.log(activeTab.value);
+  pagination.page = 1;
   fetchData();
 };
 
@@ -131,11 +131,11 @@ onMounted(() => {
   <Tab :list="tabs" v-model="activeTab" @change="handleTabChange" />
 
 
-  <Table :data-source="list" :columns="columns" :custom-row="customRow">
+  <Table :data-source="list" :columns="columns" :custom-row="customRow" :pagination="false">
 
   </Table>
-  <Pagination :pagination="pagination" :fetchData="fetchData"/>
 
+  <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData"/>
 
   <Modal :open="open" @cancel="closeModal" title="Диққат"
     subtitle="Мазкур мурожаатни қайта ишлашга ўзингизга юклаб олишга розимисиз?">

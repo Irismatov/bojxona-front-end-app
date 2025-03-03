@@ -2,15 +2,18 @@
 import { Table } from "ant-design-vue";
 import { useModal, useDeclarations } from "@/utils/composable";
 import axios from "@/plugins/axios";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, reactive } from "vue";
 
 const { open, closeModal, openModal } = useModal();
-const { list, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
+const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 
 const currentItem = ref();
 
 async function fetchData() {
-    await getDeclarations(1, activeTab.value);
+    await getDeclarations(1, activeTab.value, {
+        page: pagination.page - 1,
+        size: 10
+    });
 };
 
 async function requestToChangeStatus() {
@@ -19,10 +22,9 @@ async function requestToChangeStatus() {
    fetchData();
 }
 
-const pagination = ref({
-    page: 0,
-    size: 10,
-    total: 50
+const pagination = reactive({
+    page: 1,
+    total: totalElements
 });
 
 const columns = [
@@ -81,7 +83,7 @@ const activeTab = ref(-1);
 
 const handleTabChange = (value) => {
     activeTab.value = value;
-    console.log(activeTab.value);
+    pagination.page = 1;
     fetchData();
 };
 
@@ -113,7 +115,7 @@ onMounted(() => {
             </template>
         </template>
     </Table>
-    <Pagination  :pagination="pagination" :fetchData="fetchData"/>
+    <Pagination v-if="totalElements > 0"  :pagination="pagination" :fetchData="fetchData"/>
     <Modal :open="open" @cancel="closeModal" title="Диққат" subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
         <div class="warning">
             <div class="warning-action">
