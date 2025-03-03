@@ -14,6 +14,7 @@ export function useApi() {
             const response = await axios.get(url, { params });
             isLoading.value = false;
             if (response.data.resultCode === 0) {
+                message.info("Murojaatlar yuklandi");
                 return response.data;
             }
             throw new Error(response.data.resultNote);

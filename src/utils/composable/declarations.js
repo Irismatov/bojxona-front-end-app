@@ -3,11 +3,13 @@ import { useApi } from "@/plugins/useApi";
 
 export function useDeclarations() {
     const list = ref([]);
+    const totalElements = ref();
     const { fetchData, updateStatus, isLoading } = useApi();
 
     async function getDeclarations(status, type, params = { }) {
         const data = await fetchData(`api/declarations/status/${status}/type/${type}/`, params);
         list.value = data.declarations;
+        totalElements = data.totalElements;
         return data;
     }
 
@@ -27,6 +29,7 @@ export function useDeclarations() {
 
     return {
         list,
+        totalElements,
         isLoading,
         getDeclarations,
         changeDeclarationStatus,

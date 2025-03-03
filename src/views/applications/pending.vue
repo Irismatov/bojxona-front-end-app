@@ -1,44 +1,29 @@
 <script setup>
 import { Table, message } from "ant-design-vue";
-import { useModal } from "@/utils/composable";
+import { useModal, useDeclarations } from "@/utils/composable";
 import axios from "@/plugins/axios";
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, reactive } from "vue";
 
 const { open, closeModal, openModal } = useModal();
+const {list, totalElements ,isLoading, getDeclarations, changeDeclarationStatus, formatType} = useDeclarations();
 
 
 const currentItem = ref();
 
 async function requestToChangeStatus() {
-    const response = await axios.put(`/declarations/${currentItem.value}`, {
-        status: '1'
-    });
-    if (response.status >= 200 && response.status < 300) {
-        closeModal();
-        message.success("Ushbu murojaat ortga qaytarildi");
-        console.log(response.data);
-        fetchData();
-    } else {
-        message.error("Xatolik yuz berdi");
-    }
+    await changeDeclarationStatus(currentItem.value, 2, "Murojaat jarayonda holatiga o'zgartirildi");
+    closeModal();
 }
 
 
 async function fetchData() {
-    const response = await axios.get(`/api/declarations/status/3/type/${activeTab.value}/`, {
-        params: {
-            page: 0,
-            size: 10
-        }
-    });
-    if (response.data.resultCode === 0) {
-        list.value = response.data.declarations;
-        message.info("Murojaatlar yuklandi");
-    } else {
-        message.error("Murojaatlarni yuklashda xatolik yuz berdi", response.resultNote);
-    }
+    await getDeclarations(3, activeTab.value);
 }
 
+const pagination = reactive({
+    page: 0,
+    total: totalElements
+});
 
 const columns = [
     {
@@ -72,19 +57,6 @@ const columns = [
         key: "action",
     },
 ];
-
-function formatType(type) {
-    if (type === 0) {
-        return "МБ"
-    } else if (type === 1) {
-        return "AT"
-    } else {
-        return "ИМЕИ"
-    }
-}
-
-
-const list = ref([]);
 
 
 const tabs = [
@@ -153,6 +125,9 @@ function formatTimestamp(timestamp) {
             </template>
         </template>
     </Table>
+
+  <Pagination :pagination="pagination" :fetchData="fetchData"/>
+
     <Modal :open="open" @cancel="closeModal" title="Диққат" subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
         <div class="warning">
             <div class="warning-action">

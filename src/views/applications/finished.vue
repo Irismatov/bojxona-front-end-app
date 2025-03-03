@@ -1,9 +1,8 @@
 <script setup>
 import { Table } from "ant-design-vue";
-import { useModal } from "@/utils/composable";
+import { useModal, useDeclarations } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import { ref, onMounted, computed } from "vue";
-import { useDeclarations } from "@/utils/composable"
 
 const { open, closeModal, openModal } = useModal();
 const { list, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
@@ -15,11 +14,16 @@ async function fetchData() {
 };
 
 async function requestToChangeStatus() {
-   await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat sizga yuklandi");
+   await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat ortga qaytarildi");
    closeModal();
    fetchData();
 }
 
+const pagination = ref({
+    page: 0,
+    size: 10,
+    total: 50
+});
 
 const columns = [
     {
@@ -54,14 +58,9 @@ const columns = [
     },
 ];
 
-
-
-
-
-
 const tabs = [
     {
-        value: null,
+        value: -1,
         label: "Барчаси"
     },
     {
@@ -78,7 +77,7 @@ const tabs = [
     }
 ];
 
-const activeTab = ref(null);
+const activeTab = ref(-1);
 
 const handleTabChange = (value) => {
     activeTab.value = value;
@@ -95,17 +94,6 @@ onMounted(() => {
     fetchData();
 });
 
-function formatTimestamp(timestamp) {
-    const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day} --- ${hours}:${minutes}`;
-}
 </script>
 
 <template>
@@ -125,6 +113,7 @@ function formatTimestamp(timestamp) {
             </template>
         </template>
     </Table>
+    <Pagination  :pagination="pagination" :fetchData="fetchData"/>
     <Modal :open="open" @cancel="closeModal" title="Диққат" subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
         <div class="warning">
             <div class="warning-action">

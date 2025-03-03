@@ -1,22 +1,17 @@
 <script setup>
 import { Form, CheckboxGroup, Checkbox, Textarea, Select, FormItem, message } from "ant-design-vue";
 import { useRoute } from "vue-router";
-import { useModal } from "@/utils/composable";
+import { useModal, useDeclarations } from "@/utils/composable";
 import { ref, onMounted, computed, reactive } from "vue";
 import axios from "@/plugins/axios";
 
 const route = useRoute();
 const { openModal: openCancelModal, open: openCancel, closeModal: closeCancelModal } = useModal();
 const { openModal: openApplyModal, open: openApply, closeModal: closeApplyModal } = useModal();
+const {isLoading, changeDeclarationStatus, formatType } = useDeclarations();
 
 async function requestToChangeStatus() {
-  const response = await axios.put(`/api/declarations/${data.value.id}/status/3`)
-  if (response.data.resultCode === 0) {
-    message.success("Murojaat rasmilyashtirildi");
-    console.log(response.data);
-  } else {
-    message.error("Xatolik yuz berdi");
-  }
+  await changeDeclarationStatus(route.params.id, 3, "Murojaat rasmiylashtirildi");
   closeApplyModal();
 }
 
@@ -152,16 +147,6 @@ onMounted(() => {
 })
 
 
-function formatType(type) {
-  if (type === 0) {
-    return "МБ"
-  } else if (type === 1) {
-    return "AT"
-  } else {
-    return "ИМЕИ"
-  }
-}
-
 </script>
 
 
@@ -170,7 +155,7 @@ function formatType(type) {
   <Card title="Маълумотлар">
     <ARow :gutter="[12, 24]">
       <ACol span="6">
-        <Info label="Мурожаат тури" :value="formatType(data.declType) || '-'" />
+        <Info label="Мурожаат тури" :value="formatType(data.type) || '-'" />
       </ACol>
       <ACol span="6">
         <Info label="Мурожаат рақами" :value="data.declNumber || '-'" />

@@ -1,24 +1,19 @@
 <script setup>
 import { Table, message } from "ant-design-vue";
 import Icon from "../../components/global/icon.vue";
-import axios from "@/plugins/axios";
-import { ref, onMounted } from "vue";
+import { useDeclarations } from "@/utils/composable"
+import { ref, onMounted, reactive } from "vue";
 
+const {list, totalElements, getDeclarations,  formatType} = useDeclarations();
 
 async function fetchData() {
-  const response = await axios.get(`/api/declarations/status/2/type/${activeTab.value}/`, {
-    params: {
-      page: 0,
-      size: 10
-    }
-  });
-  if (response.data.resultCode === 0) {
-    list.value = response.data.declarations;
-    message.info("Murojaatlar yuklandi");
-  } else {
-    message.error("Murojaatlarni yuklashda xatolik yuz berdi", response.resultNote);
-  }
+  await getDeclarations(2, activeTab.value, {page: 0, size: 10})
 }
+
+const pagination = reactive({
+  page: 0,
+  total: totalElements
+});
 
 const columns = [
   {
@@ -52,20 +47,6 @@ const columns = [
     key: "action",
   },
 ];
-
-function formatType(type) {
-  if (type === 0) {
-    return "МБ"
-  } else if (type === 1) {
-    return "AT"
-  } else {
-    return "ИМЕИ"
-  }
-}
-
-
-const list = ref([]);
-
 
 const tabs = [
   {
@@ -131,6 +112,9 @@ onMounted(() => {
       </template>
     </template>
   </Table>
+  <Pagination :pagination="pagination" :fetchData="fetchData" />
+
+
 </template>
 
 

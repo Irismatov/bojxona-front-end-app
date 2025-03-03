@@ -1,12 +1,10 @@
 <script setup>
 import { Table, message } from "ant-design-vue";
 import { useModal, useDeclarations } from "@/utils/composable";
-import { ref, onMounted } from "vue";
-import axios from "@/plugins/axios";
-
+import { ref, onMounted, reactive } from "vue";
 const { open, closeModal, openModal } = useModal();
 const currentItem = ref();
-const { list, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
+const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 
 
 async function requestToChangeStatus() {
@@ -14,6 +12,13 @@ async function requestToChangeStatus() {
   closeModal();
   fetchData();
 }
+
+const pagination = reactive(
+  {
+    page: 0,
+    total: totalElements,
+  }
+);
 
 
 async function fetchData() {
@@ -129,6 +134,9 @@ onMounted(() => {
   <Table :data-source="list" :columns="columns" :custom-row="customRow">
 
   </Table>
+  <Pagination :pagination="pagination" :fetchData="fetchData"/>
+
+
   <Modal :open="open" @cancel="closeModal" title="Диққат"
     subtitle="Мазкур мурожаатни қайта ишлашга ўзингизга юклаб олишга розимисиз?">
     <div class="warning">
