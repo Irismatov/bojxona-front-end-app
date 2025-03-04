@@ -18,11 +18,11 @@ const props = defineProps({
 <template>
   <Modal wrap-class-name="modal" :footer="false">
     <template #title v-if="props.title">
-      {{ props.title }}
+      <h1 class="modal-title">{{ props.title }}</h1>
     </template>
     <p class="modal-subtitle" v-if="props.subtitle">
       {{ props.subtitle }}
-    </p> 
+    </p>
     <slot></slot>
   </Modal>
 </template>
@@ -30,6 +30,17 @@ const props = defineProps({
 @use "@/assets/scss/config/mixins" as *;
 
 .modal {
+  &-title {
+    margin-bottom: 20px;
+    color: #4B465C;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 18px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 24px;
+  }
+
   &-subtitle {
     color: #4B465C;
     font-feature-settings: 'liga' off, 'clig' off;
@@ -40,23 +51,16 @@ const props = defineProps({
     line-height: 22px;
     margin-bottom: 16px;
   }
+}
 
-  .ant-modal {
-    &-close {}
+::v-deep(.modal) {
+  .ant {
+    &-modal {
 
-    &-content {}
 
-    &-header {}
-
-    &-title {
-      margin-bottom: 20px;
-      color: #4B465C;
-      font-feature-settings: 'liga' off, 'clig' off;
-      font-family: "Public Sans";
-      font-size: 18px;
-      font-style: normal;
-      font-weight: 600;
-      line-height: 24px;
+      &-content {
+        padding: 10px 12px;
+      }
     }
   }
 }

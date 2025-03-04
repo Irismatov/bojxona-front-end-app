@@ -4,10 +4,12 @@ import { useRoute } from "vue-router";
 import { useModal, useDeclarations } from "@/utils/composable";
 import { ref, onMounted, computed, reactive } from "vue";
 import axios from "@/plugins/axios";
+import DocModal from "./_doc.vue"
 
 const route = useRoute();
 const { openModal: openCancelModal, open: openCancel, closeModal: closeCancelModal } = useModal();
 const { openModal: openApplyModal, open: openApply, closeModal: closeApplyModal } = useModal();
+const { open: openDoc, toggleModal: toggleDocModal } = useModal();
 const { isLoading, changeDeclarationStatus, formatType } = useDeclarations();
 
 async function requestToChangeStatus() {
@@ -15,92 +17,79 @@ async function requestToChangeStatus() {
   closeApplyModal();
 }
 
-const optionsFancyBox = {
-  Toolbar: {
-    display: {
-      left: ["infobar"],
-      middle: [
-        "zoomIn",
-        "zoomOut",
-        "toggle1to1",
-        "rotateCCW",
-        "rotateCW",
-        "flipX",
-        "flipY",
-      ],
-      right: ["slideshow", "thumbs", "close"],
-    },
-  },
-};
-
-
 
 async function fetchData() {
   const response = await axios.get(`/api/declarations/${route.params.id}`);
   if (response.data.resultCode === 0) {
     data.value = response.data;
-    documents.value = data.value.documents;
+    fetchDocs(data.value.documents);
 
-    console.log(documents.value);
     //fetchDocs(data.value.docIds);
   } else {
     message.error("Xatolik yuz berdi");
   }
 }
 
-const documents = ref([]);
+const documents = reactive([]);
 
 
-// async function fetchDocs(docIds) {
-//   for (const doc of docIds) {
-//     const response = await axios.get(`/api/declaration_docs/id/${doc.docId}`);
+async function fetchDocs(docIds) {
+  for (const doc of docIds) {
+    const response = await axios.get(`/declaration-docs/${doc}`);
 
-//     if (response.data.resultCode === 0) {
-//       documents.push({
-//         value: response.data.image,
-//         type: doc.docType
-//       });
-//     }
-//   }
-// }
+    if (response.data.resultCode === 0) {
+      documents.push({
+        value: response.data.value,
+        type: response.data.type
+      });
+    }
+  }
+}
 
-function formatDocName(type) {
+const activeDocs = ref([]);
+
+function handleDocBtnClick(type) {
+  let filteredDocuments = null;
   if (type === 0) {
-    return "Паспорт олди"
-  } else if (type === 1) {
-    return "Паспорт орка"
-  } else if (type === 2) {
-    return "Техпаспорт олди"
-  } else if (type === 3) {
-    return "Техпаспорт орка"
-  } else if (type === 4) {
-    return "Юк ташиш рухсатномаси"
-  } else {
-    return type
+    filteredDocuments = documents.filter(item => item.type == 0 || item.type == 1);
   }
+  activeDocs.value = filteredDocuments;
+  toggleDocModal(true);
 }
 
 
-function formatTimestamp(timestamp) {
-  if (timestamp) {
-    const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
+const getPassportDocs = computed(() => {
+  return documents.filter(item => item.type == 0 || item.type == 1);
+});
 
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
 
-    return `${year}-${month}-${day} --- ${hours}:${minutes}`;
-  }
-  return "-";
-}
+const getTechDocs = computed(() => {
+  return documents.filter(item => item.type == 2 || item.type == 3);
+});
+
+const getLicenceDocs = computed(() => {
+  return documents.filter(item => item.type == 4);
+})
+
+const getInvoiceDocs = computed(() => {
+  return documents.filter(item => item.type >= 20 && item.type <= 39);
+})
+
+
+const getNonNotorizedDocs = computed(() => {
+  return documents.filter(item => item.type >= 40 && item.type <= 59);
+})
+
+const getInsuranceDocs = computed(() => {
+  return documents.filter(item => item.type >= 40 && item.type <= 59);
+})
 
 
 const data = ref({});
 
-
 const cancelOptions = ref([]);
+
+
 
 const applySelectOptions = ref([
   {
@@ -185,7 +174,7 @@ const uploadImage = async () => {
         <Info label="Мурожаат рақами" :value="data.declNumber || '-'" />
       </ACol>
       <ACol span="6">
-        <Info label="Мурожаат вақти" :value="formatTimestamp(data.createdAt) || '-'" />
+        <Info label="Мурожаат вақти" :value="data.createdAt || '-'" />
       </ACol>
       <ACol span="6">
         <Info label="Мурожаат давомийлиги" :value="data.duration || '-'" />
@@ -193,11 +182,17 @@ const uploadImage = async () => {
       <ACol span="24">
         <Info label="Ҳужжатлар" color-value="#7367F0">
           <template #value>
+
+            <Button @click="handleDocBtnClick(0)"> Паспортлар </Button>
+            <Button @click="handleDocBtnClick(1)"> Техпаспортлар </Button>
+            <Button @click="handleDocBtnClick(2)"> CRM </Button>
+            
+
+
+            <DocModal :open="openDoc" :list="activeDocs" @cancel="toggleDocModal(false)"/>
+
             <template v-for="(item, index) in documents">
-              <a :href="`data:image/jpeg;base64,${item.value}`"  :data-fancybox="`document`" :data-caption="formatDocName(item.type)"
-                style="display: block;">
-                {{ formatDocName(item.type) }}
-              </a>
+
               
 
 
