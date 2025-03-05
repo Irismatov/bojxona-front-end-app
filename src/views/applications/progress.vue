@@ -43,7 +43,6 @@ const columns = [
     dataIndex: "timer",
   },
   {
-    title: "Муносабат",
     key: "action",
   },
 ];

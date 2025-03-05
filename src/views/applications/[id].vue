@@ -183,9 +183,10 @@ const uploadImage = async () => {
         <Info label="Ҳужжатлар" color-value="#7367F0">
           <template #value>
 
-            <Button @click="handleDocBtnClick(0)"> Паспортлар </Button>
-            <Button @click="handleDocBtnClick(1)"> Техпаспортлар </Button>
-            <Button @click="handleDocBtnClick(2)"> CRM </Button>
+            <button @click="handleDocBtnClick(0)" class="doc-btn"> Паспортлар </button>
+            <button @click="handleDocBtnClick(1)" class="doc-btn"> Техпаспортлар </button>
+            <button @click="handleDocBtnClick(2)" class="doc-btn"> CRM </button>
+            <button @click="handleDocBtnClick(3)" class="doc-btn"> Нотариф </button>
             
 
 
@@ -290,6 +291,8 @@ const uploadImage = async () => {
 
 
 <style lang="scss" scoped>
+@use "@/assets/scss/config/mixins" as *;
+
 .form {
   &-action {
     display: flex;
@@ -385,6 +388,13 @@ const uploadImage = async () => {
         }
       }
     }
+  }
+}
+
+.doc {
+  &-btn {
+    @include btn-clean();
+    
   }
 }
 </style>
