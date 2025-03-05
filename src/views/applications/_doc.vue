@@ -57,9 +57,6 @@ const options = {
                         <img class="popup-image__inner" :src="`data:image/jpeg;base64,${item.value}`" alt="Sample 1">
                     </a>
                 </SplideSlide>
-                <SplideSlide class="popup-image">
-                    <img class="popup-image__inner" src="/images/doc-2.jpg" alt="Sample 2">
-                </SplideSlide>
             </Splide>
         </div>
     </Modal>
@@ -82,31 +79,57 @@ const options = {
         font-style: normal;
         font-weight: 600;
         line-height: 36px;
-        margin-bottom: 20px;
     }
 
     &-image {
         width: 100%;
-        max-height: 350px;
+        height: 280px;
+        max-height: 280px;
         padding: 20px 0;
-
+        border-radius: 6px;
+        border-radius: 6px;
+        display: block;
 
         &__inner {
             @include image(contain);
-            max-height: 300px;
-            object-position: center;
         }
+
     }
 }
 
 ::v-deep() {
     .splide {
         --local-heigth: 400px;
-
         height: var(--local-heigth);
+
+        &__arrow {
+            svg {
+                fill: black;
+                height: 18px;
+                width: 18px;
+                opacity: 0.8;
+
+                &:hover {
+                    fill: black;
+                    opacity: 1;
+                }
+            }
+
+            &--prev {
+                left: -2em;
+            }
+
+            &--next {
+                right: -2em;
+            }
+        }
 
         &__slide {
             height: var(--local-heigth);
+
+            &:not(.is-active) {
+                opacity: 0;
+            }
         }
 
         &__track {
@@ -120,8 +143,8 @@ const options = {
             align-items: center;
 
             &__page {
-                width: 30px;
-                height: 30px;
+                width: 18px;
+                height: 18px;
                 background: #f0f0f0;
                 border-radius: 50%;
                 display: flex;
@@ -142,13 +165,13 @@ const options = {
                     counter-increment: pagination-num;
                     content: counter(pagination-num);
                     position: absolute;
-                    font-size: 14px;
+                    font-size: 8px;
                     color: black;
                     z-index: 1;
                 }
 
                 &.is-active {
-                    background-color: #007bff;
+                    background-color: grey;
 
                     &:before {
                         color: white;
@@ -158,38 +181,6 @@ const options = {
 
         }
 
-    }
-
-    .splide__pagination {}
-
-    .splide__pagination__page {
-
-
-        // Nuqtalarni yashirish
-        &::after {
-            content: '';
-            width: 8px;
-            height: 8px;
-            background-color: transparent;
-            border-radius: 50%;
-        }
-    }
-
-    .splide__pagination__page:before {
-        counter-increment: pagination-num;
-        content: counter(pagination-num);
-        position: absolute;
-        font-size: 14px;
-        color: black;
-        z-index: 1;
-    }
-
-    .splide__pagination__page.is-active {
-        background-color: #007bff;
-
-        &:before {
-            color: white;
-        }
     }
 }
 </style>

@@ -1,6 +1,6 @@
 <script setup>
 import { Fancybox } from "@fancyapps/ui";
-import "@fancyapps/ui/dist/fancybox/fancybox.css";
+import '@splidejs/splide/css/sea-green';
 import { onMounted } from "vue";
 
 

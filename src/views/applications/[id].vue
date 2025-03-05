@@ -48,14 +48,23 @@ async function fetchDocs(docIds) {
 
 const activeDocs = ref([]);
 
-function handleDocBtnClick(type) {
+// function handleDocBtnClick(type) {
+//   let filteredDocuments = null;
+//   if (type === 0) {
+//     filteredDocuments = documents.filter(item => item.type == 0 || item.type == 1);
+//   }
+//   activeDocs.value = filteredDocuments;
+//   toggleDocModal(true);
+// }
+
+const handleDocBtnClick = async (type) => {
   let filteredDocuments = null;
   if (type === 0) {
     filteredDocuments = documents.filter(item => item.type == 0 || item.type == 1);
   }
   activeDocs.value = filteredDocuments;
-  toggleDocModal(true);
-}
+  openDoc.value = true;
+};
 
 
 const getPassportDocs = computed(() => {
@@ -183,27 +192,26 @@ const uploadImage = async () => {
         <Info label="Ҳужжатлар" color-value="#7367F0">
           <template #value>
 
-            <div class="docs">
-              <button @click="handleDocBtnClick(0)" class="docs-btn"> Паспортлар </button>
-              <button @click="handleDocBtnClick(1)" class="docs-btn"> Техпаспортлар </button>
-              <button @click="handleDocBtnClick(2)" class="docs-btn"> CRM </button>
-              <button @click="handleDocBtnClick(3)" class="docs-btn"> Нотариф хужжатлар</button>
+            <div class="docs-container">
+              <div class="docs">
+                <button @click="handleDocBtnClick(0)" class="docs-btn"> Паспортлар </button>
+                <button @click="handleDocBtnClick(1)" class="docs-btn"> Техпаспортлар </button>
+                <button @click="handleDocBtnClick(2)" class="docs-btn"> CRM </button>
+                <button @click="handleDocBtnClick(3)" class="docs-btn"> Нотариф хужжатлар</button>
+              </div>
+
+              <DocModal :open="openDoc" :list="activeDocs" @cancel="toggleDocModal(false)" />
+
             </div>
 
-            <DocModal :open="openDoc" :list="activeDocs" @cancel="toggleDocModal(false)" />
-
-            <template v-for="(item, index) in documents">
 
 
 
-
-
-              <!-- <a :href="item.images[0]" :data-fancybox="`document-${index}`" style="display: block;">
+            <!-- <a :href="item.images[0]" :data-fancybox="`document-${index}`" style="display: block;">
                 {{ "Doc " + index+1 }}
               </a>
               <a :href="link" v-for="link in item.links.slice(1)" :data-fancybox="`document-${index}`" v-show="false">
               </a> -->
-            </template>
           </template>
         </Info>
       </ACol>
@@ -396,6 +404,10 @@ const uploadImage = async () => {
   flex-direction: column;
   align-items: start;
   gap: 4px;
+
+  &-container {
+    position: relative;
+  }
 
   &-btn {
     @include btn-clean();
