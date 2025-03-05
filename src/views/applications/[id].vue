@@ -153,16 +153,16 @@ const uploadImage = async () => {
 <template>
   <!-- rasm yuklash uchun bu qismi ochirib yuboriladi -->
   <div class="upload">
-    <input type="file" @change="handleFileChange" accept="image/*"/>
-    <input type="number" v-model="declType" max="3" min="0" value="0"/>
+    <input type="file" @change="handleFileChange" accept="image/*" />
+    <input type="number" v-model="declType" max="3" min="0" value="0" />
     <Button @click="uploadImage">Rasmni yuklash</Button>
     <div v-if="preview">
       <h3>Tanlangan rasm: </h3>
-      <img :src="preview" width="200"/>
+      <img :src="preview" width="200" />
     </div>
   </div>
 
-  
+
 
 
   <Card title="Маълумотлар">
@@ -183,18 +183,18 @@ const uploadImage = async () => {
         <Info label="Ҳужжатлар" color-value="#7367F0">
           <template #value>
 
-            <button @click="handleDocBtnClick(0)" class="doc-btn"> Паспортлар </button>
-            <button @click="handleDocBtnClick(1)" class="doc-btn"> Техпаспортлар </button>
-            <button @click="handleDocBtnClick(2)" class="doc-btn"> CRM </button>
-            <button @click="handleDocBtnClick(3)" class="doc-btn"> Нотариф </button>
-            
+            <div class="docs">
+              <button @click="handleDocBtnClick(0)" class="docs-btn"> Паспортлар </button>
+              <button @click="handleDocBtnClick(1)" class="docs-btn"> Техпаспортлар </button>
+              <button @click="handleDocBtnClick(2)" class="docs-btn"> CRM </button>
+              <button @click="handleDocBtnClick(3)" class="docs-btn"> Нотариф хужжатлар</button>
+            </div>
 
-
-            <DocModal :open="openDoc" :list="activeDocs" @cancel="toggleDocModal(false)"/>
+            <DocModal :open="openDoc" :list="activeDocs" @cancel="toggleDocModal(false)" />
 
             <template v-for="(item, index) in documents">
 
-              
+
 
 
 
@@ -391,10 +391,21 @@ const uploadImage = async () => {
   }
 }
 
-.doc {
+.docs {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 4px;
+
   &-btn {
     @include btn-clean();
-    
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 22px;
+
   }
 }
 </style>

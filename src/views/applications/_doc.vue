@@ -1,7 +1,5 @@
 <script setup>
-import { ref } from "vue";
-import { Swiper, SwiperSlide } from "swiper/vue";
-import { Navigation } from "swiper/modules";
+import { Splide, SplideSlide } from "@splidejs/vue-splide";
 import 'swiper/css';
 import 'swiper/css/navigation';
 
@@ -12,13 +10,6 @@ const props = defineProps({
     }
 })
 
-const options = {
-    modules: [Navigation],
-    slidesPerView: 1,
-    speed: 500,
-    navigation: true,
-    spaceBetween: 30,
-};
 
 function formatDocName(type) {
     if (type === 0) {
@@ -47,24 +38,29 @@ function getBlobUrl(base64Data) {
     return URL.createObjectURL(blob);
 }
 
+const options = {
+    type: 'loop',
+    perPage: 1,
+    pagination: true,
+};
 
-const swiperRef = ref('');
 </script>
 
 <template>
-    <Modal title="Hujjatlar" class="popup" :width="500">
-        <div class="swiper-container">
-            <Swiper v-bind="options" @swiper="(swiper) => swiperRef = swiper">
-                <SwiperSlide v-for="(item, index) in props.list" :key="index">
-                    <div class="popup-header">
-                        <h4 class="popup-header__title">{{ formatDocName(item.type) }}</h4>
-                    </div>
+    <Modal title="Hujjatlar" class="popup" :width="400" :forceRender="true"
+        :bodyStyle="{ height: '400px', maxHeight: '400px' }">
+        <div class="popup-container">
+            <Splide :options="options" aria-label="My Favorite Images">
+                <SplideSlide v-for="item in props.list">
+                    <h1 class="popup-title">{{ formatDocName(item.type) }}</h1>
                     <a class="popup-image" :href="getBlobUrl(item.value)" target="_blank">
-                        <img class="popup-image__inner" :src="`data:image/jpeg;base64,${item.value}`">
+                        <img class="popup-image__inner" :src="`data:image/jpeg;base64,${item.value}`" alt="Sample 1">
                     </a>
-                    <span class="swiper-page">{{ swiperRef.activeIndex + 1 }} / {{ props.list.length }}</span>
-                </SwiperSlide>
-            </Swiper>
+                </SplideSlide>
+                <SplideSlide class="popup-image">
+                    <img class="popup-image__inner" src="/images/doc-2.jpg" alt="Sample 2">
+                </SplideSlide>
+            </Splide>
         </div>
     </Modal>
 </template>
@@ -77,74 +73,123 @@ const swiperRef = ref('');
     flex-direction: column;
     justify-content: center;
 
-    &-header {
-        margin-bottom: 24px;
-
-        &__title {
-            color: #4B465C;
-            text-align: center;
-            font-feature-settings: 'liga' off, 'clig' off;
-            font-family: "Public Sans";
-            font-size: 26px;
-            font-style: normal;
-            font-weight: 600;
-            line-height: 36px;
-            margin: 0 auto;
-        }
+    &-title {
+        color: #4B465C;
+        text-align: center;
+        font-feature-settings: 'liga' off, 'clig' off;
+        font-family: "Public Sans";
+        font-size: 26px;
+        font-style: normal;
+        font-weight: 600;
+        line-height: 36px;
+        margin-bottom: 20px;
     }
 
     &-image {
-        height: 100%;
-        width: calc(100% - (30px * 2));
-        margin-bottom: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width: 100%;
+        max-height: 350px;
+        padding: 20px 0;
+
 
         &__inner {
             @include image(contain);
+            max-height: 300px;
+            object-position: center;
         }
     }
 }
 
+::v-deep() {
+    .splide {
+        --local-heigth: 400px;
 
-.swiper {
-    &-container {
-        width: 100%;
-        height: 100%;
-        position: relative;
+        height: var(--local-heigth);
+
+        &__slide {
+            height: var(--local-heigth);
+        }
+
+        &__track {
+            height: var(--local-heigth);
+        }
+
+        &__pagination {
+            counter-reset: pagination-num;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            &__page {
+                width: 30px;
+                height: 30px;
+                background: #f0f0f0;
+                border-radius: 50%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                margin: 0 5px;
+                position: relative;
+
+                &::after {
+                    content: '';
+                    width: 8px;
+                    height: 8px;
+                    background-color: transparent;
+                    border-radius: 50%;
+                }
+
+                &:before {
+                    counter-increment: pagination-num;
+                    content: counter(pagination-num);
+                    position: absolute;
+                    font-size: 14px;
+                    color: black;
+                    z-index: 1;
+                }
+
+                &.is-active {
+                    background-color: #007bff;
+
+                    &:before {
+                        color: white;
+                    }
+                }
+            }
+
+        }
+
     }
 
-    &-page {
-        color: var(--Light-Typography-Color-Body-Text, #4B465C);
-        font-feature-settings: 'liga' off, 'clig' off;
-        font-family: "Public Sans";
-        font-size: 15px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: 22px;
+    .splide__pagination {}
+
+    .splide__pagination__page {
+
+
+        // Nuqtalarni yashirish
+        &::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background-color: transparent;
+            border-radius: 50%;
+        }
     }
-}
 
+    .splide__pagination__page:before {
+        counter-increment: pagination-num;
+        content: counter(pagination-num);
+        position: absolute;
+        font-size: 14px;
+        color: black;
+        z-index: 1;
+    }
 
+    .splide__pagination__page.is-active {
+        background-color: #007bff;
 
-:deep(.swiper) {
-    width: 100%;
-}
-
-:deep(.swiper-slide) {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: calc(100vh - (100px * 2));
-    width: calc(100% - (20px * 2));
-}
-
-:deep(.swiper-button-next),
-:deep(.swiper-button-prev) {
-    color: red;
-    --swiper-navigation-size: 20px;
-    --swiper-navigation-offset: 0px;
+        &:before {
+            color: white;
+        }
+    }
 }
 </style>

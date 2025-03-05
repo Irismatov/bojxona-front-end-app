@@ -1,6 +1,6 @@
 <script setup>
 import { Modal } from "ant-design-vue";
-import { defineProps } from "vue";
+import { computed, defineProps } from "vue";
 
 const props = defineProps({
   title: {
@@ -10,13 +10,21 @@ const props = defineProps({
   subtitle: {
     type: String,
     default: undefined
+  },
+  height: {
+    type: Number,
+    default: undefined
   }
 });
 
+const styles = computed(() => {
+  const result = [];
+  result.push(`--local-height: ${props.height}px`);
+})
 
 </script>
 <template>
-  <Modal wrap-class-name="modal" :footer="false">
+  <Modal wrap-class-name="modal" :footer="false" :style="styles">
     <template #title v-if="props.title">
       <h1 class="modal-title">{{ props.title }}</h1>
     </template>
@@ -30,6 +38,8 @@ const props = defineProps({
 @use "@/assets/scss/config/mixins" as *;
 
 .modal {
+
+
   &-title {
     margin-bottom: 20px;
     color: #4B465C;
