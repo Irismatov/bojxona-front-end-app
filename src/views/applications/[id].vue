@@ -8,6 +8,9 @@ import { useModal, useDeclarations } from "@/utils/composable";
 import axios from "@/plugins/axios";
 
 import { Swiper, SwiperSlide } from "swiper/vue";
+import 'swiper/css';
+import "swiper/css/navigation";
+
 import { EffectCreative, Autoplay, Navigation } from "swiper/modules";
 const options = {
   modules: [EffectCreative, Navigation],
@@ -15,8 +18,8 @@ const options = {
   speed: 1000,
   grabCursor: true,
   navigation: {
-    nextEl: ".hero-navigation__btn.next",
-    prevEl: ".hero-navigation__btn.prev",
+    nextEl: ".docs-navigation__btn.next",
+    prevEl: ".docs-navigation__btn.prev"
   }
 };
 
@@ -234,11 +237,21 @@ onMounted(() => {
       </ACol>
       <ACol span="9">
         <div class="docs">
-          <h1 class="docs-title">Хужжатлар</h1>
-          <Select class="docs-select" ref="select" v-model:value="selectedDocType" :options="docTypeOptions"
-            @change="toggleDocument"></Select>
+          <div class="docs-header">
+            <h1 class="docs-title">Хужжатлар</h1>
+            <Select class="docs-select" ref="select" v-model:value="selectedDocType" :options="docTypeOptions"
+              @change="toggleDocument"></Select>
+          </div>
           <div class="docs-slider">
-            <Swiper v-if="documents.length > 0" v-bind="options" >
+            <div class="docs-navigation">
+              <button class="docs-navigation__btn prev">
+                <Icon name="angle-prev" />
+              </button>
+              <button class="docs-navigation__btn next">
+                <Icon name="angle-next" />
+              </button>
+            </div>
+            <Swiper v-if="documents.length > 0" v-bind="options">
               <SwiperSlide v-for="item in documents">
                 <a class="docs-slider__image" :href="getBlobUrl(item.value)" target="_blank">
                   <img :src="`data:image/jpeg;base64,${item.value}`" alt="Sample 1">
@@ -438,13 +451,23 @@ onMounted(() => {
 }
 
 .docs {
-  position: absolute;
   width: 576px;
   height: 450px;
-  margin: 0 auto 32px auto;
+  max-height: 450px;
   border-radius: 6px;
   box-shadow: 0px 4px 18px 0px rgba(75, 70, 92, 0.1);
-  padding: 16px;
+  padding: 0 16px;
+  --local-header-height: 50px;
+  --local-docs-height: 450px;
+  --local-docs-page-height: 50px;
+
+
+  &-header {
+    display: flex;
+    min-height: var(--local-header-height);
+    display: flex;
+    align-items: center;
+  }
 
   &-title {
     color: #4B465C;
@@ -453,103 +476,71 @@ onMounted(() => {
     font-style: normal;
     font-weight: 600;
     line-height: 24px;
+    margin-right: auto;
   }
 
   &-slider {
     max-width: 100%;
-    height: 100%;
-
+    height: calc(var(--local-docs-height) - var(--local-header-height) - var(--local-docs-page-height));
+    max-height: calc(var(--local-docs-height) - var(--local-header-height) - var(--local-docs-page-height));
+    background-color: red;
+    position: relative;
 
     &__image {
       display: block;
       width: 100%;
+      height: 350px;
+      max-height: 350px;
 
       img {
         @include image(contain);
       }
     }
-
-
   }
 
-}
 
+  &-navigation {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 0px;
+    z-index: 999;
 
-::v-deep() {
-  .splide {
-    --local-heigth: 300px;
-    height: var(--local-heigth);
+    &__btn {
+      @include btn-clean;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      transition: all 0.2s ease-in-out;
 
-    &__arrow {
-      svg {
-        fill: black;
-        height: 18px;
-        width: 18px;
-        opacity: 0.8;
+      &.swiper-button-disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
 
-        &:hover {
-          fill: black;
-          opacity: 1;
+      &:not(.swiper-button-disabled):hover {
+        background-color: var(--white-1);
+
+        .icon {
+          --icon-color: var(--primary-blue);
         }
       }
 
-
-    }
-
-    &__slide {
-
-      &:not(.is-active) {
-        opacity: 0;
-      }
-    }
-
-    &__track {}
-
-    &__pagination {
-      counter-reset: pagination-num;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      &__page {
-        width: 18px;
-        height: 18px;
-        background: #f0f0f0;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin: 0 5px;
-        position: relative;
-
-        &::after {
-          content: '';
-          width: 8px;
-          height: 8px;
-          background-color: transparent;
-          border-radius: 50%;
-        }
-
-        &:before {
-          counter-increment: pagination-num;
-          content: counter(pagination-num);
-          position: absolute;
-          font-size: 8px;
-          color: black;
-          z-index: 1;
-        }
-
-        &.is-active {
-          background-color: grey;
-
-          &:before {
-            color: white;
-          }
-        }
+      .icon {
+        --icon-color: #fff;
+        --icon-size: 20px;
       }
 
     }
-
   }
+
 }
 </style>
