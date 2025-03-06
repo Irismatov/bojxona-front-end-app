@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted, computed, reactive } from "vue";
-import { Form, CheckboxGroup, Checkbox, Textarea, Select, FormItem, message } from "ant-design-vue";
-import { Splide, SplideSlide } from "@splidejs/vue-splide";
+import { Form, CheckboxGroup, Checkbox, Textarea, FormItem, message } from "ant-design-vue";
 
 import { useRoute } from "vue-router";
 import { useModal, useDeclarations } from "@/utils/composable";
@@ -47,7 +46,7 @@ const applySelectValue = ref("1");
 const documents = reactive([]);
 const title = ref(formatDocName(documents[0]?.type));
 const slideIndex = ref(1);
-const selectedDocType = ref("passports")
+const selectedDocType = ref(undefined)
 const docTypeOptions = ref([
   {
     value: 'passports',
@@ -242,7 +241,7 @@ onMounted(() => {
             <Select class="docs-select" ref="select" v-model:value="selectedDocType" :options="docTypeOptions"
               @change="toggleDocument"></Select>
           </div>
-          <div class="docs-slider">
+          <div class="docs-slider"  v-if="documents.length > 0">
             <div class="docs-navigation">
               <button class="docs-navigation__btn prev">
                 <Icon name="angle-prev" />
@@ -251,13 +250,16 @@ onMounted(() => {
                 <Icon name="angle-next" />
               </button>
             </div>
-            <Swiper v-if="documents.length > 0" v-bind="options">
+            <Swiper v-bind="options" @swiper="(swiper) => swiperRef = swiper">
               <SwiperSlide v-for="item in documents">
                 <a class="docs-slider__image" :href="getBlobUrl(item.value)" target="_blank">
                   <img :src="`data:image/jpeg;base64,${item.value}`" alt="Sample 1">
                 </a>
               </SwiperSlide>
             </Swiper>
+            <div class="docs-page">
+              {{ swiperRef.activeIndex + 1 }} / {{ documents.length }}
+            </div>
           </div>
         </div>
       </ACol>
@@ -483,7 +485,6 @@ onMounted(() => {
     max-width: 100%;
     height: calc(var(--local-docs-height) - var(--local-header-height) - var(--local-docs-page-height));
     max-height: calc(var(--local-docs-height) - var(--local-header-height) - var(--local-docs-page-height));
-    background-color: red;
     position: relative;
 
     &__image {
@@ -498,6 +499,17 @@ onMounted(() => {
     }
   }
 
+  &-page {
+    margin-top: 12px;
+    text-align: center;
+    color: #4B465C;
+    font-feature-settings: 'liga' off, 'clig' off;
+    font-family: "Public Sans";
+    font-size: 15px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 22px;
+  }
 
   &-navigation {
     position: absolute;
@@ -514,7 +526,7 @@ onMounted(() => {
     &__btn {
       @include btn-clean;
       border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.1);
+      background: #4B4B4B;
       backdrop-filter: blur(10px);
       width: 36px;
       height: 36px;
@@ -527,10 +539,11 @@ onMounted(() => {
       }
 
       &:not(.swiper-button-disabled):hover {
+        border: 1px solid #4B4B4B;
         background-color: var(--white-1);
 
         .icon {
-          --icon-color: var(--primary-blue);
+          --icon-color: #4B4B4B;
         }
       }
 
