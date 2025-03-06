@@ -42,7 +42,7 @@ defineProps({
     }
   }
   &-body {
-    padding: 12px;
+    padding: 18px;
   }
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from "vue";
 import { Splide, SplideSlide } from "@splidejs/vue-splide";
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -9,6 +10,16 @@ const props = defineProps({
         required: true
     }
 })
+
+const title = ref(formatDocName(props.list[0].type));
+const slideIndex = ref(1);
+
+
+const options = {
+    type: 'loop',
+    perPage: 1,
+    pagination: false,
+};
 
 
 function formatDocName(type) {
@@ -38,28 +49,26 @@ function getBlobUrl(base64Data) {
     return URL.createObjectURL(blob);
 }
 
-const options = {
-    type: 'loop',
-    perPage: 1,
-    pagination: true,
-};
+
+const onSlideChange = (splide, newIndex) => {
+    title.value = formatDocName(props.list[newIndex].type);
+    slideIndex.value = newIndex + 1;
+}
 
 </script>
 
 <template>
-    <Modal title="Hujjatlar" class="popup" :width="400" :forceRender="true"
-        :bodyStyle="{ height: '400px', maxHeight: '400px' }">
-        <div class="popup-container">
-            <Splide :options="options" aria-label="My Favorite Images">
-                <SplideSlide v-for="item in props.list">
-                    <h1 class="popup-title">{{ formatDocName(item.type) }}</h1>
-                    <a class="popup-image" :href="getBlobUrl(item.value)" target="_blank">
-                        <img class="popup-image__inner" :src="`data:image/jpeg;base64,${item.value}`" alt="Sample 1">
-                    </a>
-                </SplideSlide>
-            </Splide>
-        </div>
-    </Modal>
+    <div class="popup">
+        <h1 class="popup-title">{{ title }}</h1>
+        <Splide :options="options" aria-label="My Favorite Images" @splide:move="onSlideChange">
+            <SplideSlide v-for="item in props.list">
+                <a class="popup-image" :href="getBlobUrl(item.value)" target="_blank">
+                    <img class="popup-image__inner" :src="`data:image/jpeg;base64,${item.value}`" alt="Sample 1">
+                </a>
+            </SplideSlide>
+        </Splide>
+        <p class="popup-page">{{ slideIndex }} / {{ props.list.length }}</p>
+    </div>
 </template>
 
 <style lang="scss" scoped>
@@ -69,6 +78,8 @@ const options = {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
+    padding-top: 16px;
 
     &-title {
         color: #4B465C;
@@ -99,7 +110,7 @@ const options = {
 
 ::v-deep() {
     .splide {
-        --local-heigth: 400px;
+        --local-heigth: 350px;
         height: var(--local-heigth);
 
         &__arrow {
@@ -115,17 +126,10 @@ const options = {
                 }
             }
 
-            &--prev {
-                left: -2em;
-            }
-
-            &--next {
-                right: -2em;
-            }
+            
         }
 
         &__slide {
-            height: var(--local-heigth);
 
             &:not(.is-active) {
                 opacity: 0;
@@ -133,7 +137,7 @@ const options = {
         }
 
         &__track {
-            height: var(--local-heigth);
+
         }
 
         &__pagination {

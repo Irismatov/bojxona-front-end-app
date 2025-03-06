@@ -44,7 +44,12 @@ const styles = computed(() => {
 .info {
   display: flex;
   flex-direction: column;
-  row-gap: 2px;
+  row-gap: 16px;
+  padding: 16px ;
+
+  border-radius: 6px;
+  box-shadow: 0px 4px 18px 0px rgba(75, 70, 92, 0.10);
+
   &-label {
     color: var(--local-label-color);
     font-feature-settings: "liga" off, "clig" off;
@@ -52,12 +57,14 @@ const styles = computed(() => {
     font-weight: 600;
     line-height: 22px;
   }
+
   &-value {
     color: var(--local-value-color);
     font-feature-settings: "liga" off, "clig" off;
     font-size: 15px;
     font-weight: 400;
     line-height: 22px;
+
     * {
       color: var(--local-value-color);
     }
