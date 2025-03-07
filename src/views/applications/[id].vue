@@ -217,7 +217,7 @@ onMounted(() => {
   <Card title="Маълумотлар">
     <ARow :gutter="[12, 12]">
       <ACol span="6">
-        <ARow :gutter="[12, 24]">
+        <ARow :gutter="[12, 12]">
           <ACol span="24">
             <Info label="Мурожаат тури" :value="formatType(data.type) || '-'" />
           </ACol>
@@ -241,7 +241,7 @@ onMounted(() => {
             <Select class="docs-select" ref="select" v-model:value="selectedDocType" :options="docTypeOptions"
               @change="toggleDocument"></Select>
           </div>
-          <div class="docs-slider"  v-if="documents.length > 0">
+          <div class="docs-slider" v-if="documents.length > 0">
             <div class="docs-navigation">
               <button class="docs-navigation__btn prev">
                 <Icon name="angle-prev" />
@@ -252,6 +252,7 @@ onMounted(() => {
             </div>
             <Swiper v-bind="options" @swiper="(swiper) => swiperRef = swiper">
               <SwiperSlide v-for="item in documents">
+                <h2 class="docs-slider__name">{{ formatDocName(item.type) }}</h2>
                 <a class="docs-slider__image" :href="getBlobUrl(item.value)" target="_blank">
                   <img :src="`data:image/jpeg;base64,${item.value}`" alt="Sample 1">
                 </a>
@@ -454,8 +455,8 @@ onMounted(() => {
 
 .docs {
   width: 576px;
-  height: 450px;
-  max-height: 450px;
+  height: calc(var(--height-info)*4 + 12px*3);
+  max-height: calc(var(--height-info)*4 + 12px*3);
   border-radius: 6px;
   box-shadow: 0px 4px 18px 0px rgba(75, 70, 92, 0.1);
   padding: 0 16px;
@@ -487,11 +488,21 @@ onMounted(() => {
     max-height: calc(var(--local-docs-height) - var(--local-header-height) - var(--local-docs-page-height));
     position: relative;
 
+    &__name {
+      color: #4B465C;
+      font-feature-settings: 'liga' off, 'clig' off;
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 600;
+      line-height: 24px;
+      text-align: center;
+    }
+
     &__image {
       display: block;
       width: 100%;
-      height: 350px;
-      max-height: 350px;
+      height: 316px;
+      max-height: 316ps;
 
       img {
         @include image(contain);

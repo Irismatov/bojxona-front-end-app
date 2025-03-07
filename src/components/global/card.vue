@@ -34,7 +34,6 @@ defineProps({
       margin-right: auto;
       color: #4b465c;
       font-feature-settings: "liga" off, "clig" off;
-      font-family: "Public Sans";
       font-size: 22px;
       font-style: normal;
       font-weight: 600;

@@ -46,6 +46,7 @@ const styles = computed(() => {
   flex-direction: column;
   row-gap: 16px;
   padding: 16px ;
+  height: var(--height-info);
 
   border-radius: 6px;
   box-shadow: 0px 4px 18px 0px rgba(75, 70, 92, 0.10);
