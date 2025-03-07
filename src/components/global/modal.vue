@@ -44,7 +44,6 @@ const styles = computed(() => {
     margin-bottom: 20px;
     color: #4B465C;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -54,7 +53,6 @@ const styles = computed(() => {
   &-subtitle {
     color: #4B465C;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
     font-size: 15px;
     font-style: normal;
     font-weight: 400;

@@ -44,8 +44,6 @@ const applySelectOptions = ref([
 const applySelectValue = ref("1");
 
 const documents = reactive([]);
-const title = ref(formatDocName(documents[0]?.type));
-const slideIndex = ref(1);
 const selectedDocType = ref(undefined)
 const docTypeOptions = ref([
   {
@@ -66,11 +64,6 @@ const docTypeOptions = ref([
   }
 ]);
 
-const splideOptions = {
-  type: 'loop',
-  perPage: 1,
-  pagination: false,
-};
 
 function formatDocName(type) {
   if (type === 0) {
@@ -100,11 +93,6 @@ function getBlobUrl(base64Data) {
 }
 
 
-const onSlideChange = (splide, newIndex) => {
-  title.value = formatDocName(documents[newIndex].type);
-  slideIndex.value = newIndex + 1;
-}
-
 
 // rasmni yuklash uchun bu qismi o'chirib yuboriladi
 const file = ref(null);
@@ -125,19 +113,6 @@ async function fetchData() {
   }
 }
 
-
-async function fetchDocs(docIds) {
-  for (const doc of docIds) {
-    const response = await axios.get(`/declaration-docs/${doc}`);
-
-    if (response.data.resultCode === 0) {
-      documents.push({
-        value: response.data.value,
-        type: response.data.type
-      });
-    }
-  }
-}
 
 const toggleDocument = async (type) => {
   if (type === "passports") {
@@ -203,151 +178,133 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- rasm yuklash uchun bu qismi ochirib yuboriladi -->
-  <div class="upload">
-    <input type="file" @change="handleFileChange" accept="image/*" />
-    <input type="number" v-model="declType" max="3" min="0" value="0" />
-    <Button @click="uploadImage">Rasmni yuklash</Button>
-    <div v-if="preview">
-      <h3>Tanlangan rasm: </h3>
-      <img :src="preview" width="200" />
+  <div>
+    <!-- rasm yuklash uchun bu qismi ochirib yuboriladi -->
+    <div class="upload">
+      <input type="file" @change="handleFileChange" accept="image/*" />
+      <input type="number" v-model="declType" max="3" min="0" value="0" />
+      <Button @click="uploadImage">Rasmni yuklash</Button>
+      <div v-if="preview">
+        <h3>Tanlangan rasm: </h3>
+        <img :src="preview" width="200" />
+      </div>
     </div>
-  </div>
 
-  <Card title="Маълумотлар">
-    <ARow :gutter="[12, 12]">
-      <ACol span="6">
-        <ARow :gutter="[12, 12]">
-          <ACol span="24">
-            <Info label="Мурожаат тури" :value="formatType(data.type) || '-'" />
-          </ACol>
-          <ACol span="24">
-            <Info label="Мурожаат рақами" :value="data.declNumber || '-'" />
-          </ACol>
-          <ACol span="24">
-            <Info label="Мурожаат вақти" :value="data.createdAt || '-'" />
-          </ACol>
-          <ACol span="24">
-            <Info label="Мурожаат давомийлиги" :value="data.duration || '-'" />
-          </ACol>
-          <ACol span="24">
-          </ACol>
-        </ARow>
-      </ACol>
-      <ACol span="9">
-        <div class="docs">
-          <div class="docs-header">
-            <h1 class="docs-title">Хужжатлар</h1>
-            <Select class="docs-select" ref="select" v-model:value="selectedDocType" :options="docTypeOptions"
-              @change="toggleDocument"></Select>
-          </div>
-          <div class="docs-slider" v-if="documents.length > 0">
-            <div class="docs-navigation">
-              <button class="docs-navigation__btn prev">
-                <Icon name="angle-prev" />
-              </button>
-              <button class="docs-navigation__btn next">
-                <Icon name="angle-next" />
-              </button>
-            </div>
-            <Swiper v-bind="options" @swiper="(swiper) => swiperRef = swiper">
-              <SwiperSlide v-for="item in documents">
-                <h2 class="docs-slider__name">{{ formatDocName(item.type) }}</h2>
-                <a class="docs-slider__image" :href="getBlobUrl(item.value)" target="_blank">
-                  <img :src="`data:image/jpeg;base64,${item.value}`" alt="Sample 1">
-                </a>
-              </SwiperSlide>
-            </Swiper>
-            <div class="docs-page">
-              {{ swiperRef.activeIndex + 1 }} / {{ documents.length }}
-            </div>
-          </div>
-        </div>
-      </ACol>
-      <ACol span="9">
-        <div class="docs">
-          <h1>Хабарлар</h1>
-        </div>
-      </ACol>
-    </ARow>
-  </Card>
-
-  <Card title="Расмийлаштириш">
-    <Form layout="vertical">
-      <ARow :gutter="[20, 20]">
-        <ACol span="8">
-          <FormItem>
-            <Input />
-          </FormItem>
+    <Card title="Маълумотлар">
+      <ARow :gutter="[12, 24]">
+        <ACol span="6">
+          <Info label="Мурожаат тури" :value="formatType(data.type) || '-'" />
         </ACol>
-        <ACol span="8">
-          <FormItem>
-            <Input />
-          </FormItem>
+        <ACol span="6">
+          <Info label="Мурожаат рақами" :value="data.declNumber || '-'" />
         </ACol>
-        <ACol span="8">
-          <FormItem>
-            <Input />
-          </FormItem>
+        <ACol span="6">
+          <Info label="Мурожаат вақти" :value="data.createdAt || '-'" />
+        </ACol>
+        <ACol span="6">
+          <Info label="Мурожаат давомийлиги" :value="data.duration || '-'" />
+        </ACol>
+        <ACol span="24">
+          <Info label="Hujjatlar" color-value="#7367F0">
+            <template #value>
+              <div class="docs-links">
+                <a @click="toggleDocument('passports')" class="docs-links__item">Пасспортлар</a>
+                <a @click="toggleDocument('techpassports')" class="docs-links__item">Техпаспортлар</a>
+                <a @click="toggleDocument('unauthorized')" class="docs-links__item">Нотариф хужжатлар</a>
+                <a @click="toggleDocument('crm')" class="docs-links__item">СРМ</a>
+              </div>
+            </template>
+          </Info>
+        </ACol>
+        <ACol span="auto" style="display: flex; gap: 10px;">
+          <Button class="form-action__btn _1" color="#EA5455" @click="openCancelModal">Қайтариш</Button>
+          <Button class="form-action__btn _2" @click="openApplyModal">Расмийлаштириш</Button>
         </ACol>
       </ARow>
-      <div class="form-action">
-        <Button class="form-action__btn _1" color="#EA5455" @click="openCancelModal">Қайтариш</Button>
-        <Button class="form-action__btn _2" @click="openApplyModal">Расмийлаштириш</Button>
+    </Card>
+
+    <div v-show="documents.length > 0" class="docs" v-click-outside="toggleDocument">
+      <div class="docs-header">
+        <button @click="toggleDocument" class="docs-close">
+          <Icon name="close" />
+        </button>
       </div>
-    </Form>
-  </Card>
-  <Modal :open="openCancel" @cancel="closeCancelModal" title="Диққат"
-    subtitle="Ушбу мурожаатни нима сабабдан қайтармоқчисиз?">
-    <div class="modal modal-cancel">
-      <div class="modal-actions">
-        <div class="modal-actions__checkbox">
-          <CheckboxGroup v-model:value="cancelOptions" style="width: 100%">
-            <ARow :gutter="[8, 8]">
-              <ACol :span="24">
-                <Checkbox value="documentIsNotValid">Ҳужжат тўлиқ тақдим этилмаган</Checkbox>
-              </ACol>
-              <ACol :span="24">
-                <Checkbox value="imageIsNotValid">Сурат яхши эмас</Checkbox>
-              </ACol>
-              <ACol :span="24">
-                <Checkbox value="applicantIsNotResponding">Мурожаатчи жавоб бермаяпти</Checkbox>
-              </ACol>
-              <ACol :span="24">
-                <Checkbox value="other">Бошқа</Checkbox>
-              </ACol>
-              <ACol :span="24">
-                <Textarea :rows="3" placeholder="Бошқа сабаб киритинг" :disabled="!cancelOptions.includes('other')">
-              </Textarea>
-              </ACol>
-            </ARow>
-          </CheckboxGroup>
+      <div class="docs-slider" v-if="documents.length > 0">
+        <div class="docs-navigation">
+          <button class="docs-navigation__btn prev">
+            <Icon name="angle-prev" />
+          </button>
+          <button class="docs-navigation__btn next">
+            <Icon name="angle-next" />
+          </button>
         </div>
-        <div class="modal-actions__btns">
-          <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF"
-            @click="closeCancelModal">Ортга</Button>
-          <Button color="#EA5455">Қайтариш</Button>
+        <Swiper v-bind="options" @swiper="(swiper) => swiperRef = swiper">
+          <SwiperSlide v-for="item in documents">
+            <h2 class="docs-slider__name">{{ formatDocName(item.type) }}</h2>
+            <a class="docs-slider__image" :href="getBlobUrl(item.value)" target="_blank">
+              <img :src="`data:image/jpeg;base64,${item.value}`" alt="Sample 1">
+            </a>
+          </SwiperSlide>
+        </Swiper>
+        <div class="docs-page">
+          {{ swiperRef.activeIndex + 1 }} / {{ documents.length }}
         </div>
+
       </div>
     </div>
-  </Modal>
+    
+    <Modal :open="openCancel" @cancel="closeCancelModal" title="Диққат"
+      subtitle="Ушбу мурожаатни нима сабабдан қайтармоқчисиз?">
+      <div class="modal modal-cancel">
+        <div class="modal-actions">
+          <div class="modal-actions__checkbox">
+            <CheckboxGroup v-model:value="cancelOptions" style="width: 100%">
+              <ARow :gutter="[8, 8]">
+                <ACol :span="24">
+                  <Checkbox value="documentIsNotValid">Ҳужжат тўлиқ тақдим этилмаган</Checkbox>
+                </ACol>
+                <ACol :span="24">
+                  <Checkbox value="imageIsNotValid">Сурат яхши эмас</Checkbox>
+                </ACol>
+                <ACol :span="24">
+                  <Checkbox value="applicantIsNotResponding">Мурожаатчи жавоб бермаяпти</Checkbox>
+                </ACol>
+                <ACol :span="24">
+                  <Checkbox value="other">Бошқа</Checkbox>
+                </ACol>
+                <ACol :span="24">
+                  <Textarea :rows="3" placeholder="Бошқа сабаб киритинг" :disabled="!cancelOptions.includes('other')">
+              </Textarea>
+                </ACol>
+              </ARow>
+            </CheckboxGroup>
+          </div>
+          <div class="modal-actions__btns">
+            <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF"
+              @click="closeCancelModal">Ортга</Button>
+            <Button color="#EA5455">Қайтариш</Button>
+          </div>
+        </div>
+      </div>
+    </Modal>
 
-  <Modal :open="openApply" @cancel="closeApplyModal" title="Диққат"
-    subtitle="Сиз ушбу мурожаатни расмийлаштирмоқчимисиз">
-    <div class="modal modal-apply">
-      <!-- <p class="modal-apply__text">Танланг: </p>
+    <Modal :open="openApply" @cancel="closeApplyModal" title="Диққат"
+      subtitle="Сиз ушбу мурожаатни расмийлаштирмоқчимисиз">
+      <div class="modal modal-apply">
+        <!-- <p class="modal-apply__text">Танланг: </p>
       <Select ref="select" v-model:value="applySelectValue" :options="applySelectOptions" @focus="focus"
         @change="handleChange"></Select> -->
 
-      <div class="modal-actions">
-        <div class="modal-actions__btns">
-          <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" @click="closeApplyModal"
-            borderColor="#FFF">ЙЎҚ</Button>
-          <Button @click="requestToChangeStatus">ҲА</Button>
+        <div class="modal-actions">
+          <div class="modal-actions__btns">
+            <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" @click="closeApplyModal"
+              borderColor="#FFF">ЙЎҚ</Button>
+            <Button @click="requestToChangeStatus">ҲА</Button>
+          </div>
         </div>
       </div>
-    </div>
-  </Modal>
+    </Modal>
+  </div>
 
 </template>
 
@@ -355,18 +312,6 @@ onMounted(() => {
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
 
-.form {
-  &-action {
-    display: flex;
-    gap: 20px;
-
-    &__btn {
-      &._1 {
-        margin-left: auto;
-      }
-    }
-  }
-}
 
 .modal {
 
@@ -453,39 +398,53 @@ onMounted(() => {
   }
 }
 
+
 .docs {
-  width: 576px;
-  height: calc(var(--height-info)*4 + 12px*3);
-  max-height: calc(var(--height-info)*4 + 12px*3);
+  position: absolute;
+  z-index: 1;
+  width: 50%;
+  height: 90vh;
+  top: 5vh;
+  right: 12px;
+  background-color: #fff;
   border-radius: 6px;
   box-shadow: 0px 4px 18px 0px rgba(75, 70, 92, 0.1);
   padding: 0 16px;
   --local-header-height: 50px;
   --local-docs-height: 450px;
   --local-docs-page-height: 50px;
+  transition: all 5s ease-in-out;
 
+  &-links {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    &__item {
+      color: #7367F0;
+      font-feature-settings: 'liga' off, 'clig' off;
+      font-size: 20px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: 22px;
+    }
+  }
+
+  &-close {
+    @include btn-clean;
+  }
 
   &-header {
     display: flex;
     min-height: var(--local-header-height);
     display: flex;
     align-items: center;
-  }
 
-  &-title {
-    color: #4B465C;
-    font-feature-settings: 'liga' off, 'clig' off;
-    font-size: 18px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 24px;
-    margin-right: auto;
   }
 
   &-slider {
     max-width: 100%;
-    height: calc(var(--local-docs-height) - var(--local-header-height) - var(--local-docs-page-height));
-    max-height: calc(var(--local-docs-height) - var(--local-header-height) - var(--local-docs-page-height));
+    height: 75vh;
     position: relative;
 
     &__name {
@@ -501,7 +460,7 @@ onMounted(() => {
     &__image {
       display: block;
       width: 100%;
-      height: 316px;
+      height: 75vh;
       max-height: 316ps;
 
       img {
@@ -565,6 +524,5 @@ onMounted(() => {
 
     }
   }
-
 }
 </style>

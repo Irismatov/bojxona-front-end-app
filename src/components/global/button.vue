@@ -50,7 +50,6 @@ const styles = computed(() => {
   justify-content: center;
   color: var(--local-color);
   font-feature-settings: 'liga' off, 'clig' off;
-  font-family: "Public Sans";
   font-size: 15px;
   font-style: normal;
   font-weight: 500;
