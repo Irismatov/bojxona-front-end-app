@@ -17,9 +17,9 @@ async function fetchData() {
 };
 
 async function requestToChangeStatus() {
-   await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat ortga qaytarildi");
-   closeModal();
-   fetchData();
+    await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat ortga qaytarildi");
+    closeModal();
+    fetchData();
 }
 
 const pagination = reactive({
@@ -55,7 +55,10 @@ const columns = [
         dataIndex: "finishedAt",
     },
     {
-        title: "Муносабат",
+        title: "Туланган сумма",
+        dataIndex: "paidAmount"
+    },
+    {
         key: "action",
     },
 ];
@@ -67,16 +70,12 @@ const tabs = [
     },
     {
         value: "0",
-        label: "МБ"
+        label: "Туланган"
     },
     {
         value: "1",
-        label: "АТ"
+        label: "Кайтарилган"
     },
-    {
-        value: "2",
-        label: "ИМЕИ"
-    }
 ];
 
 const activeTab = ref(-1);
@@ -105,9 +104,9 @@ onMounted(() => {
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'action'">
                 <div class="action">
-                    <!-- <Button class="action-link__btn _1">
-            <Icon name="mail" />
-          </Button> -->
+                    <Button class="action-link__btn _1">
+                        <Icon name="mail" />
+                    </Button>
                     <Button @click="onClickTableButton(record.id)" class="action-link__btn _2">
                         Кайтариш
                     </Button>
@@ -115,7 +114,7 @@ onMounted(() => {
             </template>
         </template>
     </Table>
-    <Pagination v-if="totalElements > 0"  :pagination="pagination" :fetchData="fetchData"/>
+    <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData" />
     <Modal :open="open" @cancel="closeModal" title="Диққат" subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
         <div class="warning">
             <div class="warning-action">
@@ -140,9 +139,27 @@ onMounted(() => {
         display: flex;
         gap: 16px;
     }
+}
 
+.action {
+    display: flex;
+    gap: 16px;
 
+    &-link {
 
+        &__btn {
+            &._1 {
+                &:hover {
+                    .icon {
+                        --icon-color: white;
+                    }
+                }
+            }
 
+            .icon {
+                --icon-color: #7367F0;
+            }
+        }
+    }
 }
 </style>

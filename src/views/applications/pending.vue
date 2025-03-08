@@ -21,7 +21,7 @@ async function fetchData() {
     console.log(pagination.page);
     console.log(totalElements);
     await getDeclarations(3, activeTab.value, {
-        page: 1,
+        page: pagination.page - 1,
         size: 10
     });
 }
@@ -57,6 +57,14 @@ const columns = [
     {
         title: "Тугатилган вақти",
         dataIndex: "finishedAt",
+    },
+    {
+        title: "Тулов суммаси",
+        dataIndex: "totalAmount"
+    },
+    {
+        title: "Туланган йигим",
+        dataIndex: "paidAmount"
     },
     {
         title: "Муносабат",
@@ -121,9 +129,6 @@ function formatTimestamp(timestamp) {
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'action'">
                 <div class="action">
-                    <!-- <Button class="action-link__btn _1">
-            <Icon name="mail" />
-          </Button> -->
                     <Button @click="onClickTableButton(record.id)" class="action-link__btn _2">
                         Кайтариш
                     </Button>
