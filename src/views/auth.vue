@@ -1,8 +1,11 @@
 <script setup>
-import { Form, FormItem, Input } from 'ant-design-vue';
 import { ref, reactive } from 'vue';
+import useAuth from "@/stores"
+import { useRouter } from 'vue-router';
 
 
+const auth = useAuth();
+const router = useRouter();
 
 const form = reactive({
     login: "",
@@ -10,12 +13,14 @@ const form = reactive({
 });
 
 const onFinish = async (values) => {
-    console.log(values);
+    const isSuccess = await auth.login(values);
+    if (isSuccess)  router.push({path: "/"});
+    else AMessage.error("Login yoki parol noto'g'ri");
 }
 
 
 const onFinishFailed = (errorInfo) => {
-    console.log('am I working ?')
+    
 };
 
 
@@ -27,17 +32,17 @@ const onFinishFailed = (errorInfo) => {
             <h1 class="login-title">
                 Bojxona Hamkor
             </h1>
-            <Form :model="form" layout="vertical" @finish="onFinish" @finishFailed="onFinishFailed">
-                <FormItem label="Login" name="login" class="login-text"
+            <AForm :model="form" layout="vertical" @finish="onFinish" @finishFailed="onFinishFailed">
+                <AFormItem label="Login" name="login" class="login-text"
                     :rules="[{ required: true, message: 'Please input your username!' }]">
-                    <Input v-model:value="form.login" />
-                </FormItem>
-                <FormItem label="Parol" name="password" class="login-text"
+                    <AInput v-model:value="form.login" />
+                </AFormItem>
+                <AFormItem label="Parol" name="password" class="login-text _last"
                     :rules="[{ required: true, message: 'Please input your password!' }]">
-                    <Input v-model:value="form.password" />
-                </FormItem>
+                    <AInput v-model:value="form.password" />
+                </AFormItem>
                 <Button class="login-btn">KIRISH</Button>
-            </Form>
+            </AForm>
         </div>
     </div>
 </template>
@@ -81,8 +86,8 @@ const onFinishFailed = (errorInfo) => {
         line-height: 30px;
         margin-bottom: 4px;
 
-        &:last-child {
-            margin-bottom: 10px;
+        &._last {
+            margin-bottom: 12px;
         }
     }
 

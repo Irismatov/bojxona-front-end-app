@@ -7,7 +7,8 @@ const router = createRouter({
       path: "/",
       component: () => import("@/views/index.vue"),
       meta: {
-        layout: "main"
+        layout: "main",
+        roles: ["ADMIN", "DECLARANT", "MANAGER"]
       }
     },
     {
@@ -21,7 +22,8 @@ const router = createRouter({
       path: "/applications",
       component: () => import("@/views/applications.vue"),
       meta: {
-        layout: "main"
+        layout: "main",
+        roles: ["ADMIN", "DECLARANT"]
       },
       children: [
         {
@@ -50,15 +52,21 @@ const router = createRouter({
       path: "/employees",
       component: () => import("@/views/employees.vue"),
       meta: {
-        layout: "main"
+        layout: "main",
+        roles: ["ADMIN", "MANAGER"]
       }
     },
     {
       path: "/reports",
       component: () => import("@/views/reports.vue"),
       meta: {
-        layout: "main"
+        layout: "main",
+        roles: ["ADMIN", "MANAGER"]
       }
+    },
+    {
+      path: "/error",
+      component: () => import("@/views/Error.vue")
     }
   ],
 })

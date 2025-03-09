@@ -1,9 +1,10 @@
 <script setup>
 import { Table } from "ant-design-vue";
-import {useModal} from "@/utils/composable/modal.js"
+import { useModal } from "@/utils/composable/modal.js"
+import { ref, reactive, onMounted } from "vue";
+import axios from "@/plugins/axios";
 
-const {openModal, closeModal, open} = useModal();
-
+const { openModal, closeModal, open } = useModal();
 
 const columns = [
     {
@@ -14,11 +15,11 @@ const columns = [
     },
     {
         title: "FIO",
-        dataIndex: "fio",
+        dataIndex: "fullName",
     },
     {
-        title: "Turi",
-        dataIndex: "type",
+        title: "Role",
+        dataIndex: "role",
     },
     {
         title: "Telefon",
@@ -34,40 +35,44 @@ const columns = [
     },
 ];
 
-const list = [
-    {
-        fio: "Ali Aliyev",
-        type: "DEKLARANT",
-        phone: "+32423442342",
-        address: "O'rikzor 4"
-    },
-    {
-        fio: "Ali Aliyev",
-        type: "DEKLARANT",
-        phone: "+32423442342",
-        address: "O'rikzor 4"
-    },
-    {
-        fio: "Ali Aliyev",
-        type: "DEKLARANT",
-        phone: "+32423442342",
-        address: "O'rikzor 4"
-    },
-    {
-        fio: "Ali Aliyev",
-        type: "DEKLARANT",
-        phone: "+32423442342",
-        address: "O'rikzor 4"
-    },
-    {
-        fio: "Ali Aliyev",
-        type: "DEKLARANT",
-        phone: "+32423442342",
-        address: "O'rikzor 4"
-    }
-]
+
+const list = ref([]);
+
+async function fetchData() {
+    const response = await axios.get("/users");
+    list.value = response.data;
+}
+
+
+const form = reactive({
+    username: "",
+    fio: "",
+    role: "ADMIN",
+    password: "",
+    phone: "",
+    address: "",
+    email: ""
+})
+
+const onFinish = async (values) => {
+    const response = await axios.post("/users", values);
+    console.log(response);
+    closeModal();
+}
+
+const onFinishFailed = (errorInfo) => {
+    console.log(errorInfo);
+}
+
+
+onMounted(async () => {
+    await fetchData();
+});
 
 </script>
+
+
+
 <template>
     <div class="card">
         <div class="card-header">
@@ -75,7 +80,7 @@ const list = [
             <button class="card-header__btn" @click="openModal">+ Yangi hodim yaratish </button>
         </div>
         <div class="card-body">
-            <Table :columns="columns" :data-source="list">
+            <Table :columns="columns" :data-source="list" :pagination=false>
                 <template #bodyCell="{ column }">
                     <template v-if="column.key === 'action'">
                         <div class="action">
@@ -91,8 +96,35 @@ const list = [
         </div>
     </div>
 
-
     <Modal :open="open" @cancel="closeModal" title="Yangi hodim" subtitle="Yangi hodimning ma'lumotlarini kiriting">
+        <AForm :model="form" layout="vertical" @finish="onFinish" @finishFailed="onFinishFailed">
+            <AFormItem label="FIO" name="fio">
+                <AInput v-model:value="form.fio"></AInput>
+            </AFormItem>
+            <AFormItem label="Username" name="username">
+                <AInput v-model:value="form.username"></AInput>
+            </AFormItem>
+            <AFormItem label="Turi" name="role">
+                <ASelect v-model:value="form.role">
+                    <ASelectOption value="ADMIN">ADMIN</ASelectOption>
+                    <ASelectOption value="MANAGER">MANAGER</ASelectOption>
+                    <ASelectOption value="DECLARANT">DEKLARANT</ASelectOption>
+                </ASelect>
+            </AFormItem>
+            <AFormItem label="Parol" name="password">
+                <AInput v-model:value="form.password"></AInput>
+            </AFormItem>
+            <AFormItem label="Phone" name="phone">
+                <AInput v-model:value="form.phone"></AInput>
+            </AFormItem>
+            <AFormItem label="Address" name="address">
+                <AInput v-model:value="form.address"></AInput>
+            </AFormItem>
+            <AFormItem label="Email" name="email">
+                <AInput v-model:value="form.email"></AInput>
+            </AFormItem>
+            <Button>Qo'shish</Button>
+        </AForm>
     </Modal>
 </template>
 
