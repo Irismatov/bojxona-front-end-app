@@ -31,10 +31,11 @@ function setSocket() {
         console.log("Connected", frame);
         isConnected.value = true;
 
-        client.value.subscribe('/topic/messages', (message) => {
+        client.value.subscribe(`/user/${props.receiverId}/queue/messages`, (message) => {
             const parsedMessage = JSON.parse(message.body);
             messages.value.push(parsedMessage);
             console.log("Received message:", parsedMessage);
+            console.log("AMMAMAMMM")
         })
     }
 

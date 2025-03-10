@@ -1,35 +1,34 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import { Client } from '@stomp/stompjs';
-import SockJS from "sockjs-client";
-
+import SockJS from 'sockjs-client'
+import Stomp from 'webstomp-client'
 
 const senderId = '9308e47e-be88-4aa0-879e-8a847c0dda0c';
 const receiverId = '324787d6-45d5-42be-8e8a-54ff3db37dab';
+const socket = ref(null);
 const client = ref(null);
 const isConnected = ref(null);
 
+
+
 function setSocket() {
-    client.value = new Client({
-        webSocketFactory: () => new SockJS('http://localhost:8081/ws'),
-        debug: function (str) {
-            console.log(str);
+    socket.value = new SockJS('http://localhost:8081/ws');
+    client.value = Stomp.over(socket.value);
+
+    client.value.connect(
+        {},
+        () => {
+            client.value.subscribe(
+                `/user/${senderId}/queue/messages`
+            ),
+            message => {
+                const receivedMessage = JSON.parse(message.body);
+                console.log(receivedMessage);
+                console.log("AMMMAMAMAMAM")
+            }
         }
-    });
-
-    client.value.onConnect = function (frame) {
-        console.log("Connected", frame);
-        isConnected.value = true;
-
-
-        client.value.subscribe(`/user/${senderId}/queue/messages`, (message) => {
-            const parsedMessage = JSON.parse(message.body);
-            console.log(parsedMessage);
-        })
-    }
-    client.value.activate();
+    )
 }
-
 
 // Statik ma'lumotlar
 const currentUser = ref('User1'); // Joriy foydalanuvchi (masalan, User1)
