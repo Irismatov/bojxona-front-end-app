@@ -1,5 +1,4 @@
 <script setup>
-import '@splidejs/splide/css/sea-green';
 
 
 

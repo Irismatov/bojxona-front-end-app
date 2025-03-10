@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import SockJS from 'sockjs-client'
 import Stomp from 'webstomp-client'
+import { Client } from '@stomp/stompjs';
 
 const senderId = '9308e47e-be88-4aa0-879e-8a847c0dda0c';
 const receiverId = '324787d6-45d5-42be-8e8a-54ff3db37dab';
@@ -12,22 +13,28 @@ const isConnected = ref(null);
 
 
 function setSocket() {
-    socket.value = new SockJS('http://localhost:8081/ws');
-    client.value = Stomp.over(socket.value);
-
-    client.value.connect(
-        {},
-        () => {
-            client.value.subscribe(
-                `/user/${senderId}/queue/messages`
-            ),
-            message => {
-                const receivedMessage = JSON.parse(message.body);
-                console.log(receivedMessage);
-                console.log("AMMMAMAMAMAM")
-            }
+    client.value = new Client({
+        webSocketFactory: () => new SockJS(`http://localhost:8081/ws?userId=${senderId}`),
+        debug: function(str) {
+            console.log(str)
         }
-    )
+    });
+    client.value.onConnect = function (frame) {
+        console.log("Connected", frame);
+        isConnected.value = true;
+        client.value.subscribe(`/user/queue/messages`, (message) => {
+            const parsedMessage = JSON.parse(message.body);
+            console.log(parsedMessage);
+        })
+    }
+
+    client.value.onStompError = function (frame) {
+        console.log('Broker reported error' + frame.headers['message']);
+        console.log('Additional details' + frame.body);
+        isConnected.value = true;
+    }
+
+    client.value.activate();
 }
 
 // Statik ma'lumotlar

@@ -5,6 +5,8 @@ import axios from "@/plugins/axios";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { Stomp } from '@stomp/stompjs';
+import useAuth from "@/stores";
+const auth = useAuth();
 
 
 const props = defineProps({
@@ -22,7 +24,7 @@ const isConnected = ref(false);
 
 function setSocket() {
     client.value = new Client({
-        webSocketFactory: () => new SockJS('http://localhost:8081/ws'),
+        webSocketFactory: () => new SockJS(`http://localhost:8081/ws?userId=${props.receiverId}`),
         debug: function (str) {
             console.log(str)
         },
@@ -31,7 +33,7 @@ function setSocket() {
         console.log("Connected", frame);
         isConnected.value = true;
 
-        client.value.subscribe(`/user/${props.receiverId}/queue/messages`, (message) => {
+        client.value.subscribe(`/user/queue/messages`, (message) => {
             const parsedMessage = JSON.parse(message.body);
             messages.value.push(parsedMessage);
             console.log("Received message:", parsedMessage);
