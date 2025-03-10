@@ -1,15 +1,15 @@
 <script setup>
-import { Table  } from "ant-design-vue";
+import { Table } from "ant-design-vue";
 import { useModal, useDeclarations } from "@/utils/composable";
 import { ref, onMounted, reactive } from "vue";
 const { open, closeModal, openModal } = useModal();
 const currentItem = ref();
 const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
-
+const modalRef = ref();
 
 async function requestToChangeStatus() {
   await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat sizga yuklandi");
-  closeModal();
+  modalRef.value.closeModal();
   fetchData();
 }
 
@@ -22,7 +22,7 @@ const pagination = reactive(
 
 
 async function fetchData() {
-  await getDeclarations(1, activeTab.value , {
+  await getDeclarations(1, activeTab.value, {
     page: pagination.page - 1,
     size: 10
   });
@@ -113,7 +113,7 @@ const customRow = (record) => {
   return {
     onClick: () => {
       currentItem.value = record.id;
-      openModal();
+      modalRef.value.openModal()
     },
     style: {
       cursor: 'pointer',
@@ -135,16 +135,9 @@ onMounted(() => {
 
   </Table>
 
-  <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData"/>
+  <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData" />
 
-  <Modal :open="open" @cancel="closeModal" title="Диққат"
-    subtitle="Мазкур мурожаатни қайта ишлашга ўзингизга юклаб олишга розимисиз?">
-    <div class="warning">
-      <div class="warning-action">
-        <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF" @click="closeModal">ЙЎҚ</Button>
-        <Button @click="requestToChangeStatus()">ҲА</Button>
-      </div>
-    </div>
+  <Modal @on-submit="requestToChangeStatus" ref="modalRef" title="Диққат" subtitle="Мазкур мурожаатни қайта ишлашга ўзингизга юклаб олишга розимисиз?">
   </Modal>
 </template>
 

@@ -9,12 +9,10 @@
 html {
     scroll-behavior: smooth;
 }
-
 body {
-    font-family: "Public Sans", sans-serif;
+    font-family: "Inter", sans-serif;
     background-color: rgb(248, 247, 250);
 }
-
 a {
     text-decoration: none;
 }
@@ -31,4 +29,36 @@ p {
     list-style: none;
     margin: 0;
     padding: 0;
+}
+
+.ant-checkbox-group.flex-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 100%;
+    row-gap: 8px;
+}
+
+.ant-form {
+    width: 100%;
+    &-item {
+        width: 100% !important;
+        margin: 0 !important;
+        &-label {
+            margin-bottom: 8px;
+            label {
+                height: unset !important;
+                display: block !important;
+                font-size: 16px !important;
+                font-weight: 500;
+                color: rgba(0,0,0,0.8) !important;
+            }
+        }
+    }
+}
+
+.ant-select {
+    width: 100% !important;
+    display: block;
 }

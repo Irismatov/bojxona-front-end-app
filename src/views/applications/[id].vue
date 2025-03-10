@@ -1,49 +1,65 @@
 <script setup>
-import { ref, onMounted, computed, reactive } from "vue";
+import { ref, onMounted, computed, reactive, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import { useModal, useDeclarations } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import DocumentsDrawer from "@/components/local/drawer/documents.vue";
-const documentsDrawerRef = ref();
+const cancelAppRef = ref();
+const applyRef = ref();
+const documentsRef = ref();
 const route = useRoute();
-const {
-  openModal: openCancelModal,
-  open: openCancel,
-  closeModal: closeCancelModal,
-} = useModal();
-const {
-  openModal: openApplyModal,
-  open: openApply,
-  closeModal: closeApplyModal,
-} = useModal();
 const { isLoading, changeDeclarationStatus, formatType } = useDeclarations();
 
 const data = ref({});
-const cancelOptions = ref([]);
-
-const applySelectOptions = ref([
+const EReason = {
+  DOCISNOTVALID: 1,
+  IMGISNOTVALID: 2,
+  NOTRESPONSE: 3,
+  OTHER: 4,
+};
+const LOptions = [
   {
-    value: "1",
+    value: 1,
     label: "Bitta dokument",
   },
-]);
+];
+const optionId = ref();
+const LReason = [
+  {
+    label: "Ҳужжат тўлиқ тақдим этилмаган",
+    value: EReason.DOCISNOTVALID,
+  },
+  {
+    label: "Сурат яхши эмас",
+    value: EReason.IMGISNOTVALID,
+  },
+  {
+    label: "Мурожаатчи жавоб бермаяпти",
+    value: EReason.NOTRESPONSE,
+  },
+  {
+    label: "Бошқа",
+    value: EReason.OTHER,
+  },
+];
 
-const applySelectValue = ref("1");
-
-
-
+const form = reactive({
+  reason: [],
+  other: "",
+});
 // rasmni yuklash uchun bu qismi o'chirib yuboriladi
 const file = ref(null);
 const preview = ref(null);
 const declType = ref(0);
 
-async function requestToChangeStatus() {
+async function changeStatus() {
   await changeDeclarationStatus(
     route.params.id,
     3,
     "Murojaat rasmiylashtirildi"
   );
-  closeApplyModal();
+  applyRef.value.closeModal();
+  optionId.value = undefined;
 }
 
 async function fetchData() {
@@ -132,7 +148,7 @@ onMounted(() => {
             <template #value>
               <div class="docs-links">
                 <a
-                  @click="documentsDrawerRef.fetchData('passports')"
+                  @click="documentsRef.fetchData('passports')"
                   class="docs-links__item"
                   >Пасспортлар</a
                 >
@@ -160,95 +176,44 @@ onMounted(() => {
           <Button
             class="form-action__btn _1"
             color="#EA5455"
-            @click="openCancelModal"
+            @click="cancelAppRef?.openModal"
             >Қайтариш</Button
           >
-          <Button class="form-action__btn _2" @click="openApplyModal"
+          <Button class="form-action__btn _2" @click="applyRef?.openModal()"
             >Расмийлаштириш</Button
           >
         </ACol>
       </ARow>
     </Card>
-
-    <Modal
-      :open="openCancel"
-      @cancel="closeCancelModal"
-      title="Диққат"
-      subtitle="Ушбу мурожаатни нима сабабдан қайтармоқчисиз?"
-    >
-      <div class="modal modal-cancel">
-        <div class="modal-actions">
-          <div class="modal-actions__checkbox">
-            <ACheckboxGroup v-model:value="cancelOptions" style="width: 100%">
-              <ARow :gutter="[8, 8]">
-                <ACol :span="24">
-                  <ACheckbox value="documentIsNotValid"
-                    >Ҳужжат тўлиқ тақдим этилмаган</ACheckbox
-                  >
-                </ACol>
-                <ACol :span="24">
-                  <ACheckbox value="imageIsNotValid">Сурат яхши эмас</ACheckbox>
-                </ACol>
-                <ACol :span="24">
-                  <ACheckbox value="applicantIsNotResponding"
-                    >Мурожаатчи жавоб бермаяпти</ACheckbox
-                  >
-                </ACol>
-                <ACol :span="24">
-                  <ACheckbox value="other">Бошқа</ACheckbox>
-                </ACol>
-                <ACol :span="24">
-                  <ATextarea
-                    :rows="3"
-                    placeholder="Бошқа сабаб киритинг"
-                    :disabled="!cancelOptions.includes('other')"
-                  >
-                  </ATextarea>
-                </ACol>
-              </ARow>
-            </ACheckboxGroup>
-          </div>
-          <div class="modal-actions__btns">
-            <Button
-              bgColor="rgba(168, 170, 174, 0.16)"
-              color="#A8AAAE"
-              borderColor="#FFF"
-              @click="closeCancelModal"
-              >Ортга</Button
-            >
-            <Button color="#EA5455">Қайтариш</Button>
-          </div>
-        </div>
-      </div>
-    </Modal>
-
-    <Modal
-      :open="openApply"
-      @cancel="closeApplyModal"
-      title="Диққат"
-      subtitle="Сиз ушбу мурожаатни расмийлаштирмоқчимисиз"
-    >
-      <div class="modal modal-apply">
-        <!-- <p class="modal-apply__text">Танланг: </p>
-      <Select ref="select" v-model:value="applySelectValue" :options="applySelectOptions" @focus="focus"
-        @change="handleChange"></Select> -->
-
-        <div class="modal-actions">
-          <div class="modal-actions__btns">
-            <Button
-              bgColor="rgba(168, 170, 174, 0.16)"
-              color="#A8AAAE"
-              @click="closeApplyModal"
-              borderColor="#FFF"
-              >ЙЎҚ</Button
-            >
-            <Button @click="requestToChangeStatus">ҲА</Button>
-          </div>
-        </div>
-      </div>
-    </Modal>
   </div>
-  <DocumentsDrawer :documents="data.documents || []" ref="documentsDrawerRef" />
+  <Modal title="Диққат" ref="cancelAppRef">
+    <AForm layout="vertical">
+      <AFormItem label="Ушбу мурожаатни нима сабабдан қайтармоқчисиз?">
+        <ACheckboxGroup
+          class="flex-column"
+          v-model:value="form.reason"
+          :options="LReason"
+        />
+      </AFormItem>
+      <AFormItem
+        label="Boshqa sabab"
+        v-if="form.reason.includes(EReason.OTHER)"
+      >
+        <ATextarea
+          placeholder="Kiriting"
+          v-model:value="form.other"
+        ></ATextarea>
+      </AFormItem>
+    </AForm>
+  </Modal>
+  <Modal @on-submit="changeStatus" ref="applyRef" title="Rasmiylashtirish" :width="400">
+    <AForm layout="vertical">
+      <AFormItem label="Xujjatlar soni">
+        <Select ref="select" v-model:value="optionId" :options="LOptions" />
+      </AFormItem>
+    </AForm>
+  </Modal>
+  <DocumentsDrawer :documents="data.documents || []" ref="documentsRef" />
 </template>
 
 <style lang="scss" scoped>

@@ -85,7 +85,7 @@ const handleClick = (value) => {
         gap: 10px;
         color: #4B465C;
         font-feature-settings: 'liga' off, 'clig' off;
-        font-family: "Public Sans";
+        
         font-size: 15px;
         font-style: normal;
         font-weight: 400;

@@ -31,7 +31,7 @@ const props = defineProps({
             label {
               color: #4B465C;
               font-feature-settings: 'liga' off, 'clig' off;
-              font-family: "Public Sans";
+              
               font-size: 13px;
               font-style: normal;
               font-weight: 400;
@@ -48,7 +48,7 @@ const props = defineProps({
         box-shadow: 0px 2px 4px 0px rgba(165, 163, 174, 0.30);
         color: #4B465C;
         font-feature-settings: 'liga' off, 'clig' off;
-        font-family: "Public Sans";
+        
         font-size: 13px;
         font-style: normal;
         font-weight: 400;

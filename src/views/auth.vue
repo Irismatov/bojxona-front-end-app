@@ -67,7 +67,7 @@ const onFinishFailed = (errorInfo) => {
     &-title {
         color: #4B465C;
         font-feature-settings: 'liga' off, 'clig' off;
-        font-family: "Public Sans";
+        
         font-size: 26px;
         font-style: normal;
         font-weight: 700;
@@ -79,7 +79,7 @@ const onFinishFailed = (errorInfo) => {
     &-text {
         color: #4B465C;
         font-feature-settings: 'liga' off, 'clig' off;
-        font-family: "Public Sans";
+        
         font-size: 18px;
         font-style: normal;
         font-weight: 600;

@@ -145,7 +145,7 @@ onMounted(async () => {
         &__title {
             color: #4B465C;
             font-feature-settings: 'liga' off, 'clig' off;
-            font-family: "Public Sans";
+            
             font-size: 18px;
             font-style: normal;
             font-weight: 600;
@@ -162,7 +162,7 @@ onMounted(async () => {
             padding: 0 20px;
             color: #FFF;
             font-feature-settings: 'liga' off, 'clig' off;
-            font-family: "Public Sans";
+            
             font-size: 15px;
             font-style: normal;
             font-weight: 500;

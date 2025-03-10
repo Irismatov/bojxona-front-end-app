@@ -1,7 +1,7 @@
 @mixin display-1($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 64px;
     font-style: normal;
     font-weight: 500;
@@ -11,7 +11,7 @@
 @mixin display-2($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 56px;
     font-style: normal;
     font-weight: 500;
@@ -21,7 +21,7 @@
 @mixin display-3 ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 48px;
     font-style: normal;
     font-weight: 500;
@@ -31,7 +31,7 @@
 @mixin display-4 ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 32px;
     font-style: normal;
     font-weight: 500;
@@ -41,7 +41,7 @@
 @mixin heading-1 ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 38px;
     font-style: normal;
     font-weight: 600;
@@ -51,7 +51,7 @@
 @mixin heading-2 ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 32px;
     font-style: normal;
     font-weight: 600;
@@ -61,7 +61,7 @@
 @mixin heading-3 ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 26px;
     font-style: normal;
     font-weight: 600;
@@ -71,7 +71,7 @@
 @mixin heading-4 ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 22px;
     font-style: normal;
     font-weight: 600;
@@ -81,7 +81,7 @@
 @mixin heading-5 ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 18px;
     font-style: normal;
     font-weight: 600;
@@ -91,7 +91,7 @@
 @mixin heading-6 ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 600;
@@ -101,7 +101,7 @@
 @mixin paragraph-lead ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -111,7 +111,7 @@
 @mixin paragraph ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 400;
@@ -121,7 +121,7 @@
 @mixin paragraph-medium ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 500;
@@ -131,7 +131,7 @@
 @mixin paragraph-semi-bold ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 500;
@@ -141,7 +141,7 @@
 @mixin paragraph-bold ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 700;
@@ -151,7 +151,7 @@
 @mixin paragraph-small ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 13px;
     font-style: normal;
     font-weight: 400;
@@ -161,7 +161,7 @@
 @mixin paragraph-small-semi-bold ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 13px;
     font-style: normal;
     font-weight: 600;
@@ -171,7 +171,7 @@
 @mixin paragraph-small-bold ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 13px;
     font-style: normal;
     font-weight: 700;
@@ -181,7 +181,7 @@
 @mixin delete($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 400;
@@ -192,7 +192,7 @@
 @mixin italicized($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 400;
@@ -203,7 +203,7 @@
 @mixin underline($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 16px;
     font-style: normal;
     font-weight: 400;
@@ -219,7 +219,7 @@
 @mixin caption($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 11px;
     font-style: normal;
     font-weight: 400;
@@ -229,7 +229,7 @@
 @mixin button-lg ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 17px;
     font-style: normal;
     font-weight: 500;
@@ -241,7 +241,7 @@
 @mixin button ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 500;
@@ -252,7 +252,7 @@
 @mixin button-sm ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 13px;
     font-style: normal;
     font-weight: 500;
@@ -263,7 +263,7 @@
 @mixin label-lg ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -273,7 +273,7 @@
 @mixin label ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 400;
@@ -283,7 +283,7 @@
 @mixin label-sm ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 13px;
     font-style: normal;
     font-weight: 400;
@@ -293,7 +293,7 @@
 @mixin input-lg ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -303,7 +303,7 @@
 @mixin input ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 400;
@@ -313,7 +313,7 @@
 @mixin input-sm ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 13px;
     font-style: normal;
     font-weight: 400;
@@ -323,7 +323,7 @@
 @mixin placeholder-lg ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 18px;
     font-style: normal;
     font-weight: 400;
@@ -333,7 +333,7 @@
 @mixin placeholder ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 400;
@@ -343,7 +343,7 @@
 @mixin placeholder-sm ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 13px;
     font-style: normal;
     font-weight: 400;
@@ -353,7 +353,7 @@
 @mixin table-header ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 13px;
     font-style: normal;
     font-weight: 600;
@@ -365,7 +365,7 @@
 @mixin menu-active ($color: #4B465C) {
     color: $color;
     font-feature-settings: 'liga' off, 'clig' off;
-    font-family: "Public Sans";
+    
     font-size: 15px;
     font-style: normal;
     font-weight: 400;

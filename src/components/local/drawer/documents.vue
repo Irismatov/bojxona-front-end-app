@@ -7,16 +7,21 @@ import { EffectCreative, Navigation } from "swiper/modules";
 import axios from "@/plugins/axios";
 import { getBlobUrl } from "@/utils/mixins";
 import { useModal } from "@/utils/composable";
+
 const { open, toggleModal } = useModal();
+const toxa = ref();
 const props = defineProps({
   documents: {
     type: Array,
     required: true,
   },
 });
+
 const list = ref([]);
 const loading = ref(false);
-const swiperRef = ref({});
+const swiperRef = ref(null); // Swiper instance
+const currentIndex = ref(0); // Reaktiv activeIndex
+
 const options = {
   modules: [EffectCreative, Navigation],
   slidesPerView: 1,
@@ -27,6 +32,7 @@ const options = {
     prevEl: ".slider-navigation__btn.slider-navigation__prev",
   },
 };
+
 const types = [
   {
     title: "Паспорт олди",
@@ -34,6 +40,7 @@ const types = [
     numbers: [0, 1],
   },
 ];
+
 const fetchData = (type) => {
   loading.value = true;
   toggleModal(true);
@@ -52,15 +59,25 @@ const fetchData = (type) => {
     }
   });
 };
+
 function getFileTitle(type) {
   const item = types.find((el) => el.numbers.includes(type)) || {};
   return item.title;
 }
+
 function getImage(url) {
   return `data:image/jpeg;base64,${url}`;
 }
+const onSwiper = (swiper) => {
+  swiperRef.value = swiper;
+  swiper.on("slideChange", () => {
+    currentIndex.value = swiper.activeIndex;
+  });
+};
+
 defineExpose({ fetchData });
 </script>
+
 <template>
   <ADrawer :open="open" @close="toggleModal(false)" :width="900">
     <div class="slider">
@@ -75,18 +92,29 @@ defineExpose({ fetchData });
           </button>
         </div>
         <div class="slider-images__wrapper">
-          <Swiper v-bind="options" @swiper="(swiper) => (swiperRef = swiper)" class="slider-images">
-            <SwiperSlide v-for="item in list">
+          <Swiper
+            v-bind="options"
+            @swiper="onSwiper" 
+            class="slider-images"
+          >
+            <SwiperSlide v-for="item in list" :key="item.id">
               <h2 class="slider-images__name">{{ getFileTitle(item.type) }}</h2>
-              <a class="slider-images__image" :href="getBlobUrl(item.value)" target="_blank"
-                :style="`--local-image: url('${getImage(item.value)}')`">
-                <img :src="getImage(item.value)" :alt="getFileTitle(item.type)" />
+              <a
+                class="slider-images__image"
+                :href="getBlobUrl(item.value)"
+                target="_blank"
+                :style="`--local-image: url('${getImage(item.value)}')`"
+              >
+                <img
+                  :src="getImage(item.value)"
+                  :alt="getFileTitle(item.type)"
+                />
               </a>
             </SwiperSlide>
           </Swiper>
         </div>
         <div class="slider-pagination">
-          {{ swiperRef.activeIndex + 1 }} / {{ documents.length }}
+          {{ currentIndex + 1 }} / {{ list.length }} <!-- documents.length o‘rniga list.length -->
         </div>
       </template>
     </div>
@@ -111,6 +139,7 @@ defineExpose({ fetchData });
       font-weight: 600;
       line-height: 24px;
       text-align: center;
+      margin-bottom: 16px;
     }
 
     &__image {
