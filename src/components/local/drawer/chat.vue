@@ -1,41 +1,77 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useModal } from "@/utils/composable";
 import axios from "@/plugins/axios";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 const { open, toggleModal } = useModal();
-
 const messages = ref([]);
-const newMessage = ref();
+const newMessage = ref('');
+const connection = ref(null);
 
 const props = defineProps({
-    senderId: {
-        type: String,
-        required: true,
-    },
-    receiverId: {
-        type: String,
-        required: true
-    }
+    senderId: { type: String, required: true },
+    receiverId: { type: String, required: true }
 });
+
+function setSocket() {
+    connection.value = new Client({
+        brokerURL: 'ws://localhost:8081/ws',
+        debug: (str) => {
+            console.log('STOMP Debug:', str); // Enhanced debugging
+        },
+    });
+
+    connection.value.onConnect = (frame) => {
+        console.log("Connection established", frame);
+    }
+
+
+    connection.value.activate();
+}
 
 
 
 async function onChatBtn() {
     toggleModal(true);
+    setSocket();
     await fetchData();
 }
 
 async function fetchData() {
-    const response = axios.get(`/messages/${props.senderId}/${props.receiverId}`);
+    const response = await axios.get(`messages/${props.senderId}/${props.receiverId}`);
     messages.value = response.data;
-
 }
 
 
 
 </script>
 
+
+package com.jakhongir.edumanager.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
+import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+
+@Configuration
+@EnableWebSocketMessageBroker
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Override
+    public void configureMessageBroker(MessageBrokerRegistry config) {
+        config.setApplicationDestinationPrefixes("/app");
+        config.enableSimpleBroker("/topic", "/queue");
+    }
+
+    @Override
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
+        registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS();
+    }
+}
 
 <template>
     <ADrawer :open="open" @close="toggleModal(false)" :width="500">
@@ -48,7 +84,7 @@ async function fetchData() {
             </div>
             <div class="chat-input">
                 <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Type a message..." />
-                <button @click="sendMessage">Send</button>
+                <button @click="sendChatMessage">Send</button>
             </div>
         </div>
     </ADrawer>
