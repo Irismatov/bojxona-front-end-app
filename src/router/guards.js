@@ -8,6 +8,11 @@ export default function setupRouteGuards() {
         const authPath = "/auth";
         const auth = useAuth();
         const token = auth.token;
+
+        if (token) {
+            auth.fetchUserInfo();
+        }
+
         const role = auth.user?.role || {};
         const roles = to.meta?.roles || [];
         const isAuthRequired = !!to.meta?.roles?.length > 0;

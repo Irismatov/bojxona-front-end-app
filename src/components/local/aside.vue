@@ -1,8 +1,10 @@
 <script setup>
 import useAuth from "@/stores"
+import { onMounted, computed } from "vue";
 
-const auth = useAuth;
-const user = auth.user;
+const auth = useAuth();
+const user = computed(() => auth.user);
+
 
 const menu = [
   {
@@ -37,12 +39,14 @@ const menu = [
   <aside class="aside">
     <span class="aside-logo">Божхона Ҳамкор</span>
     <ul class="aside-menu">
-      <li class="aside-menu__item" v-for="item in menu">
-        <RouterLink class="aside-menu__link" :to="item.link">
-          <Icon :name="item.icon" />
-          {{ item.title }}
-        </RouterLink>
-      </li>
+      <template v-for="item in menu">
+        <li v-if="item.roles.includes(user.role)" class="aside-menu__item">
+          <RouterLink class="aside-menu__link" :to="item.link">
+            <Icon :name="item.icon" />
+            {{ item.title }}
+          </RouterLink>
+        </li>
+      </template>
     </ul>
   </aside>
 </template>

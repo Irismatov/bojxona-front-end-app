@@ -1,34 +1,79 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, onMounted, onUnmounted, reactive, computed } from 'vue';
 import { useModal } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
+import { Stomp } from '@stomp/stompjs';
+
+
+const props = defineProps({
+    senderId: { type: String, required: true },
+    receiverId: { type: String, default: null }
+});
 
 const { open, toggleModal } = useModal();
 const messages = ref([]);
 const newMessage = ref('');
-const connection = ref(null);
+const client = ref(null);
+const isConnected = ref(false);
 
-const props = defineProps({
-    senderId: { type: String, required: true },
-    receiverId: { type: String, required: true }
-});
+
 
 function setSocket() {
-    connection.value = new Client({
-        brokerURL: 'ws://localhost:8081/ws',
-        debug: (str) => {
-            console.log('STOMP Debug:', str); // Enhanced debugging
+    client.value = new Client({
+        webSocketFactory: () => new SockJS('http://localhost:8081/ws'),
+        debug: function (str) {
+            console.log(str)
         },
-    });
+    })
+    client.value.onConnect = function (frame) {
+        console.log("Connected", frame);
+        isConnected.value = true;
 
-    connection.value.onConnect = (frame) => {
-        console.log("Connection established", frame);
+        client.value.subscribe('/topic/messages', (message) => {
+            const parsedMessage = JSON.parse(message.body);
+            messages.value.push(parsedMessage);
+            console.log("Received message:", parsedMessage);
+        })
+    }
+
+    client.value.onStompError = function (frame) {
+        console.log('Broker reported error' + frame.headers['message']);
+        console.log('Additional details' + frame.body);
+        isConnected.value = true;
     }
 
 
-    connection.value.activate();
+    client.value.activate();
+}
+
+
+
+function sendMessage() {
+    if (client.value && isConnected.value) {
+        console.log(props.receiverId)
+        const message = {
+            senderId: props.senderId,
+            receiverId: props.receiverId,
+            content: newMessage.value,
+            timestamp: Date.now(),
+            isRead: false
+        }
+        client.value.publish({
+            destination: '/app/chat',
+            body: JSON.stringify({
+                senderId: props.senderId,
+                receiverId: props.receiverId,
+                content: newMessage.value
+            })
+        });
+        console.log("Message sent");
+        messages.value.push(message);
+        newMessage.value = '';
+    } else {
+        console.log("Web socket not connected yet");
+    }
 }
 
 
@@ -44,34 +89,7 @@ async function fetchData() {
     messages.value = response.data;
 }
 
-
-
 </script>
-
-
-package com.jakhongir.edumanager.config;
-
-import org.springframework.context.annotation.Configuration;
-import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
-import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
-import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
-
-@Configuration
-@EnableWebSocketMessageBroker
-public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.setApplicationDestinationPrefixes("/app");
-        config.enableSimpleBroker("/topic", "/queue");
-    }
-
-    @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS();
-    }
-}
 
 <template>
     <ADrawer :open="open" @close="toggleModal(false)" :width="500">
@@ -84,7 +102,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             </div>
             <div class="chat-input">
                 <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Type a message..." />
-                <button @click="sendChatMessage">Send</button>
+                <button @click="sendMessage">Send</button>
             </div>
         </div>
     </ADrawer>
