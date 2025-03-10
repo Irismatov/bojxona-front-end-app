@@ -58,6 +58,12 @@ p {
     }
 }
 
+.ant-drawer {
+    &-body {
+        padding: 0px !important;
+    }
+}
+
 .ant-select {
     width: 100% !important;
     display: block;

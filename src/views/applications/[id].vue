@@ -4,6 +4,11 @@ import { useRoute } from "vue-router";
 import { useModal, useDeclarations } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import DocumentsDrawer from "@/components/local/drawer/documents.vue";
+import ChatDrawer from "@/components/local/drawer/chat.vue"
+import useAuth from "@/stores";
+
+const auth = useAuth();
+
 const cancelAppRef = ref();
 const applyRef = ref();
 const documentsRef = ref();
@@ -119,43 +124,41 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
-    <div class="upload">
-      <input type="file" @change="handleFileChange" accept="image/*" />
-      <input type="number" v-model="declType" max="3" min="0" value="0" />
-      <Button @click="uploadImage">Rasmni yuklash</Button>
-      <div v-if="preview">
-        <h3>Tanlangan rasm:</h3>
-        <img :src="preview" width="200" />
-      </div>
+  <div class="upload">
+    <input type="file" @change="handleFileChange" accept="image/*" />
+    <input type="number" v-model="declType" max="3" min="0" value="0" />
+    <Button @click="uploadImage">Rasmni yuklash</Button>
+    <div v-if="preview">
+      <h3>Tanlangan rasm:</h3>
+      <img :src="preview" width="200" />
     </div>
-    <Card title="Маълумотлар">
-      <ARow :gutter="[12, 24]">
-        <ACol span="6">
-          <Info label="Мурожаат тури" :value="formatType(data.type) || '-'" />
-        </ACol>
-        <ACol span="6">
-          <Info label="Мурожаат рақами" :value="data.declNumber || '-'" />
-        </ACol>
-        <ACol span="6">
-          <Info label="Мурожаат вақти" :value="data.createdAt || '-'" />
-        </ACol>
-        <ACol span="6">
-          <Info label="Мурожаат давомийлиги" :value="data.duration || '-'" />
-        </ACol>
-        <ACol span="24">
-          <Info label="Hujjatlar" color-value="#7367F0">
-            <template #value>
-              <div class="docs-links">
-                <a
-                  @click="documentsRef.fetchData('passports')"
-                  class="docs-links__item"
-                  >Пасспортлар</a
-                >
-                <!-- <a @click="toggleDocument('passports')" class="docs-links__item"
+  </div>
+
+
+
+  <Card title="Маълумотлар">
+    <ARow :gutter="[12, 24]">
+      <ACol span="6">
+        <Info label="Мурожаат тури" :value="formatType(data.type) || '-'" />
+      </ACol>
+      <ACol span="6">
+        <Info label="Мурожаат рақами" :value="data.declNumber || '-'" />
+      </ACol>
+      <ACol span="6">
+        <Info label="Мурожаат вақти" :value="data.createdAt || '-'" />
+      </ACol>
+      <ACol span="6">
+        <Info label="Мурожаат давомийлиги" :value="data.duration || '-'" />
+      </ACol>
+      <ACol span="24">
+        <Info label="Hujjatlar" color-value="#7367F0">
+          <template #value>
+            <div class="docs-links">
+              <a @click="documentsRef.fetchData('passports')" class="docs-links__item">Пасспортлар</a>
+              <!-- <a @click="toggleDocument('passports')" class="docs-links__item"
                   >Пасспортлар</a
                 > -->
-                <!-- <a
+              <!-- <a
                   @click="toggleDocument('techpassports')"
                   class="docs-links__item"
                   >Техпаспортлар</a
@@ -168,41 +171,27 @@ onMounted(() => {
                 <a @click="toggleDocument('crm')" class="docs-links__item"
                   >СРМ</a
                 > -->
-              </div>
-            </template>
-          </Info>
-        </ACol>
-        <ACol span="auto" style="display: flex; gap: 10px">
-          <Button
-            class="form-action__btn _1"
-            color="#EA5455"
-            @click="cancelAppRef?.openModal"
-            >Қайтариш</Button
-          >
-          <Button class="form-action__btn _2" @click="applyRef?.openModal()"
-            >Расмийлаштириш</Button
-          >
-        </ACol>
-      </ARow>
-    </Card>
-  </div>
+            </div>
+          </template>
+        </Info>
+      </ACol>
+      <ACol span="auto" style="display: flex; gap: 10px">
+        <Button class="form-action__btn _1" color="#EA5455" @click="cancelAppRef?.openModal">Қайтариш</Button>
+        <Button class="form-action__btn _2" @click="applyRef?.openModal()">Расмийлаштириш</Button>
+      </ACol>
+    </ARow>
+  </Card>
+  <pre>{{ data.id }}</pre>
+  <ChatDrawer :senderId="auth.user.id" :receiverId="data.id"/>
+
+
   <Modal title="Диққат" ref="cancelAppRef">
     <AForm layout="vertical">
       <AFormItem label="Ушбу мурожаатни нима сабабдан қайтармоқчисиз?">
-        <ACheckboxGroup
-          class="flex-column"
-          v-model:value="form.reason"
-          :options="LReason"
-        />
+        <ACheckboxGroup class="flex-column" v-model:value="form.reason" :options="LReason" />
       </AFormItem>
-      <AFormItem
-        label="Boshqa sabab"
-        v-if="form.reason.includes(EReason.OTHER)"
-      >
-        <ATextarea
-          placeholder="Kiriting"
-          v-model:value="form.other"
-        ></ATextarea>
+      <AFormItem label="Boshqa sabab" v-if="form.reason.includes(EReason.OTHER)">
+        <ATextarea placeholder="Kiriting" v-model:value="form.other"></ATextarea>
       </AFormItem>
     </AForm>
   </Modal>
@@ -218,87 +207,4 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
-
-.modal {
-  &-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-
-    &__btns {
-      display: flex;
-      gap: 10px;
-      margin-left: auto;
-    }
-
-    &__checkbox {
-      ::v-deep() {
-        .ant {
-          &-checkbox {
-            &-wrapper {
-              span {
-                color: #4b465c;
-                font-feature-settings: "liga" off, "clig" off;
-
-                font-size: 16px;
-                font-style: normal;
-                font-weight: 400;
-                line-height: 21px;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  &-apply {
-    &__text {
-      color: #4b465c;
-      font-feature-settings: "liga" off, "clig" off;
-
-      font-size: 13px;
-      font-style: normal;
-      font-weight: 400;
-      line-height: normal;
-      margin-bottom: 4px;
-    }
-
-    ::v-deep() {
-      .ant {
-        &-select {
-          width: 200px;
-
-          &:hover .ant-select-selector {
-            border: 1px solid #7367f0 !important;
-          }
-
-          &-selector {
-            border-radius: 4px;
-            border: 1px solid #7367f0;
-            background: #fff;
-
-            .ant-select:hover & {
-              border: 1px solid #7367f0;
-            }
-          }
-
-          &-selection {
-            &-item {
-              color: #4b465c;
-              font-feature-settings: "liga" off, "clig" off;
-
-              font-size: 13px;
-              font-style: normal;
-              font-weight: 400;
-              line-height: 21px;
-              display: flex;
-              align-items: center;
-            }
-          }
-        }
-      }
-    }
-  }
-}
 </style>
