@@ -1,12 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import SockJS from 'sockjs-client'
-import Stomp from 'webstomp-client'
 import { Client } from '@stomp/stompjs';
+import axios from "@/plugins/axios"
 
 const senderId = '9308e47e-be88-4aa0-879e-8a847c0dda0c';
 const receiverId = '324787d6-45d5-42be-8e8a-54ff3db37dab';
-const socket = ref(null);
 const client = ref(null);
 const isConnected = ref(null);
 
@@ -15,7 +14,7 @@ const isConnected = ref(null);
 function setSocket() {
     client.value = new Client({
         webSocketFactory: () => new SockJS(`http://localhost:8081/ws?userId=${senderId}`),
-        debug: function(str) {
+        debug: function (str) {
             console.log(str)
         }
     });
@@ -24,52 +23,54 @@ function setSocket() {
         isConnected.value = true;
         client.value.subscribe(`/user/queue/messages`, (message) => {
             const parsedMessage = JSON.parse(message.body);
-            console.log(parsedMessage);
+            messages.value.push(parsedMessage);
         })
     }
 
     client.value.onStompError = function (frame) {
         console.log('Broker reported error' + frame.headers['message']);
         console.log('Additional details' + frame.body);
-        isConnected.value = true;
+        isConnected.value = false;
     }
 
     client.value.activate();
 }
 
-// Statik ma'lumotlar
-const currentUser = ref('User1'); // Joriy foydalanuvchi (masalan, User1)
-const otherUser = 'User2'; // Boshqa foydalanuvchi (masalan, User2)
 const messages = ref([
-    {
-        sender: 'User1',
-        content: 'Salom, qalaysan?',
-        timestamp: '10:00',
-    },
-    {
-        sender: 'User2',
-        content: 'Yaxshi, senchi?',
-        timestamp: '10:01',
-    },
 ]);
 const newMessage = ref(''); // Yangi xabar uchun input qiymati
 
 // Xabar yuborish funksiyasi
 const sendMessage = () => {
-    if (newMessage.value.trim() === '') return; // Bo'sh xabar yuborilmaydi
-
-    const message = {
-        sender: currentUser.value,
-        content: newMessage.value,
-        timestamp: new Date().toLocaleTimeString().slice(0, 5), // Hozirgi vaqtni qisqa formatda olish
-    };
-
-    messages.value.push(message); // Xabarni ro'yxatga qo'shish
-    newMessage.value = ''; // Inputni tozalash
+    if (client.value && isConnected.value) {
+        const message = {
+            senderId: senderId,
+            receiverId: receiverId,
+            content: newMessage.value,
+            timestamp: Date.now(),
+            isRead: false
+        };
+        client.value.publish({
+            destination: '/app/chat',
+            body: JSON.stringify({
+                senderId: senderId,
+                receiverId: receiverId,
+                content: newMessage.value
+            })
+        });
+        messages.value.push(message);
+        newMessage.value = '';
+    }
 };
+
+async function fetchData() {
+    const response = await axios.get(`messages/${senderId}/${receiverId}`);
+    messages.value = response.data;
+}
 
 
 onMounted(() => {
+    fetchData();
     setSocket();
 })
 </script>
@@ -80,8 +81,7 @@ onMounted(() => {
         <h2>Chat</h2>
         <div class="messages">
             <div v-for="(message, index) in messages" :key="index"
-                :class="['message', message.sender === currentUser ? 'sent' : 'received']">
-                <span class="sender">{{ message.sender }}:</span>
+                :class="['message', message.senderId === senderId ? 'sent' : 'received']">
                 <span class="content">{{ message.content }}</span>
                 <span class="timestamp">{{ message.timestamp }}</span>
             </div>

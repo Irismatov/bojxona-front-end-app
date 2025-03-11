@@ -181,7 +181,6 @@ onMounted(() => {
       </ACol>
     </ARow>
   </Card>
-  <pre>{{ data.id }}</pre>
   <ChatDrawer :senderId="auth.user.id" :receiverId="data.id"/>
 
 

@@ -1,12 +1,10 @@
 <script setup>
-import { ref, onMounted, onUnmounted, reactive, computed } from 'vue';
+import { ref } from 'vue';
 import { useModal } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { Stomp } from '@stomp/stompjs';
-import useAuth from "@/stores";
-const auth = useAuth();
+import { formatISO8601 } from '@/utils/mixins';
 
 
 const props = defineProps({
@@ -19,12 +17,13 @@ const messages = ref([]);
 const newMessage = ref('');
 const client = ref(null);
 const isConnected = ref(false);
+const selectedFile = ref(null);
 
 
 
 function setSocket() {
     client.value = new Client({
-        webSocketFactory: () => new SockJS(`http://localhost:8081/ws?userId=${props.receiverId}`),
+        webSocketFactory: () => new SockJS(`http://localhost:8081/ws?userId=${props.senderId}`),
         debug: function (str) {
             console.log(str)
         },
@@ -36,8 +35,6 @@ function setSocket() {
         client.value.subscribe(`/user/queue/messages`, (message) => {
             const parsedMessage = JSON.parse(message.body);
             messages.value.push(parsedMessage);
-            console.log("Received message:", parsedMessage);
-            console.log("AMMAMAMMM")
         })
     }
 
@@ -51,35 +48,48 @@ function setSocket() {
     client.value.activate();
 }
 
-
-
-function sendMessage() {
+async function sendMessage() {
     if (client.value && isConnected.value) {
-        console.log(props.receiverId)
-        const message = {
-            senderId: props.senderId,
-            receiverId: props.receiverId,
-            content: newMessage.value,
-            timestamp: Date.now(),
-            isRead: false
-        }
-        client.value.publish({
-            destination: '/app/chat',
-            body: JSON.stringify({
+        if (selectedFile.value) {
+            console.log(selectedFile.value)
+            const formData = new FormData();
+            formData.append('senderId', props.senderId);
+            formData.append('receiverId', props.receiverId);
+            formData.append('content', newMessage.value);
+            formData.append('file', selectedFile.value);
+            try {
+                const response = await axios.post('/messages/with-file', formData);
+                messages.value.push(response.value);
+            } catch (err) {
+                console.log(err)
+            } finally {
+                selectedFile.value = null;
+            }
+
+        } else {
+            const message = {
                 senderId: props.senderId,
                 receiverId: props.receiverId,
-                content: newMessage.value
-            })
-        });
-        console.log("Message sent");
-        messages.value.push(message);
+                content: newMessage.value,
+                timestamp: Date.now(),
+                isRead: false,
+            }
+            client.value.publish({
+                destination: '/app/chat',
+                body: JSON.stringify({
+                    senderId: props.senderId,
+                    receiverId: props.receiverId,
+                    content: newMessage.value
+                })
+            });
+            messages.value.push(message);
+        }
+
         newMessage.value = '';
     } else {
         console.log("Web socket not connected yet");
     }
 }
-
-
 
 async function onChatBtn() {
     toggleModal(true);
@@ -92,20 +102,34 @@ async function fetchData() {
     messages.value = response.data;
 }
 
+function uploadFile(event) {
+    selectedFile.value = event.target.files[0];
+}
+
 </script>
 
 <template>
     <ADrawer :open="open" @close="toggleModal(false)" :width="500">
         <div class="chat-container">
             <div class="chat-box">
-                <div v-for="(message, index) in messages" :key="index" class="chat-message" :class="message.type">
+                <div v-for="(message, index) in messages" :key="index" class="chat-message"
+                    :class="message.senderId === props.senderId ? 'sent' : 'received'">
                     <span class="chat-message__text">{{ message.content }}</span>
-                    <span class="chat-message__time">{{ message.timestamp }}</span>
+                    <span class="chat-message__time">{{ formatISO8601(message.timestamp) }}</span>
                 </div>
             </div>
+            <div v-if="selectedFile" class="chat-file">
+                <span class="chat-file__name">{{ selectedFile.name }}</span>
+                <button @click="selectedFile = null" class="chat-file__clear">✕</button>
+            </div>
             <div class="chat-input">
-                <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="Type a message..." />
-                <button @click="sendMessage">Send</button>
+                <input class="chat-input__msg" v-model="newMessage" @keyup.enter="sendMessage"
+                    placeholder="Хабар ёзиш..." />
+                <label for="file-upload" class="chat-input__file">
+                    <Icon name="paper-clip" />
+                </label>
+                <input id="file-upload" type="file" @change="uploadFile" style="display: none;" />
+                <button :class="{ 'disabled': !newMessage }" class="chat-input__btn" @click="sendMessage">Жўнатиш</button>
             </div>
         </div>
     </ADrawer>
@@ -118,6 +142,8 @@ async function fetchData() {
 
 
 <style lang="scss" scoped>
+@use "@/assets/scss/config/mixins" as *;
+
 .chat {
     &-container {
         width: 100%;
@@ -135,41 +161,88 @@ async function fetchData() {
         display: flex;
         flex-direction: column;
         margin-bottom: auto;
+        gap: 8px;
     }
 
     &-message {
-        background: #e3f2fd;
-        padding: 8px 12px;
-        margin: 4px 0;
-        border-radius: 5px;
-        align-self: flex-start;
+        border-radius: 6px;
+        box-shadow: 0px 2px 4px 0px rgba(165, 163, 174, 0.30);
         width: 50%;
+        height: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 8px;
+
 
         &.sent {
-            background: #007bff;
+            background: #7367F0;
             color: white;
             align-self: flex-end;
             border-bottom-right-radius: 2px;
-            --local-time-color: #00CFE8;
         }
 
         &.received {
-            background: #e3f2fd;
-            color: black;
+            background: #A8AAAE;
+        }
+
+        &__text {
+            color: #FFF;
+            font-feature-settings: 'liga' off, 'clig' off;
+            font-size: 15px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+            letter-spacing: 0.43px;
             align-self: flex-start;
-            border-bottom-left-radius: 2px;
-            --local-time-color: grey;
         }
 
         &__time {
+            color: #FFF;
+            align-self: flex-end;
+            font-feature-settings: 'liga' off, 'clig' off;
             font-size: 12px;
-            color: var(--local-time-color);
-            margin-left: 10px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+            letter-spacing: 0.43px;
+        }
+    }
+
+    &-file {
+        background-color: rgba(75, 70, 92, 0.16);
+        min-height: 30px;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+
+        &__name {
+            color: black;
+            font-feature-settings: 'liga' off, 'clig' off;
+            font-size: 13px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 16px;
+            letter-spacing: 0.43px;
+            margin-right: auto;
+        }
+
+        &__clear {
+            @include btn-clean;
+            color: black;
+            font-feature-settings: 'liga' off, 'clig' off;
+            font-size: 18px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 16px;
+            letter-spacing: 0.43px;
         }
     }
 
     &-input {
         display: flex;
+        align-items: center;
         padding: 10px;
         background: #ffffff;
         border-top: 1px solid #ddd;
@@ -180,23 +253,46 @@ async function fetchData() {
             border: none;
             border-radius: 4px;
             outline: none;
+
+            &__message {
+                color: #A8AAAE;
+                font-size: 12px;
+                font-style: normal;
+                font-weight: 500;
+                line-height: normal;
+                letter-spacing: 0.43px;
+            }
         }
 
         button {
-            background: #007bff;
+            background: #7367F0;
             color: white;
             border: none;
             padding: 8px 12px;
             cursor: pointer;
             margin-left: 5px;
-            border-radius: 4px;
+            border-radius: 8px;
+            transition: all 0.5s ease-in-out;
+
+            &.disabled {
+                background-color: #A8AAAE;
+                cursor: unset;
+            }
 
             &:hover {
-                :hover {
-                    background: #0056b3;
-                }
+                opacity: 0.9;
             }
         }
+
+        &__file {
+            cursor: pointer;
+
+            .icon {
+                --icon-color: #A8AAAE;
+                --icon-size: 24px;
+            }
+        }
+
     }
 
     &-button {
