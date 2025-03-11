@@ -52,6 +52,7 @@ async function sendMessage() {
     if (client.value && isConnected.value) {
         if (selectedFile.value) {
             console.log(selectedFile.value)
+            console.log(props.senderId);
             const formData = new FormData();
             formData.append('senderId', props.senderId);
             formData.append('receiverId', props.receiverId);
@@ -59,7 +60,7 @@ async function sendMessage() {
             formData.append('file', selectedFile.value);
             try {
                 const response = await axios.post('/messages/with-file', formData);
-                messages.value.push(response.value);
+                messages.value.push(response.data);
             } catch (err) {
                 console.log(err)
             } finally {
@@ -114,7 +115,11 @@ function uploadFile(event) {
             <div class="chat-box">
                 <div v-for="(message, index) in messages" :key="index" class="chat-message"
                     :class="message.senderId === props.senderId ? 'sent' : 'received'">
-                    <span class="chat-message__text">{{ message.content }}</span>
+                    <button class="chat-message__file" v-if="message.attachment" :href="message.attachment.downloadUrl">
+                        <Icon name="paper-clip" />
+                        <span>{{ message.attachment.fileName }}</span>
+                    </button>
+                    <span v-if="message.content" class="chat-message__text">{{ message.content }}</span>
                     <span class="chat-message__time">{{ formatISO8601(message.timestamp) }}</span>
                 </div>
             </div>
@@ -129,7 +134,8 @@ function uploadFile(event) {
                     <Icon name="paper-clip" />
                 </label>
                 <input id="file-upload" type="file" @change="uploadFile" style="display: none;" />
-                <button :class="{ 'disabled': !newMessage }" class="chat-input__btn" @click="sendMessage">Жўнатиш</button>
+                <button :class="{ 'disabled': !newMessage && !selectedFile }" class="chat-input__btn"
+                    @click="sendMessage">Жўнатиш</button>
             </div>
         </div>
     </ADrawer>
@@ -168,12 +174,12 @@ function uploadFile(event) {
         border-radius: 6px;
         box-shadow: 0px 2px 4px 0px rgba(165, 163, 174, 0.30);
         width: 50%;
-        height: 40px;
         display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
+        align-items: center;
         padding: 8px 8px;
+
 
 
         &.sent {
@@ -196,6 +202,7 @@ function uploadFile(event) {
             line-height: normal;
             letter-spacing: 0.43px;
             align-self: flex-start;
+            word-break: break-all;
         }
 
         &__time {
@@ -207,6 +214,27 @@ function uploadFile(event) {
             font-weight: 500;
             line-height: normal;
             letter-spacing: 0.43px;
+        }
+
+        &__file {
+            @include btn-clean;
+            gap: 0;
+            color: #FFF;
+            font-feature-settings: 'liga' off, 'clig' off;
+            font-size: 15px;
+            font-style: normal;
+            font-weight: 500;
+            line-height: normal;
+            letter-spacing: 0.43px;
+
+            span {
+                @include slice(1);
+            }
+
+            .icon {
+                --icon-color: #FFF;
+                --icon-size: 20px;
+            }
         }
     }
 
