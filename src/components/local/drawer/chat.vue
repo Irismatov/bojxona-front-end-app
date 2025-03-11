@@ -115,10 +115,10 @@ function uploadFile(event) {
             <div class="chat-box">
                 <div v-for="(message, index) in messages" :key="index" class="chat-message"
                     :class="message.senderId === props.senderId ? 'sent' : 'received'">
-                    <button class="chat-message__file" v-if="message.attachment" :href="message.attachment.downloadUrl">
+                    <a target="_blank" class="chat-message__file" v-if="message.attachment" :href="message.attachment.downloadUrl">
                         <Icon name="paper-clip" />
                         <span>{{ message.attachment.fileName }}</span>
-                    </button>
+                    </a>
                     <span v-if="message.content" class="chat-message__text">{{ message.content }}</span>
                     <span class="chat-message__time">{{ formatISO8601(message.timestamp) }}</span>
                 </div>
