@@ -6,30 +6,20 @@ import axios from "@/plugins/axios";
 import DocumentsDrawer from "@/components/local/drawer/documents.vue";
 import ChatDrawer from "@/components/local/drawer/chat.vue"
 import { useAuth, useChatStore } from "@/stores";
+import ChatButton from "@/components/local/button/chat-application-detail.vue";
 
+const data = reactive({});
 const chatStore = useChatStore();
 const auth = useAuth();
-const newMessageCount = ref(0);
 
-const newMessage = computed(() => chatStore.newMessage);
-
-
-
-watch(newMessage, (newNewMessage) => {
-  if (newNewMessage.senderId === data.value.id) {
-    newMessageCount.value = newMessageCount.value + 1;
-    console.log(newMessageCount.value, "am working")
-  }
-})
-
-
+const chatRef = ref();
 const cancelAppRef = ref();
 const applyRef = ref();
 const documentsRef = ref();
 const route = useRoute();
 const { isLoading, changeDeclarationStatus, formatType } = useDeclarations();
 
-const data = ref({});
+
 const EReason = {
   DOCISNOTVALID: 1,
   IMGISNOTVALID: 2,
@@ -84,7 +74,7 @@ async function changeStatus() {
 async function fetchData() {
   const response = await axios.get(`/api/declarations/${route.params.id}`);
   if (response.data.resultCode === 0) {
-    data.value = response.data;
+    Object.assign(data, response.data);
   } else {
     message.error("Xatolik yuz berdi");
   }
@@ -132,12 +122,26 @@ const uploadImage = async () => {
   }
 };
 
+function onIncomingMessage(message) {
+  if (message.senderId === data.id) {
+    data.newMessageCount = data.newMessageCount + 1;
+  }
+}
+
+function openChat() {
+  data.newMessageCount = 0;
+  chatRef.value?.onOpen();
+}
+
 onMounted(() => {
   if (!chatStore.isConnected) {
     chatStore.setSocket();
   }
+  chatStore.on('newMessage', onIncomingMessage);
   fetchData();
 });
+
+
 </script>
 
 <template>
@@ -198,7 +202,8 @@ onMounted(() => {
       </ACol>
     </ARow>
   </Card>
-  <ChatDrawer :newMessageCount="newMessageCount" :senderId="auth.user.id" :receiverId="data.id" />
+  <ChatButton @click="openChat" :count="data.newMessageCount" />
+  <ChatDrawer ref="chatRef" :senderId="auth.user.id" :receiverId="data.id" />
 
 
   <Modal title="Диққат" ref="cancelAppRef">

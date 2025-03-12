@@ -9,7 +9,6 @@ import { getBlobUrl } from "@/utils/mixins";
 import { useModal } from "@/utils/composable";
 
 const { open, toggleModal } = useModal();
-const toxa = ref();
 const props = defineProps({
   documents: {
     type: Array,

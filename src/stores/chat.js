@@ -3,12 +3,13 @@ import { ref } from "vue";
 import { useAuth } from "@/stores";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import mitt from "mitt";
 
 export const useChatStore = defineStore('chat', () => {
     const isConnected = ref(false);
     const auth = useAuth();
     const client = ref(null);
-    const newMessage = ref({});
+    const emitter = mitt();
 
     function setSocket() {
         client.value = new Client({
@@ -26,7 +27,7 @@ export const useChatStore = defineStore('chat', () => {
 
             client.value.subscribe(`/user/queue/messages`, (message) => {
                 const parsedMessage = JSON.parse(message.body);
-                newMessage.value = parsedMessage;
+                emitter.emit('newMessage', parsedMessage);
             })
         }
         client.value.onStompError = function (frame) {
@@ -55,9 +56,10 @@ export const useChatStore = defineStore('chat', () => {
 
     return {
         isConnected,
-        newMessage,
         setSocket,
         sendMessage,
-        disconnect
+        disconnect,
+        on: emitter.on,
+        off: emitter.off
     }
 })

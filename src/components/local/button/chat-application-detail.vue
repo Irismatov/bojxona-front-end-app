@@ -13,8 +13,8 @@ const props = defineProps({
     <button class="button">
         <Icon name="mail" />
         ЧАТ
-        <div v-if="newMessageCount > 0" class="chat-button__badge">
-            <span>{{ newMessageCount }}</span>
+        <div v-if="count > 0" class="button-badge">
+            <span>{{ count }}</span>
         </div>
     </button>
 </template>
@@ -46,7 +46,7 @@ const props = defineProps({
         --icon-color: #FFF;
     }
 
-    &__badge {
+    &-badge {
         width: 100%;
         height: 100%;
         position: relative;

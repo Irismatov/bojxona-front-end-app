@@ -5,6 +5,8 @@ import axios from "@/plugins/axios";
 import { formatISO8601 } from '@/utils/mixins';
 import { useChatStore } from "@/stores"
 
+const { open, toggleModal, openModal, closeModal } = useModal();
+
 const props = defineProps({
     senderId: { type: String, required: true },
     receiverId: { type: String, default: '9308e47e-be88-4aa0-879e-8a847c0dda0c' },
@@ -16,7 +18,6 @@ const props = defineProps({
 
 const chatBoxRef = ref(null);
 const chatStore = useChatStore();
-const { open, toggleModal } = useModal();
 const messages = ref([]);
 const newMessage = ref('');
 const client = ref(null);
@@ -84,16 +85,6 @@ async function sendMessage() {
     }
 }
 
-async function onChatBtn() {
-    toggleModal(true);
-
-    if (!chatStore.isConnected) {
-        chatStore.setSocket();
-    }
-
-    await fetchData();
-}
-
 async function fetchData() {
     const response = await axios.get(`messages/${props.senderId}/${props.receiverId}`);
     messages.value = response.data;
@@ -103,9 +94,16 @@ function uploadFile(event) {
     selectedFile.value = event.target.files[0];
 }
 
+function onOpen() {
+    fetchData();
+    openModal();
+}
+
 function onClose() {
     toggleModal(false);
 }
+
+defineExpose({ onOpen });
 </script>
 
 <template>
@@ -139,14 +137,6 @@ function onClose() {
             </div>
         </div>
     </ADrawer>
-
-    <button class="chat-button" @click="onChatBtn">
-        <Icon name="mail" />
-        ЧАТ
-        <div v-if="newMessageCount > 0" class="chat-button__badge">
-            <span>{{ newMessageCount }}</span>
-        </div>
-    </button>
 </template>
 
 
@@ -324,56 +314,6 @@ function onClose() {
             }
         }
 
-    }
-
-    &-button {
-        position: fixed;
-        right: -15px;
-        bottom: 50px;
-        border-radius: 8px;
-        border: 1px solid var(--local-border-color);
-        height: 38px;
-        padding: 0 30px 0 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        background-color: #f1c40f;
-        border-radius: 25px;
-        cursor: pointer;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        color: #FFF;
-        font-size: 16px;
-        font-weight: bold;
-
-        .icon {
-            --icon-color: #FFF;
-        }
-
-        &__badge {
-            width: 100%;
-            height: 100%;
-            position: relative;
-
-            span {
-                position: absolute;
-                top: -8px;
-                right: -8px;
-                background-color: #ff0000;
-                /* Qizil rang */
-                color: white;
-                border-radius: 50%;
-                width: 20px;
-                height: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 12px;
-                font-weight: bold;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-            }
-
-        }
     }
 }
 </style>
