@@ -4,12 +4,23 @@ import { useAuth } from "@/stores";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import mitt from "mitt";
+import { useToast } from "vue-toastification";
+import MessageNotification from "@/components/global/message-notification.vue";
+
+const toast = useToast();
 
 export const useChatStore = defineStore('chat', () => {
     const isConnected = ref(false);
     const auth = useAuth();
     const client = ref(null);
     const emitter = mitt();
+
+    const toastContent = {
+        component: MessageNotification,
+        props: {
+            message: "Янги хабар келди"
+        }
+    }
 
     function setSocket() {
         client.value = new Client({
@@ -28,6 +39,7 @@ export const useChatStore = defineStore('chat', () => {
             client.value.subscribe(`/user/queue/messages`, (message) => {
                 const parsedMessage = JSON.parse(message.body);
                 emitter.emit('newMessage', parsedMessage);
+                toast(toastContent);
             })
         }
         client.value.onStompError = function (frame) {
