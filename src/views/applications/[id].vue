@@ -139,6 +139,10 @@ onMounted(() => {
   }
   chatStore.on('newMessage', onIncomingMessage);
   fetchData();
+
+  if (route.query.chat === 'true') {
+    openChat();
+  }
 });
 
 

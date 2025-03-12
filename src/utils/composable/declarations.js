@@ -1,14 +1,14 @@
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { useApi } from "@/plugins/useApi";
 
 export function useDeclarations() {
-    const list = ref([]);
+    const list = reactive([]);
     const totalElements = ref();
     const { fetchData, updateStatus, isLoading } = useApi();
 
-    async function getDeclarations(status, type, params = { }) {
+    async function getDeclarations(status, type, params = {}) {
         const data = await fetchData(`api/declarations/status/${status}/type/${type}/`, params);
-        list.value = data.declarations;
+        Object.assign(list, data.declarations)
         totalElements.value = data.totalElements;
         return data;
     }

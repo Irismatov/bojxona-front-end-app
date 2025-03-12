@@ -3,11 +3,13 @@ import { Table, message } from "ant-design-vue";
 import Icon from "../../components/global/icon.vue";
 import { useDeclarations } from "@/utils/composable"
 import { ref, onMounted, reactive } from "vue";
+import { useChatStore } from "@/stores"
 
-const {list, totalElements, getDeclarations,  formatType} = useDeclarations();
+const chatStore = useChatStore();
+const { list, totalElements, getDeclarations, formatType } = useDeclarations();
 
 async function fetchData() {
-  await getDeclarations(2, activeTab.value, {page: pagination.page-1, size: 10})
+  await getDeclarations(2, activeTab.value, { page: pagination.page - 1, size: 10 })
 }
 
 const pagination = reactive({
@@ -86,8 +88,23 @@ function formatTimestamp(timestamp) {
   return `${year}-${month}-${day} --- ${hours}:${minutes}`;
 }
 
+function onIncomingMessage(message) {
+  list.forEach(item => {
+    if (message.senderId === item.id) {
+      item.newMessageCount += 1;
+    }
+  });
+}
+
+
+
 onMounted(() => {
   fetchData();
+  console.log(list)
+  if (!chatStore.isConnected) {
+    chatStore.setSocket();
+  };
+  chatStore.on('newMessage', onIncomingMessage);
 });
 </script>
 
@@ -97,11 +114,15 @@ onMounted(() => {
   <Table :data-source="list" :columns="columns">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
-        <p>{{record.declId}}</p>
+        <p>{{ record.declId }}</p>
         <div class="action">
-          <Button class="action-link__btn _1">
-            <Icon name="mail" />
-          </Button>
+          <RouterLink :to="`/applications/detail/${record.id}?chat=true`">
+            <Button class="action-link__btn _1" :class="{ 'inactive': record.newMessageCount < 1 }"
+              :disabled="record.newMessageCount < 1">
+              <Icon name="mail" />
+              <span v-if="record.newMessageCount > 0" class="action-link__badge">{{ record.newMessageCount }}</span>
+            </Button>
+          </RouterLink>
           <RouterLink :to="`/applications/detail/${record.id}`">
             <Button class="action-link__btn _2">
               Кўриш
@@ -128,6 +149,26 @@ onMounted(() => {
 
     &__btn {
       &._1 {
+        position: relative;
+
+        &.inactive {
+          border-color: grey;
+
+          &:hover {
+            border-color: grey;
+            background-color: #FFF;
+            cursor: unset;
+
+            .icon {
+              --icon-color: grey;
+            }
+          }
+
+          .icon {
+            --icon-color: grey;
+          }
+        }
+
         &:hover {
           .icon {
             --icon-color: white;
@@ -138,6 +179,17 @@ onMounted(() => {
       .icon {
         --icon-color: #7367F0;
       }
+    }
+
+    &__badge {
+      position: absolute;
+      right: 0;
+      top: 0;
+      background-color: red;
+      color: #FFF;
+      width: 12px;
+      aspect-ratio: 1;
+      border-radius: 50%;
     }
   }
 }
