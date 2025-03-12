@@ -1,5 +1,5 @@
 <script setup>
-import useAuth from "@/stores"
+import { useAuth } from "@/stores"
 import { onMounted, computed } from "vue";
 
 const auth = useAuth();

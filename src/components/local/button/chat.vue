@@ -1,7 +1,21 @@
+<script setup>
+
+const props = defineProps({
+    count: {
+        type: Number,
+        default: 0
+    }
+});
+
+</script>
+
 <template>
     <button class="button">
         <Icon name="mail" />
         ЧАТ
+        <div v-if="newMessageCount > 0" class="chat-button__badge">
+            <span>{{ newMessageCount }}</span>
+        </div>
     </button>
 </template>
 
@@ -30,6 +44,31 @@
 
     .icon {
         --icon-color: #FFF;
+    }
+
+    &__badge {
+        width: 100%;
+        height: 100%;
+        position: relative;
+
+        span {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #ff0000;
+            /* Qizil rang */
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
     }
 }
 </style>

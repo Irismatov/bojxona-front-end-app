@@ -1,17 +1,21 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch, computed, nextTick } from 'vue';
 import { useModal } from "@/utils/composable";
 import axios from "@/plugins/axios";
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
 import { formatISO8601 } from '@/utils/mixins';
-
+import { useChatStore } from "@/stores"
 
 const props = defineProps({
     senderId: { type: String, required: true },
-    receiverId: { type: String, default: null }
+    receiverId: { type: String, default: '9308e47e-be88-4aa0-879e-8a847c0dda0c' },
+    newMessageCount: {
+        type: Number,
+        default: 1
+    }
 });
 
+const chatBoxRef = ref(null);
+const chatStore = useChatStore();
 const { open, toggleModal } = useModal();
 const messages = ref([]);
 const newMessage = ref('');
@@ -19,36 +23,33 @@ const client = ref(null);
 const isConnected = ref(false);
 const selectedFile = ref(null);
 
+const latestMessage = computed(() => chatStore.newMessage);
 
-
-function setSocket() {
-    client.value = new Client({
-        webSocketFactory: () => new SockJS(`http://localhost:8081/ws?userId=${props.senderId}`),
-        debug: function (str) {
-            console.log(str)
-        },
-    })
-    client.value.onConnect = function (frame) {
-        console.log("Connected", frame);
-        isConnected.value = true;
-
-        client.value.subscribe(`/user/queue/messages`, (message) => {
-            const parsedMessage = JSON.parse(message.body);
-            messages.value.push(parsedMessage);
-        })
+watch(latestMessage, (newMessage) => {
+    if (newMessage.senderId === props.receiverId) {
+        messages.value.push(newMessage);
     }
+});
 
-    client.value.onStompError = function (frame) {
-        console.log('Broker reported error' + frame.headers['message']);
-        console.log('Additional details' + frame.body);
-        isConnected.value = true;
-    }
-
-
-    client.value.activate();
-}
+watch(messages, () => {
+    nextTick(() => {
+        if (chatBoxRef.value) {
+            chatBoxRef.value.scrollTop = chatBoxRef.value.scrollHeight;
+        }
+    });
+}, { deep: true });
 
 async function sendMessage() {
+    const message = {
+        senderId: props.senderId,
+        receiverId: props.receiverId,
+        content: newMessage.value,
+        isRead: false,
+    }
+    chatStore.sendMessage(message);
+    messages.value.push(message);
+    newMessage.value = '';
+
     if (client.value && isConnected.value) {
         if (selectedFile.value) {
             console.log(selectedFile.value)
@@ -72,20 +73,11 @@ async function sendMessage() {
                 senderId: props.senderId,
                 receiverId: props.receiverId,
                 content: newMessage.value,
-                timestamp: Date.now(),
                 isRead: false,
             }
-            client.value.publish({
-                destination: '/app/chat',
-                body: JSON.stringify({
-                    senderId: props.senderId,
-                    receiverId: props.receiverId,
-                    content: newMessage.value
-                })
-            });
+            chatStore.sendMessage(message);
             messages.value.push(message);
         }
-
         newMessage.value = '';
     } else {
         console.log("Web socket not connected yet");
@@ -94,7 +86,11 @@ async function sendMessage() {
 
 async function onChatBtn() {
     toggleModal(true);
-    setSocket();
+
+    if (!chatStore.isConnected) {
+        chatStore.setSocket();
+    }
+
     await fetchData();
 }
 
@@ -107,15 +103,19 @@ function uploadFile(event) {
     selectedFile.value = event.target.files[0];
 }
 
+function onClose() {
+    toggleModal(false);
+}
 </script>
 
 <template>
-    <ADrawer :open="open" @close="toggleModal(false)" :width="500">
+    <ADrawer :open="open" @close="onClose" :width="500">
         <div class="chat-container">
-            <div class="chat-box">
+            <div class="chat-box" ref="chatBoxRef">
                 <div v-for="(message, index) in messages" :key="index" class="chat-message"
                     :class="message.senderId === props.senderId ? 'sent' : 'received'">
-                    <a target="_blank" class="chat-message__file" v-if="message.attachment" :href="message.attachment.downloadUrl">
+                    <a target="_blank" class="chat-message__file" v-if="message.attachment"
+                        :href="message.attachment.downloadUrl">
                         <Icon name="paper-clip" />
                         <span>{{ message.attachment.fileName }}</span>
                     </a>
@@ -143,6 +143,9 @@ function uploadFile(event) {
     <button class="chat-button" @click="onChatBtn">
         <Icon name="mail" />
         ЧАТ
+        <div v-if="newMessageCount > 0" class="chat-button__badge">
+            <span>{{ newMessageCount }}</span>
+        </div>
     </button>
 </template>
 
@@ -345,6 +348,31 @@ function uploadFile(event) {
 
         .icon {
             --icon-color: #FFF;
+        }
+
+        &__badge {
+            width: 100%;
+            height: 100%;
+            position: relative;
+
+            span {
+                position: absolute;
+                top: -8px;
+                right: -8px;
+                background-color: #ff0000;
+                /* Qizil rang */
+                color: white;
+                border-radius: 50%;
+                width: 20px;
+                height: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: bold;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            }
+
         }
     }
 }

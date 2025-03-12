@@ -1,6 +1,5 @@
 import router from "./index";
-import { getActivePinia } from "pinia";
-import useAuth from "@/stores";
+import { useAuth } from "@/stores";
 
 
 export default function setupRouteGuards() {

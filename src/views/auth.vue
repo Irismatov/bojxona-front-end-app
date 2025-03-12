@@ -1,6 +1,6 @@
 <script setup>
 import { ref, reactive } from 'vue';
-import useAuth from "@/stores"
+import { useAuth } from "@/stores"
 import { useRouter } from 'vue-router';
 
 
@@ -14,13 +14,13 @@ const form = reactive({
 
 const onFinish = async (values) => {
     const isSuccess = await auth.login(values);
-    if (isSuccess)  router.push({path: "/"});
+    if (isSuccess) router.push({ path: "/" });
     else AMessage.error("Login yoki parol noto'g'ri");
 }
 
 
 const onFinishFailed = (errorInfo) => {
-    
+
 };
 
 
@@ -67,7 +67,7 @@ const onFinishFailed = (errorInfo) => {
     &-title {
         color: #4B465C;
         font-feature-settings: 'liga' off, 'clig' off;
-        
+
         font-size: 26px;
         font-style: normal;
         font-weight: 700;
@@ -79,7 +79,7 @@ const onFinishFailed = (errorInfo) => {
     &-text {
         color: #4B465C;
         font-feature-settings: 'liga' off, 'clig' off;
-        
+
         font-size: 18px;
         font-style: normal;
         font-weight: 600;

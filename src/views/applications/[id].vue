@@ -1,13 +1,27 @@
 <script setup>
-import { ref, onMounted, computed, reactive, nextTick } from "vue";
+import { ref, onMounted, computed, reactive, nextTick, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useModal, useDeclarations } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import DocumentsDrawer from "@/components/local/drawer/documents.vue";
 import ChatDrawer from "@/components/local/drawer/chat.vue"
-import useAuth from "@/stores";
+import { useAuth, useChatStore } from "@/stores";
 
+const chatStore = useChatStore();
 const auth = useAuth();
+const newMessageCount = ref(0);
+
+const newMessage = computed(() => chatStore.newMessage);
+
+
+
+watch(newMessage, (newNewMessage) => {
+  if (newNewMessage.senderId === data.value.id) {
+    newMessageCount.value = newMessageCount.value + 1;
+    console.log(newMessageCount.value, "am working")
+  }
+})
+
 
 const cancelAppRef = ref();
 const applyRef = ref();
@@ -119,6 +133,9 @@ const uploadImage = async () => {
 };
 
 onMounted(() => {
+  if (!chatStore.isConnected) {
+    chatStore.setSocket();
+  }
   fetchData();
 });
 </script>
@@ -181,7 +198,7 @@ onMounted(() => {
       </ACol>
     </ARow>
   </Card>
-  <ChatDrawer :senderId="auth.user.id" :receiverId="data.id"/>
+  <ChatDrawer :newMessageCount="newMessageCount" :senderId="auth.user.id" :receiverId="data.id" />
 
 
   <Modal title="Диққат" ref="cancelAppRef">
