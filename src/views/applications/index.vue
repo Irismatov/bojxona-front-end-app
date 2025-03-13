@@ -1,11 +1,15 @@
 <script setup>
 import { Table } from "ant-design-vue";
-import { useModal, useDeclarations } from "@/utils/composable";
-import { ref, onMounted, reactive } from "vue";
+import { useModal, useDeclarations, useDeclStatusChange } from "@/utils/composable";
+import { ref, onMounted, reactive, onUnmounted } from "vue";
+
+const declStatusChange = useDeclStatusChange();
 const { open, closeModal, openModal } = useModal();
 const currentItem = ref();
 const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 const modalRef = ref();
+
+
 
 async function requestToChangeStatus() {
   await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat sizga yuklandi");
@@ -123,7 +127,13 @@ const customRow = (record) => {
 
 onMounted(() => {
   fetchData();
+  declStatusChange.connect();
+  declStatusChange.on('change', fetchData);
 });
+
+onUnmounted(() => {
+  declStatusChange.disconnect();
+})
 
 </script>
 <template>

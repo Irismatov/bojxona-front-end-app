@@ -8,7 +8,8 @@ export function useDeclarations() {
 
     async function getDeclarations(status, type, params = {}) {
         const data = await fetchData(`api/declarations/status/${status}/type/${type}/`, params);
-        Object.assign(list, data.declarations)
+        list.length = 0;
+        list.push(...data.declarations);
         totalElements.value = data.totalElements;
         return data;
     }
