@@ -1,10 +1,8 @@
 <script setup>
-import { ref, watch, computed, nextTick } from 'vue';
-import { useModal } from "@/utils/composable";
+import { ref, watch, computed, nextTick, onMounted, onUnmounted } from 'vue';
+import { useModal, useChat } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import { formatISO8601 } from '@/utils/mixins';
-import { useChatStore } from "@/stores"
-
 const { open, toggleModal, openModal, closeModal } = useModal();
 
 const props = defineProps({
@@ -12,25 +10,24 @@ const props = defineProps({
     receiverId: { type: String, default: '9308e47e-be88-4aa0-879e-8a847c0dda0c' },
     newMessageCount: {
         type: Number,
-        default: 1
+        required: true
+    },
+    isOpenStart: {
+        type: Boolean,
+        default: false
     }
 });
 
 const chatBoxRef = ref(null);
-const chatStore = useChatStore();
+const chat = useChat();
 const messages = ref([]);
 const newMessage = ref('');
 const client = ref(null);
 const isConnected = ref(false);
 const selectedFile = ref(null);
+const localCount = ref(0);
 
-const latestMessage = computed(() => chatStore.newMessage);
-
-watch(latestMessage, (newMessage) => {
-    if (newMessage.senderId === props.receiverId) {
-        messages.value.push(newMessage);
-    }
-});
+const count = computed(() => localCount.value + props.newMessageCount);
 
 watch(messages, () => {
     nextTick(() => {
@@ -47,7 +44,7 @@ async function sendMessage() {
         content: newMessage.value,
         isRead: false,
     }
-    chatStore.sendMessage(message);
+    chat.sendMessage(message);
     messages.value.push(message);
     newMessage.value = '';
 
@@ -97,16 +94,45 @@ function uploadFile(event) {
 function onOpen() {
     fetchData();
     openModal();
+    localCount.value = - props.newMessageCount;
 }
 
 function onClose() {
     toggleModal(false);
 }
 
-defineExpose({ onOpen });
+function onIncomingMessage(incoming) {
+    messages.value.push(incoming);
+    localCount.value += 1;
+}
+
+
+onMounted(() => {
+    if (props.isOpenStart) {
+        fetchData();
+        open.value = true;
+    }
+    chat.connect();
+    chat.on('message', onIncomingMessage);
+})
+
+onUnmounted(() => {
+    chat.disconnect();
+})
+
 </script>
 
 <template>
+    <button @click="onOpen" class="button">
+        <div class="button-wrapper">
+            <Icon name="mail" />
+            <span v-if="count > 0" class="button-badge">
+                {{ 1 }}
+            </span>
+        </div>
+        <span class="button-text"> Мижоз билан мулоқот </span>
+    </button>
+
     <ADrawer :open="open" @close="onClose" :width="500">
         <div class="chat-container">
             <div class="chat-box" ref="chatBoxRef">
@@ -142,6 +168,69 @@ defineExpose({ onOpen });
 
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
+
+.button {
+    --local-size: 48px;
+    border-radius: 8px 0 0 8px;
+    position: fixed;
+    right: 0px;
+    bottom: 48px;
+    display: flex;
+    align-items: center;
+    background-color: #7367F0;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border: none;
+    padding: 0;
+    transform: translateX(calc(100% - var(--local-size)));
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+        transform: translateX(0);
+    }
+
+    &-wrapper {
+        height: var(--local-size);
+        width: var(--local-size);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+
+    //   width: var(--local-size);
+    .icon {
+        --icon-color: #fff;
+    }
+
+    &-text {
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 0 12px 0 0;
+    }
+
+    &-badge {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(0, -100%);
+        background-color: #ff0000;
+        color: white;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-weight: bold;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+}
+
 
 .chat {
     &-container {

@@ -57,9 +57,9 @@ defineExpose({ open, toggleModal, openModal, closeModal, modalRef });
       <slot></slot>
     </div>
     <div class="modal-footer">
-      <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF" @click="closeModal">Bekor
-        qilish</Button>
-      <Button color="#7367F0" @click="emits('onSubmit')">Saqlash</Button>
+      <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF" @click="closeModal">
+        Бекор қилиш</Button>
+      <Button color="#7367F0" @click="emits('onSubmit')">Сақлаш</Button>
     </div>
   </Modal>
 </template>

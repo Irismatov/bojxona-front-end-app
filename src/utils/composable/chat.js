@@ -1,28 +1,18 @@
-import { defineStore } from "pinia";
-import { ref } from "vue";
 import { useAuth } from "@/stores";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import mitt from "mitt";
-import { useToast } from "vue-toastification";
-import MessageNotification from "@/components/global/message-notification.vue";
+import { ref } from "vue";
 
-const toast = useToast();
 
-export const useChatStore = defineStore('chat', () => {
+export function useChat() {
     const isConnected = ref(false);
     const auth = useAuth();
     const client = ref(null);
     const emitter = mitt();
 
-    const toastContent = {
-        component: MessageNotification,
-        props: {
-            message: "Янги хабар келди"
-        }
-    }
 
-    function setSocket() {
+    function connect() {
         client.value = new Client({
             webSocketFactory: () => new SockJS(`http://localhost:8081/ws?userId=${auth.user.id}`),
             debug: function (str) {
@@ -30,23 +20,21 @@ export const useChatStore = defineStore('chat', () => {
             },
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
-            heartbeatOutgoing: 4000,
+            heartbeatOutgoing: 4000
         });
         client.value.onConnect = function (frame) {
-            console.log("Connected", frame);
             isConnected.value = true;
 
             client.value.subscribe(`/user/queue/messages`, (message) => {
-                const parsedMessage = JSON.parse(message.body);
-                emitter.emit('newMessage', parsedMessage);
-                toast(toastContent);
+                const incoming = JSON.parse(message.body);
+                emitter.emit('message', incoming);
             })
-        }
+        };
         client.value.onStompError = function (frame) {
             console.log('Broker reported error' + frame.headers['message']);
             console.log('Additional details' + frame.body);
             isConnected.value = false;
-        }
+        };
         client.value.activate();
     }
 
@@ -55,11 +43,12 @@ export const useChatStore = defineStore('chat', () => {
             client.value.publish({
                 destination: '/app/chat',
                 body: JSON.stringify(message)
-            })
+            });
         } else {
-            console.log(message, ' was not sent because Web socket is not connected yet');
+            console.log("Web Socket is not connected. Couldn't send message", message);
         }
     }
+    
 
     function disconnect() {
         if (client.value) client.value.deactivate();
@@ -68,10 +57,11 @@ export const useChatStore = defineStore('chat', () => {
 
     return {
         isConnected,
-        setSocket,
+        connect,
         sendMessage,
         disconnect,
         on: emitter.on,
         off: emitter.off
     }
-})
+
+}

@@ -1,12 +1,13 @@
 <script setup>
-import { Table, message } from "ant-design-vue";
-import Icon from "../../components/global/icon.vue";
-import { useDeclarations } from "@/utils/composable"
-import { ref, onMounted, reactive } from "vue";
-import { useChatStore } from "@/stores"
+import { useDeclarations, useChat } from "@/utils/composable"
+import { ref, onMounted, reactive, h, onUnmounted } from "vue";
+import ActionBtn from "@/components/local/button/action.vue";
+import { notification, Button } from 'ant-design-vue';
+import { useRouter } from 'vue-router';
 
-const chatStore = useChatStore();
+const router = useRouter();
 const { list, totalElements, getDeclarations, formatType } = useDeclarations();
+const chat = useChat();
 
 async function fetchData() {
   await getDeclarations(2, activeTab.value, { page: pagination.page - 1, size: 10 })
@@ -94,44 +95,78 @@ function onIncomingMessage(message) {
       item.newMessageCount += 1;
     }
   });
+  notify(message);
 }
+
+const close = () => {
+  console.log(
+    'Notification was closed. Either the close button was clicked or duration time elapsed.',
+  );
+};
+
+const notify = (message) => {
+  const key = `open${Date.now()}`;
+  notification.open({
+    message: 'Мижоз янги хабар юборди',
+    btn: () =>
+      h(
+        Button,
+        {
+          type: 'primary',
+          size: 'small',
+          onClick: () => {
+            router.push(`/applications/detail/${message.senderId}?chat=true`)
+            notification.close(key);
+          },
+        },
+        {
+          default: () => 'Ўқиш',
+        },
+      ),
+    key,
+    onClose: close,
+  });
+};
 
 
 
 onMounted(() => {
   fetchData();
-  console.log(list)
-  if (!chatStore.isConnected) {
-    chatStore.setSocket();
-  };
-  chatStore.on('newMessage', onIncomingMessage);
+  chat.connect();
+  chat.on('message', onIncomingMessage)
 });
+onUnmounted(() => {
+  chat.disconnect();
+})
 </script>
 
 <template>
   <Tab :list="tabs" v-model="activeTab" @change="handleTabChange" />
-
-  <Table :data-source="list" :columns="columns">
+  <ATable :data-source="list" :columns="columns">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
         <p>{{ record.declId }}</p>
-        <div class="action">
+        <div style="display: flex; gap: 16px;">
           <RouterLink :to="`/applications/detail/${record.id}?chat=true`">
-            <Button class="action-link__btn _1" :class="{ 'inactive': record.newMessageCount < 1 }"
-              :disabled="record.newMessageCount < 1">
-              <Icon name="mail" />
-              <span v-if="record.newMessageCount > 0" class="action-link__badge">{{ record.newMessageCount }}</span>
-            </Button>
+            <ATooltip>
+              <template #title>
+                <span>Мижоздан келган хабар</span>
+              </template>
+              <ActionBtn icon="mail" :isActive="record.newMessageCount > 0" />
+            </ATooltip>
           </RouterLink>
           <RouterLink :to="`/applications/detail/${record.id}`">
-            <Button class="action-link__btn _2">
-              Кўриш
-            </Button>
+            <ATooltip>
+              <template #title>
+                <span>Мурожаатни кўриш</span>
+              </template>
+              <ActionBtn icon="eye" />
+            </ATooltip>
           </RouterLink>
         </div>
       </template>
     </template>
-  </Table>
+  </ATable>
   <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData" />
 
 
@@ -140,57 +175,4 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
-
-.action {
-  display: flex;
-  gap: 16px;
-
-  &-link {
-
-    &__btn {
-      &._1 {
-        position: relative;
-
-        &.inactive {
-          border-color: grey;
-
-          &:hover {
-            border-color: grey;
-            background-color: #FFF;
-            cursor: unset;
-
-            .icon {
-              --icon-color: grey;
-            }
-          }
-
-          .icon {
-            --icon-color: grey;
-          }
-        }
-
-        &:hover {
-          .icon {
-            --icon-color: white;
-          }
-        }
-      }
-
-      .icon {
-        --icon-color: #7367F0;
-      }
-    }
-
-    &__badge {
-      position: absolute;
-      right: 0;
-      top: 0;
-      background-color: red;
-      color: #FFF;
-      width: 12px;
-      aspect-ratio: 1;
-      border-radius: 50%;
-    }
-  }
-}
 </style>

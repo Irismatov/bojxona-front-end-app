@@ -1,18 +1,15 @@
 <script setup>
-import { ref, onMounted, computed, reactive, nextTick, watch } from "vue";
+import { ref, onMounted, onBeforeMount, computed, reactive, nextTick, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useModal, useDeclarations } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import DocumentsDrawer from "@/components/local/drawer/documents.vue";
 import ChatDrawer from "@/components/local/drawer/chat.vue"
-import { useAuth, useChatStore } from "@/stores";
-import ChatButton from "@/components/local/button/chat-application-detail.vue";
+import { useAuth } from "@/stores";
 
-const data = reactive({});
-const chatStore = useChatStore();
+const data = ref({});
 const auth = useAuth();
 
-const chatRef = ref();
 const cancelAppRef = ref();
 const applyRef = ref();
 const documentsRef = ref();
@@ -56,6 +53,8 @@ const form = reactive({
   reason: [],
   other: "",
 });
+
+
 // rasmni yuklash uchun bu qismi o'chirib yuboriladi
 const file = ref(null);
 const preview = ref(null);
@@ -74,7 +73,7 @@ async function changeStatus() {
 async function fetchData() {
   const response = await axios.get(`/api/declarations/${route.params.id}`);
   if (response.data.resultCode === 0) {
-    Object.assign(data, response.data);
+    data.value = response.data;
   } else {
     message.error("Xatolik yuz berdi");
   }
@@ -122,30 +121,13 @@ const uploadImage = async () => {
   }
 };
 
-function onIncomingMessage(message) {
-  if (message.senderId === data.id) {
-    data.newMessageCount = data.newMessageCount + 1;
-  }
-}
-
-function openChat() {
-  data.newMessageCount = 0;
-  chatRef.value?.onOpen();
-}
-
 onMounted(() => {
-  if (!chatStore.isConnected) {
-    chatStore.setSocket();
-  }
-  chatStore.on('newMessage', onIncomingMessage);
-  fetchData();
-
-  if (route.query.chat === 'true') {
-    openChat();
-  }
+  //fetchData();
 });
 
-
+onBeforeMount(() => {
+  fetchData();
+})
 </script>
 
 <template>
@@ -206,8 +188,7 @@ onMounted(() => {
       </ACol>
     </ARow>
   </Card>
-  <ChatButton @click="openChat" :count="data.newMessageCount" />
-  <ChatDrawer ref="chatRef" :senderId="auth.user.id" :receiverId="data.id" />
+  <ChatDrawer :isOpenStart="route.query.chat === 'true'" :newMessageCount="data.newMessageCount || 0" :senderId="auth.user.id" :receiverId="data.id" />
 
 
   <Modal title="Диққат" ref="cancelAppRef">

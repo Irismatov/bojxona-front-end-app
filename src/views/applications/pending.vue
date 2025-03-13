@@ -1,25 +1,23 @@
 <script setup>
 import { Table, message } from "ant-design-vue";
-import { useModal, useDeclarations } from "@/utils/composable";
-import axios from "@/plugins/axios";
+import { useDeclarations } from "@/utils/composable";
 import { ref, onMounted, computed, reactive } from "vue";
+import ActionBtn from "@/components/local/button/action.vue";
 
-const { open, closeModal, openModal } = useModal();
+
 const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 
-
+const modalRef = ref();
 const currentItem = ref();
 
 async function requestToChangeStatus() {
     await changeDeclarationStatus(currentItem.value, 2, "Murojaat jarayonda holatiga o'zgartirildi");
     fetchData()
-    closeModal();
+    modalRef.value.closeModal();
 }
 
 
 async function fetchData() {
-    console.log(pagination.page);
-    console.log(totalElements);
     await getDeclarations(3, activeTab.value, {
         page: pagination.page - 1,
         size: 10
@@ -102,7 +100,7 @@ const handleTabChange = (value) => {
 
 const onClickTableButton = (value) => {
     currentItem.value = value;
-    openModal();
+    modalRef.value.openModal();
 }
 
 onMounted(() => {
@@ -129,43 +127,24 @@ function formatTimestamp(timestamp) {
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'action'">
                 <div class="action">
-                    <Button @click="onClickTableButton(record.id)" class="action-link__btn _2">
-                        Кайтариш
-                    </Button>
+                    <ATooltip>
+                        <template #title>
+                            <span> Мурожаатни жараён ҳолатига қайтариш</span>
+                        </template>
+                        <ActionBtn icon="return" @click="onClickTableButton(record.id)" />
+                    </ATooltip>
                 </div>
             </template>
         </template>
     </Table>
-
     <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData" />
 
-    <Modal :open="open" @cancel="closeModal" title="Диққат" subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
-        <div class="warning">
-            <div class="warning-action">
-                <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF"
-                    @click="closeModal">ЙЎҚ</Button>
-                <Button @click="requestToChangeStatus()">ҲА</Button>
-            </div>
-        </div>
+    <Modal ref="modalRef" @on-submit="requestToChangeStatus" title="Диққат"
+        subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
     </Modal>
 </template>
 
 
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
-
-.warning {
-    display: flex;
-    flex-direction: column;
-
-    &-action {
-        align-self: flex-end;
-        display: flex;
-        gap: 16px;
-    }
-
-
-
-
-}
 </style>

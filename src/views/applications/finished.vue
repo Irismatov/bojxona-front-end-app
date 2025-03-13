@@ -1,13 +1,13 @@
 <script setup>
 import { Table } from "ant-design-vue";
-import { useModal, useDeclarations } from "@/utils/composable";
-import axios from "@/plugins/axios";
-import { ref, onMounted, computed, reactive } from "vue";
+import { useDeclarations } from "@/utils/composable";
+import { ref, onMounted, reactive } from "vue";
+import ActionBtn from "@/components/local/button/action.vue";
 
-const { open, closeModal, openModal } = useModal();
 const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 
 const currentItem = ref();
+const modalRef = ref();
 
 async function fetchData() {
     await getDeclarations(1, activeTab.value, {
@@ -18,7 +18,7 @@ async function fetchData() {
 
 async function requestToChangeStatus() {
     await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat ortga qaytarildi");
-    closeModal();
+    modalRef.value.closeModal();
     fetchData();
 }
 
@@ -88,7 +88,7 @@ const handleTabChange = (value) => {
 
 const onClickTableButton = (value) => {
     currentItem.value = value;
-    openModal();
+    modalRef.value.openModal();
 }
 
 onMounted(() => {
@@ -103,63 +103,31 @@ onMounted(() => {
     <Table :data-source="list" :columns="columns">
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'action'">
-                <div class="action">
-                    <Button class="action-link__btn _1">
-                        <Icon name="mail" />
-                    </Button>
-                    <Button @click="onClickTableButton(record.id)" class="action-link__btn _2">
-                        Кайтариш
-                    </Button>
+                <div style="display: flex; gap: 16px;">
+                    <RouterLink :to="`/applications/detail/${record.id}`">
+                        <ATooltip>
+                            <template #title>
+                                <span>Мижоздан келган хабар</span>
+                            </template>
+                            <ActionBtn icon="mail" />
+                        </ATooltip>
+                    </RouterLink>
+                    <ATooltip>
+                        <template #title>
+                            <span>Мурожаатни жараён ҳолатига қайтариш</span>
+                        </template>
+                        <ActionBtn @click="onClickTableButton(record.id)" icon="return" />
+                    </ATooltip>
                 </div>
             </template>
         </template>
     </Table>
     <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData" />
-    <Modal :open="open" @cancel="closeModal" title="Диққат" subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?">
-        <div class="warning">
-            <div class="warning-action">
-                <Button bgColor="rgba(168, 170, 174, 0.16)" color="#A8AAAE" borderColor="#FFF"
-                    @click="closeModal">ЙЎҚ</Button>
-                <Button @click="requestToChangeStatus()">ҲА</Button>
-            </div>
-        </div>
-    </Modal>
+    <Modal ref="modalRef" @on-submit="requestToChangeStatus" title="Диққат"
+        subtitle="Мазкур мурожаатни ортга кайтармохчимисиз?" />
 </template>
 
 
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
-
-.warning {
-    display: flex;
-    flex-direction: column;
-
-    &-action {
-        align-self: flex-end;
-        display: flex;
-        gap: 16px;
-    }
-}
-
-.action {
-    display: flex;
-    gap: 16px;
-
-    &-link {
-
-        &__btn {
-            &._1 {
-                &:hover {
-                    .icon {
-                        --icon-color: white;
-                    }
-                }
-            }
-
-            .icon {
-                --icon-color: #7367F0;
-            }
-        }
-    }
-}
 </style>
