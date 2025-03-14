@@ -1,4 +1,50 @@
-<script setup></script>
+<script setup>
+import { useChat } from "@/utils/composable";
+import { onMounted, h, onUnmounted } from "vue";
+import { notification, Button } from "ant-design-vue";
+import { useRouter } from "vue-router";
+import { MessageOutlined } from '@ant-design/icons-vue';
+
+
+const chat = useChat();
+const router = useRouter();
+
+
+
+
+const notify = (message) => {
+  const key = `open${Date.now()}`;
+  notification.open({
+    message: 'Билдиришнома',
+    description: 'Мижоз янги хабар юборди',
+    icon: () => h(MessageOutlined, { style: 'color: #108ee9' }),
+    btn: () =>
+      h(
+        Button,
+        {
+          type: 'primary',
+          size: 'small',
+          onClick: () => {
+            router.push(`/applications/detail/${message.senderId}?chat=true`)
+            notification.close(key);
+          },
+        },
+        {
+          default: () => 'Ўқиш',
+        },
+      ),
+    key
+  });
+};
+
+onMounted(() => {
+  chat.connect();
+  chat.on('message', notify);
+})
+onUnmounted(() => {
+  chat.disconnect();
+})
+</script>
 <template>
   <header class="header">
     <div class="header-buttons">
@@ -6,7 +52,7 @@
         <Icon name="notification" />
       </button>
       <button class="header-user">
-        <Icon class="header-user__icon" name="person"/>
+        <Icon class="header-user__icon" name="person" />
       </button>
     </div>
   </header>
@@ -34,6 +80,7 @@
 
   &-notification {
     @include btn-clean;
+
     .icon {
       --icon-size: 26px;
       --icon-color: #4B465C;
@@ -49,7 +96,7 @@
     background-color: rgba(115, 103, 240, 1);
     overflow: hidden;
 
-  
+
 
     .icon {
       --icon-color: #FFF;

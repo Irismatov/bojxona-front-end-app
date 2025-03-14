@@ -7,84 +7,131 @@ const { open, toggleModal, openModal, closeModal } = useModal();
 
 const props = defineProps({
     senderId: { type: String, required: true },
-    receiverId: { type: String, default: '9308e47e-be88-4aa0-879e-8a847c0dda0c' },
-    newMessageCount: {
-        type: Number,
-        required: true
-    },
-    isOpenStart: {
-        type: Boolean,
-        default: false
-    }
+    receiverId: { type: String, default: undefined },
+    newMessageCount: { type: Number, required: true },
+    isOpenStart: { type: Boolean, default: false }
 });
 
 const chatBoxRef = ref(null);
 const chat = useChat();
 const messages = ref([]);
 const newMessage = ref('');
-const client = ref(null);
-const isConnected = ref(false);
 const selectedFile = ref(null);
 const localCount = ref(0);
+const page = ref(0);
+const pageSize = 20;
+const hasMore = ref(true);
+const isLoading = ref(false);
+const scrollEventAdded = ref(false);
+const initialLoadComplete = ref(false);
 
 const count = computed(() => localCount.value + props.newMessageCount);
 
+watch(() => props.receiverId, (newReceiverId) => {
+    if (newReceiverId) {
+        page.value = 0;
+        hasMore.value = true;
+        isLoading.value = false;
+        initialLoadComplete.value = false;
+        fetchData();
+        if (props.isOpenStart) openModal();
+    }
+});
+
 watch(messages, () => {
-    nextTick(() => {
-        if (chatBoxRef.value) {
-            chatBoxRef.value.scrollTop = chatBoxRef.value.scrollHeight;
-        }
-    });
+    if (!initialLoadComplete.value) {
+        nextTick(() => {
+            if (chatBoxRef.value) {
+                chatBoxRef.value.scrollTop = chatBoxRef.value.scrollHeight;
+            }
+        });
+    }
 }, { deep: true });
 
 async function sendMessage() {
-    const message = {
-        senderId: props.senderId,
-        receiverId: props.receiverId,
-        content: newMessage.value,
-        isRead: false,
-    }
-    chat.sendMessage(message);
-    messages.value.push(message);
-    newMessage.value = '';
+    if (!newMessage.value && !selectedFile.value) return;
 
-    if (client.value && isConnected.value) {
-        if (selectedFile.value) {
-            console.log(selectedFile.value)
-            console.log(props.senderId);
-            const formData = new FormData();
-            formData.append('senderId', props.senderId);
-            formData.append('receiverId', props.receiverId);
-            formData.append('content', newMessage.value);
-            formData.append('file', selectedFile.value);
-            try {
-                const response = await axios.post('/messages/with-file', formData);
-                messages.value.push(response.data);
-            } catch (err) {
-                console.log(err)
-            } finally {
-                selectedFile.value = null;
-            }
-
-        } else {
-            const message = {
-                senderId: props.senderId,
-                receiverId: props.receiverId,
-                content: newMessage.value,
-                isRead: false,
-            }
-            chatStore.sendMessage(message);
+    let message;
+    if (selectedFile.value) {
+        const formData = new FormData();
+        formData.append('senderId', props.senderId);
+        formData.append('receiverId', props.receiverId);
+        formData.append('content', newMessage.value);
+        formData.append('file', selectedFile.value);
+        try {
+            const response = await axios.post('/messages/with-file', formData);
+            message = response.data;
             messages.value.push(message);
+        } catch (err) {
+            console.log(err);
+        } finally {
+            selectedFile.value = null;
         }
-        newMessage.value = '';
     } else {
-        console.log("Web socket not connected yet");
+        message = { senderId: props.senderId, receiverId: props.receiverId, content: newMessage.value, isRead: false };
+        chat.sendMessage(message);
+        messages.value.push(message);
+    }
+
+    newMessage.value = '';
+    nextTick(() => {
+        if (chatBoxRef.value) {
+            const isAtBottom = chatBoxRef.value.scrollTop + chatBoxRef.value.clientHeight >=
+                chatBoxRef.value.scrollHeight - 50;
+            if (isAtBottom) {
+                chatBoxRef.value.scrollTop = chatBoxRef.value.scrollHeight;
+            }
+        }
+    });
+}
+
+async function fetchData(append = false) {
+    if (isLoading.value || (!hasMore.value && append)) return;
+
+    isLoading.value = true;
+    try {
+        const response = await axios.get(`messages/${props.senderId}/${props.receiverId}`, {
+            params: { page: page.value, size: pageSize }
+        });
+        const newMessages = response.data.content || response.data;
+
+        if (newMessages.length < pageSize) hasMore.value = false;
+
+        if (append && chatBoxRef.value) {
+            const scrollHeight = chatBoxRef.value.scrollHeight;
+            const scrollPosition = chatBoxRef.value.scrollTop;
+            messages.value = [...newMessages, ...messages.value];
+            nextTick(() => {
+                if (chatBoxRef.value) {
+                    chatBoxRef.value.scrollTop = chatBoxRef.value.scrollHeight - scrollHeight + scrollPosition;
+                }
+            });
+        } else {
+            messages.value = newMessages;
+            initialLoadComplete.value = true;
+            nextTick(() => {
+                if (chatBoxRef.value) {
+                    chatBoxRef.value.scrollTop = chatBoxRef.value.scrollHeight;
+                }
+            });
+        }
+    } catch (error) {
+        console.log('Error fetching messages:', error);
+    } finally {
+        isLoading.value = false;
     }
 }
 
-async function fetchData() {
-    const response = await axios.get(`messages/${props.senderId}/${props.receiverId}`);
-    messages.value = response.data;
+async function loadMoreMessages() {
+    if (!hasMore.value || isLoading.value) return;
+    page.value += 1;
+    await fetchData(true);
+}
+
+function handleScroll() {
+    if (chatBoxRef.value && chatBoxRef.value.scrollTop <= 50 && !isLoading.value && hasMore.value) {
+        loadMoreMessages();
+    }
 }
 
 function uploadFile(event) {
@@ -92,42 +139,75 @@ function uploadFile(event) {
 }
 
 function onOpen() {
-    fetchData();
+    page.value = 0;
+    hasMore.value = true;
+    initialLoadComplete.value = false;
+    localCount.value = -props.newMessageCount;
     openModal();
-    localCount.value = - props.newMessageCount;
+    if (props.receiverId) fetchData();
+
+    nextTick(() => {
+        if (chatBoxRef.value && !scrollEventAdded.value) {
+            chatBoxRef.value.addEventListener('scroll', handleScroll);
+            scrollEventAdded.value = true;
+        }
+    });
 }
 
 function onClose() {
-    toggleModal(false);
+    page.value = 0;
+    localCount.value = -props.newMessageCount;
+    closeModal();
 }
 
 function onIncomingMessage(incoming) {
     messages.value.push(incoming);
     localCount.value += 1;
+    nextTick(() => {
+        if (chatBoxRef.value) {
+            console.log(chatBoxRef.value.scrollTop);
+            console.log(chatBoxRef.value.scrollHeight);
+            console.log(chatBoxRef.value.clientHeight);
+            console.log(chatBoxRef.value.scrollTop);
+
+            const isAtBottom = chatBoxRef.value.scrollTop + chatBoxRef.value.clientHeight >= chatBoxRef.value.scrollHeight - 150;
+            if (isAtBottom) {
+                chatBoxRef.value.scrollTop = chatBoxRef.value.scrollHeight;
+            }
+        }
+    });
 }
 
-
 onMounted(() => {
-    if (props.isOpenStart) {
-        fetchData();
-        open.value = true;
-    }
     chat.connect();
     chat.on('message', onIncomingMessage);
-})
+    if (props.isOpenStart) {
+        openModal();
+        if (props.receiverId) fetchData();
+        else isLoading.value = true;
+    }
+    nextTick(() => {
+        if (chatBoxRef.value && !scrollEventAdded.value) {
+            chatBoxRef.value.addEventListener('scroll', handleScroll);
+            scrollEventAdded.value = true;
+        }
+    });
+});
 
 onUnmounted(() => {
     chat.disconnect();
-})
-
+    if (chatBoxRef.value && scrollEventAdded.value) {
+        chatBoxRef.value.removeEventListener('scroll', handleScroll);
+        scrollEventAdded.value = false;
+    }
+});
 </script>
-
 <template>
     <button @click="onOpen" class="button">
         <div class="button-wrapper">
             <Icon name="mail" />
             <span v-if="count > 0" class="button-badge">
-                {{ 1 }}
+                {{ count }}
             </span>
         </div>
         <span class="button-text"> Мижоз билан мулоқот </span>
@@ -135,6 +215,7 @@ onUnmounted(() => {
 
     <ADrawer :open="open" @close="onClose" :width="500">
         <div class="chat-container">
+            <div v-if="isLoading && messages.length === 0" class="loading-indicator"> <a-spin size="large" /></div>
             <div class="chat-box" ref="chatBoxRef">
                 <div v-for="(message, index) in messages" :key="index" class="chat-message"
                     :class="message.senderId === props.senderId ? 'sent' : 'received'">
@@ -165,9 +246,19 @@ onUnmounted(() => {
     </ADrawer>
 </template>
 
-
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
+
+.loading-indicator {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 .button {
     --local-size: 48px;
@@ -231,7 +322,6 @@ onUnmounted(() => {
     }
 }
 
-
 .chat {
     &-container {
         width: 100%;
@@ -250,6 +340,8 @@ onUnmounted(() => {
         flex-direction: column;
         margin-bottom: auto;
         gap: 8px;
+        height: calc(100% - 60px);
+        position: relative;
     }
 
     &-message {
@@ -261,8 +353,6 @@ onUnmounted(() => {
         justify-content: center;
         align-items: center;
         padding: 8px 8px;
-
-
 
         &.sent {
             background: #7367F0;
@@ -356,25 +446,21 @@ onUnmounted(() => {
         padding: 10px;
         background: #ffffff;
         border-top: 1px solid #ddd;
+        height: 60px;
 
-        input {
+        &__msg {
             flex: 1;
             padding: 8px;
             border: none;
             border-radius: 4px;
             outline: none;
-
-            &__message {
-                color: #A8AAAE;
-                font-size: 12px;
-                font-style: normal;
-                font-weight: 500;
-                line-height: normal;
-                letter-spacing: 0.43px;
-            }
+            color: #000;
+            /* Message input rang to'g'irlash */
+            background-color: #f5f5f5;
+            /* Input fon rangi */
         }
 
-        button {
+        &__btn {
             background: #7367F0;
             color: white;
             border: none;
@@ -386,23 +472,23 @@ onUnmounted(() => {
 
             &.disabled {
                 background-color: #A8AAAE;
-                cursor: unset;
+                cursor: not-allowed;
             }
 
-            &:hover {
+            &:hover:not(.disabled) {
                 opacity: 0.9;
             }
         }
 
         &__file {
             cursor: pointer;
+            margin: 0 8px;
 
             .icon {
                 --icon-color: #A8AAAE;
                 --icon-size: 24px;
             }
         }
-
     }
 }
 </style>

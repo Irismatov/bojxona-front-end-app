@@ -4,7 +4,7 @@ import SockJS from 'sockjs-client'
 import { Client } from '@stomp/stompjs';
 import axios from "@/plugins/axios"
 
-const senderId = '9308e47e-be88-4aa0-879e-8a847c0dda0c';
+const senderId = 'b621f93b-1f8b-4633-8afe-4e0f8c3063b2';
 const receiverId = '324787d6-45d5-42be-8e8a-54ff3db37dab';
 const client = ref(null);
 const isConnected = ref(null);

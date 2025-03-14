@@ -2,7 +2,6 @@
 import { useDeclarations, useChat } from "@/utils/composable"
 import { ref, onMounted, reactive, h, onUnmounted } from "vue";
 import ActionBtn from "@/components/local/button/action.vue";
-import { notification, Button } from 'ant-design-vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
@@ -97,38 +96,6 @@ function onIncomingMessage(message) {
   });
   notify(message);
 }
-
-const close = () => {
-  console.log(
-    'Notification was closed. Either the close button was clicked or duration time elapsed.',
-  );
-};
-
-const notify = (message) => {
-  const key = `open${Date.now()}`;
-  notification.open({
-    message: 'Мижоз янги хабар юборди',
-    btn: () =>
-      h(
-        Button,
-        {
-          type: 'primary',
-          size: 'small',
-          onClick: () => {
-            router.push(`/applications/detail/${message.senderId}?chat=true`)
-            notification.close(key);
-          },
-        },
-        {
-          default: () => 'Ўқиш',
-        },
-      ),
-    key,
-    onClose: close,
-  });
-};
-
-
 
 onMounted(() => {
   fetchData();

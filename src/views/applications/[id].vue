@@ -122,12 +122,9 @@ const uploadImage = async () => {
 };
 
 onMounted(() => {
-  //fetchData();
+  fetchData();
 });
 
-onBeforeMount(() => {
-  fetchData();
-})
 </script>
 
 <template>
@@ -188,7 +185,8 @@ onBeforeMount(() => {
       </ACol>
     </ARow>
   </Card>
-  <ChatDrawer :isOpenStart="route.query.chat === 'true'" :newMessageCount="data.newMessageCount || 0" :senderId="auth.user.id" :receiverId="data.id" />
+  <ChatDrawer :isOpenStart="route.query.chat === 'true'" :newMessageCount="data.newMessageCount || 0"
+    :senderId="auth.user.id" :receiverId="data.id" />
 
 
   <Modal title="Диққат" ref="cancelAppRef">
