@@ -3,7 +3,9 @@ import { ref, watch, computed, nextTick, onMounted, onUnmounted } from 'vue';
 import { useModal, useChat } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import { formatISO8601 } from '@/utils/mixins';
+import { useAuth } from '@/stores';
 const { open, toggleModal, openModal, closeModal } = useModal();
+const auth = useAuth();
 
 const props = defineProps({
     senderId: { type: String, required: true },
@@ -119,6 +121,7 @@ async function fetchData(append = false) {
         console.log('Error fetching messages:', error);
     } finally {
         isLoading.value = false;
+        await auth.fetchUserInfo();
     }
 }
 

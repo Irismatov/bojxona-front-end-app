@@ -4,15 +4,17 @@ import { onMounted, h, onUnmounted } from "vue";
 import { notification, Button } from "ant-design-vue";
 import { useRouter } from "vue-router";
 import { MessageOutlined } from '@ant-design/icons-vue';
-
+import { useAuth } from "@/stores"
 
 const chat = useChat();
 const router = useRouter();
+const auth = useAuth();
 
 
 
 
 const notify = (message) => {
+  auth.user.notificationCount += 1;
   const key = `open${Date.now()}`;
   notification.open({
     message: 'Билдиришнома',
@@ -50,6 +52,9 @@ onUnmounted(() => {
     <div class="header-buttons">
       <button class="header-notification">
         <Icon name="notification" />
+        <div v-if="auth.user.notificationCount > 0" class="header-notification__badge">
+          {{ auth.user.notificationCount }}
+        </div>
       </button>
       <button class="header-user">
         <Icon class="header-user__icon" name="person" />
@@ -80,10 +85,28 @@ onUnmounted(() => {
 
   &-notification {
     @include btn-clean;
+    position: relative;
 
     .icon {
       --icon-size: 26px;
       --icon-color: #4B465C;
+    }
+
+    &__badge {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      left: 50%;
+      top: 50%;
+      transform: translate(0, -100%);
+      background-color: #ff0000;
+      color: #FFF;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 

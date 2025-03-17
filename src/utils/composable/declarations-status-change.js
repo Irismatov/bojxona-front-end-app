@@ -27,6 +27,7 @@ export function useDeclStatusChange() {
 
             client.value.subscribe('/topic', (message) => {
                 const decl = JSON.parse(message.body);
+                console.log("working?")
                 emitter.emit('change', decl.id);
             })
         };
