@@ -1,16 +1,29 @@
 <script setup>
 import { useChat } from "@/utils/composable";
-import { onMounted, h, onUnmounted } from "vue";
+import { onMounted, h, onUnmounted, ref } from "vue";
 import { notification, Button } from "ant-design-vue";
 import { useRouter } from "vue-router";
 import { MessageOutlined } from '@ant-design/icons-vue';
 import { useAuth } from "@/stores"
+import axios from "@/plugins/axios";
 
+const isLoading = ref();
 const chat = useChat();
 const router = useRouter();
 const auth = useAuth();
+const messages = ref([]);
 
 
+async function fetchMessages(visible) {
+  if (visible) {
+    const response = await axios.get("/messages/unread", {
+      params: {
+        userId: auth.user.id
+      }
+    });
+    messages.value = response.data;
+  }
+}
 
 
 const notify = (message) => {
@@ -52,13 +65,18 @@ onUnmounted(() => {
     <div class="header-buttons">
 
       <button class="header-notification">
-        <a-popover placement="bottom">
+        <a-popover @openChange="fetchMessages" placement="bottomLeft">
           <template #content>
-            <p>Content</p>
-            <p>Content</p>
+            <div class="header-notification__content">
+              <div v-for="item in messages">
+                <span class="header-notification__msg">
+                  {{ item.content }}
+                </span>
+              </div>
+            </div>
           </template>
           <template #title>
-            <span>Title</span>
+            <span>Янги хабарлар</span>
           </template>
           <Icon name="notification" />
         </a-popover>
@@ -97,10 +115,29 @@ onUnmounted(() => {
     @include btn-clean;
     position: relative;
 
+
     .icon {
       --icon-size: 26px;
       --icon-color: #4B465C;
     }
+
+    &__content {
+
+      &:last-child {
+        & .header-notification__msg {
+          background-color: blue !important;
+        }
+      }
+    }
+
+    &__msg {
+      background-color: red;
+      margin-bottom: 12px;
+
+
+    }
+
+
 
     &__badge {
       position: absolute;
