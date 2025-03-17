@@ -23,7 +23,7 @@ const router = createRouter({
       component: () => import("@/views/applications.vue"),
       meta: {
         layout: "main",
-        roles: [0, 1]
+        roles: [0, 1, 2]
       },
       children: [
         {
@@ -61,12 +61,15 @@ const router = createRouter({
       component: () => import("@/views/reports.vue"),
       meta: {
         layout: "main",
-        roles: ["ADMIN", "MANAGER"]
+        roles: [0, 1]
       }
     },
     {
       path: "/error",
-      component: () => import("@/views/error.vue")
+      component: () => import("@/views/error.vue"),
+      meta: {
+        roles: [0, 1, 2]
+      }
     },
     {
       path: "/chat-demo",
