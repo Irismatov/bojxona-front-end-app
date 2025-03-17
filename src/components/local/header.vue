@@ -50,8 +50,18 @@ onUnmounted(() => {
 <template>
   <header class="header">
     <div class="header-buttons">
+
       <button class="header-notification">
-        <Icon name="notification" />
+        <a-popover placement="bottom">
+          <template #content>
+            <p>Content</p>
+            <p>Content</p>
+          </template>
+          <template #title>
+            <span>Title</span>
+          </template>
+          <Icon name="notification" />
+        </a-popover>
         <div v-if="auth.user.notificationCount > 0" class="header-notification__badge">
           {{ auth.user.notificationCount }}
         </div>
