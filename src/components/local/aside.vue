@@ -11,25 +11,25 @@ const menu = [
     title: "Бош саҳифа",
     link: "/",
     icon: "home",
-    roles: ["ADMIN", "MANAGER", "DECLARANT"]
+    roles: [0, 1, 2]
   },
   {
     title: "Ходимлар",
     link: "/employees",
     icon: "employees",
-    roles: ["ADMIN", "MANAGER"]
+    roles: [0, 1]
   },
   {
     title: "Мурожаатлар",
     link: "/applications",
     icon: "applications",
-    roles: ["ADMIN", "DECLARANT"]
+    roles: [0, 1, 2]
   },
   {
     title: "Ҳисоботлар",
     link: "/reports",
     icon: "reports",
-    roles: ["ADMIN", "MANAGER"]
+    roles: [0, 1]
   },
 ];
 
@@ -40,7 +40,7 @@ const menu = [
     <span class="aside-logo">Божхона Ҳамкор</span>
     <ul class="aside-menu">
       <template v-for="item in menu">
-        <li v-if="item.roles.includes(user.role)" class="aside-menu__item">
+        <li v-if="item.roles.includes(user.roleId)" class="aside-menu__item">
           <RouterLink class="aside-menu__link" :to="item.link">
             <Icon :name="item.icon" />
             {{ item.title }}

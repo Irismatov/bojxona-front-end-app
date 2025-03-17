@@ -41,7 +41,12 @@ export const useAuth = defineStore("auth", {
 
         async fetchUserInfo() {
             try {
-                const response = await axios.get('/users/me');
+                const response = await axios.get('/auth/employee/payload');
+                if (response.data.resultCode === 26) {
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('token');
+                    return null;
+                }
                 this.user = response.data;
                 localStorage.setItem('user', JSON.stringify(response.data));
                 return response.data;

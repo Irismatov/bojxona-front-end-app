@@ -11,8 +11,9 @@ export default function setupRouteGuards() {
         if (token) {
             auth.fetchUserInfo();
         }
+        
 
-        const role = auth.user?.role || {};
+        const role = auth.user?.roleId;
         const roles = to.meta?.roles || [];
         const isAuthRequired = !!to.meta?.roles?.length > 0;
 
@@ -21,8 +22,12 @@ export default function setupRouteGuards() {
                 return next(authPath);
             } else {
                 if (roles.includes(role)) {
+
                     return next();
                 } else {
+                    console.log(roles, "xzaxaa");
+                    console.log(role);
+                    console.log(auth.user.roleId)
                     return next("/error?message=Sizda ushbu sahifaga dostup yo\'q");
                 }
             }

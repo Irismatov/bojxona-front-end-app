@@ -8,7 +8,7 @@ const router = createRouter({
       component: () => import("@/views/index.vue"),
       meta: {
         layout: "main",
-        roles: ["ADMIN", "DECLARANT", "MANAGER"]
+        roles: [0, 1, 2]
       }
     },
     {
@@ -23,7 +23,7 @@ const router = createRouter({
       component: () => import("@/views/applications.vue"),
       meta: {
         layout: "main",
-        roles: ["ADMIN", "DECLARANT"]
+        roles: [0, 1]
       },
       children: [
         {
@@ -53,7 +53,7 @@ const router = createRouter({
       component: () => import("@/views/employees.vue"),
       meta: {
         layout: "main",
-        roles: ["ADMIN", "MANAGER"]
+        roles: [0, 1]
       }
     },
     {
