@@ -15,7 +15,7 @@ export const useAuth = defineStore("auth", {
     actions: {
         async login(credentials) {
             try {
-                const response = await axios.post(`/admin/login`, credentials);
+                const response = await axios.post(`/auth/employee/demo-token`, credentials);
                 this.setSession(response.data);
                 await this.fetchUserInfo();
                 return true;

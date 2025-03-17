@@ -8,8 +8,7 @@ const auth = useAuth();
 const router = useRouter();
 
 const form = reactive({
-    login: "",
-    password: "",
+    pinfl: "",
 });
 
 const onFinish = async (values) => {
@@ -33,15 +32,11 @@ const onFinishFailed = (errorInfo) => {
                 Bojxona Hamkor
             </h1>
             <AForm :model="form" layout="vertical" @finish="onFinish" @finishFailed="onFinishFailed">
-                <AFormItem label="Login" name="login" class="login-text"
+                <AFormItem label="ПИНФЛ" name="pinfl" class="login-text" style="margin-bottom: 12px;"
                     :rules="[{ required: true, message: 'Please input your username!' }]">
-                    <AInput v-model:value="form.login" />
+                    <AInput v-model:value="form.pinfl" />
                 </AFormItem>
-                <AFormItem label="Parol" name="password" class="login-text _last"
-                    :rules="[{ required: true, message: 'Please input your password!' }]">
-                    <AInput v-model:value="form.password" />
-                </AFormItem>
-                <Button class="login-btn">KIRISH</Button>
+                <Button class="login-btn">КИРИШ</Button>
             </AForm>
         </div>
     </div>
@@ -85,10 +80,6 @@ const onFinishFailed = (errorInfo) => {
         font-weight: 600;
         line-height: 30px;
         margin-bottom: 4px;
-
-        &._last {
-            margin-bottom: 12px;
-        }
     }
 
     &-btn {
