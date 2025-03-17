@@ -69,6 +69,10 @@ p {
     display: block;
 }
 
+.ant-popover-inner {
+    padding: 8px 8px 4px 8px !important;
+}
+
 .ant-popover-inner-content {
     min-width: 300px;
 }

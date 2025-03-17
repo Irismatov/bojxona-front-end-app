@@ -66,7 +66,10 @@ const router = createRouter({
     },
     {
       path: "/error",
-      component: () => import("@/views/error.vue")
+      component: () => import("@/views/error.vue"),
+      meta: {
+        roles: ["ADMIN", "DECLARANT", "MANAGER"]
+      }
     },
     {
       path: "/chat-demo",

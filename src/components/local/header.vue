@@ -67,16 +67,16 @@ onUnmounted(() => {
       <button class="header-notification">
         <a-popover @openChange="fetchMessages" placement="bottomLeft">
           <template #content>
-            <div class="header-notification__content">
-              <div v-for="item in messages">
-                <span class="header-notification__msg">
+            <div v-for="item in messages">
+              <div class="header-notification__content">
+                <span class="header-notification__msg" @click="router.push(`/applications/detail/${item.senderId}?chat=true`)">
                   {{ item.content }}
                 </span>
               </div>
             </div>
           </template>
           <template #title>
-            <span>Янги хабарлар</span>
+            Янги хабарлар
           </template>
           <Icon name="notification" />
         </a-popover>
@@ -121,20 +121,29 @@ onUnmounted(() => {
       --icon-color: #4B465C;
     }
 
-    &__content {
-
-      &:last-child {
-        & .header-notification__msg {
-          background-color: blue !important;
-        }
-      }
-    }
+    &__content {}
 
     &__msg {
-      background-color: red;
+      display: block;
+      width: 100%;
+      min-height: 40px;
+      padding: 8px 8px;
+      color: #4B465C;
+      font-feature-settings: 'liga' off, 'clig' off;
+      font-family: "Public Sans";
+      font-size: 18px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 20px;
       margin-bottom: 12px;
+      border-bottom: 1px solid #DBDADE;
+      border-radius: 6px;
+      box-shadow: 0px 4px 16px 0px rgba(165, 163, 174, 0.45);
 
-
+      &:hover {
+        cursor: pointer;
+        background-color: rgba(75, 70, 92, 0.16);
+      }
     }
 
 
