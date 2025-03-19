@@ -7,7 +7,7 @@ export function useDeclarations() {
     const { fetchData, updateStatus, isLoading } = useApi();
 
     async function getDeclarations(status, type, params = {}) {
-        const data = await fetchData(`api/declarations/status/${status}/type/${type}/`, params);
+        const data = await fetchData(`/declarations/status/${status}/type/${type}/`, params);
         list.length = 0;
         list.push(...data.declarations);
         totalElements.value = data.totalElements;
@@ -15,7 +15,7 @@ export function useDeclarations() {
     }
 
     async function changeDeclarationStatus(id, status, successMessage) {
-        const result = await updateStatus(`api/declarations/${id}/status/${status}`, {}, successMessage);
+        const result = await updateStatus(`/declarations/${id}/status/${status}`, {}, successMessage);
         return result;
     }
 

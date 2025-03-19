@@ -69,7 +69,7 @@ const columns = [
   },
   {
     title: "Тури",
-    customRender: ({ record }) => formatType(record.type),
+    customRender: ({ record }) => formatType(record.declType),
   },
   {
     title: "Рақами",
@@ -116,7 +116,7 @@ function formatTimestamp(timestamp) {
 const customRow = (record) => {
   return {
     onClick: () => {
-      currentItem.value = record.id;
+      currentItem.value = record.declId;
       modalRef.value.openModal()
     },
     style: {

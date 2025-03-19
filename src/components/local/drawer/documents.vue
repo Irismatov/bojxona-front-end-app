@@ -34,23 +34,91 @@ const options = {
 
 const types = [
   {
-    title: "Паспорт олди",
     type: "passports",
     numbers: [0, 1],
   },
+  {
+    type: "tech",
+    numbers: [2, 3],
+  },
+  {
+    type: "licence",
+    numbers: [4]
+  },
+  {
+    type: "cmr",
+    numbers: [5]
+  },
+  {
+    type: "invoice",
+    numbers: [6]
+  },
+  {
+    type: "unauthorized",
+    numbers: [7]
+  },
+  {
+    type: "insurance",
+    numbers: [8]
+  }
 ];
+
+const fileTitles = [
+  {
+    title: "Паспорт олди",
+    type: 0
+  },
+  {
+    title: "Паспорт орқа",
+    type: 1
+  },
+  {
+    title: "Техпаспорт олди",
+    type: 2
+  },
+  {
+    title: "Техпаспорт орқа",
+    type: 3
+  },
+  {
+    title: "Юк ташиш рухсатномаси",
+    type: 4
+  },
+  {
+    title: "CMR ҳужжати",
+    type: 5
+  },
+  {
+    title: "Инвойс ҳужжатлар",
+    type: 6
+  },
+  {
+    title: "Нотариф ҳужжатлар",
+    type: 7
+  },
+  {
+    title: "Кафолат ҳужжатлар",
+    type: 8
+  },
+
+]
 
 const fetchData = (type) => {
   loading.value = true;
   toggleModal(true);
   types.forEach(async (item) => {
     if (item.type !== type) return;
-    const promises = props.documents
-      .filter((el) => item.numbers.includes(el.type))
-      .map((el) => axios.get(`/declaration-docs/${el.id}`));
+    const filteredDecs = props.documents.filter((el) => item.numbers.includes(el.docType)).map((el) => el.docsOrders).flat();
+
+    const promises = filteredDecs.map((el) => axios.get(`/declaration_docs/id/${el.docId}`));
+
+    // const promises = props.documents
+    //   .filter((el) => item.numbers.includes(el.docType))
+    //   .map((el) => axios.get(`/declaration-docs/${el.id}`));
     try {
       const response = await Promise.all(promises);
       list.value = response.map((el) => el.data) || [];
+      console.log(list.value);
     } catch (e) {
       console.error(e, "something wrong");
     } finally {
@@ -60,7 +128,7 @@ const fetchData = (type) => {
 };
 
 function getFileTitle(type) {
-  const item = types.find((el) => el.numbers.includes(type)) || {};
+  const item = fileTitles.find((el) => el.type === type) || {};
   return item.title;
 }
 
@@ -74,11 +142,18 @@ const onSwiper = (swiper) => {
   });
 };
 
+function onClose() {
+  currentIndex.value = 0;
+  list.value = [];
+  swiperRef.value = null;
+  toggleModal(false);
+}
+
 defineExpose({ fetchData });
 </script>
 
 <template>
-  <ADrawer :open="open" @close="toggleModal(false)" :width="900">
+  <ADrawer :open="open" @close="onClose" :width="900">
     <div class="slider">
       <ASpin v-if="loading"></ASpin>
       <template v-else>
@@ -91,23 +166,12 @@ defineExpose({ fetchData });
           </button>
         </div>
         <div class="slider-images__wrapper">
-          <Swiper
-            v-bind="options"
-            @swiper="onSwiper" 
-            class="slider-images"
-          >
+          <Swiper v-bind="options" @swiper="onSwiper" class="slider-images">
             <SwiperSlide v-for="item in list" :key="item.id">
-              <h2 class="slider-images__name">{{ getFileTitle(item.type) }}</h2>
-              <a
-                class="slider-images__image"
-                :href="getBlobUrl(item.value)"
-                target="_blank"
-                :style="`--local-image: url('${getImage(item.value)}')`"
-              >
-                <img
-                  :src="getImage(item.value)"
-                  :alt="getFileTitle(item.type)"
-                />
+              <h2 class="slider-images__name">{{ getFileTitle(item.docType) }}</h2>
+              <a class="slider-images__image" :href="getBlobUrl(item.image)" target="_blank"
+                :style="`--local-image: url('${getImage(item.image)}')`">
+                <img :src="getImage(item.image)" :alt="getFileTitle(item.docType)" />
               </a>
             </SwiperSlide>
           </Swiper>

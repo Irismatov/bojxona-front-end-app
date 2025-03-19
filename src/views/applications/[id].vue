@@ -55,11 +55,6 @@ const form = reactive({
 });
 
 
-// rasmni yuklash uchun bu qismi o'chirib yuboriladi
-const file = ref(null);
-const preview = ref(null);
-const declType = ref(0);
-
 async function changeStatus() {
   await changeDeclarationStatus(
     route.params.id,
@@ -71,55 +66,13 @@ async function changeStatus() {
 }
 
 async function fetchData() {
-  const response = await axios.get(`/api/declarations/${route.params.id}`);
+  const response = await axios.get(`/declarations/${route.params.id}`);
   if (response.data.resultCode === 0) {
     data.value = response.data;
   } else {
     message.error("Xatolik yuz berdi");
   }
 }
-
-const handleFileChange = (event) => {
-  const selectedFile = event.target.files[0];
-  if (selectedFile) {
-    file.value = selectedFile;
-
-    // Rasmni oldindan ko'rish uchub
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      preview.value = e.target.result;
-    };
-    reader.readAsDataURL(selectedFile);
-  }
-};
-
-const uploadImage = async () => {
-  if (!file.value) {
-    message.warn("Iltimos, rasm yuklang!");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("file", file.value);
-  formData.append("type", declType.value);
-
-  try {
-    const response = await axios.post(
-      `/declaration-docs/${route.params.id}`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    fetchData();
-    message.success("Rasm yuklandi");
-  } catch (error) {
-    message.error("Xatolik yuz berdi");
-    console.error("Xatolik", error);
-  }
-};
 
 onMounted(() => {
   fetchData();
@@ -128,22 +81,10 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="upload">
-    <input type="file" @change="handleFileChange" accept="image/*" />
-    <input type="number" v-model="declType" max="3" min="0" value="0" />
-    <Button @click="uploadImage">Rasmni yuklash</Button>
-    <div v-if="preview">
-      <h3>Tanlangan rasm:</h3>
-      <img :src="preview" width="200" />
-    </div>
-  </div>
-
-
-
   <Card title="Маълумотлар">
     <ARow :gutter="[12, 24]">
       <ACol span="6">
-        <Info label="Мурожаат тури" :value="formatType(data.type) || '-'" />
+        <Info label="Мурожаат тури" :value="formatType(data.declType) || '-'" />
       </ACol>
       <ACol span="6">
         <Info label="Мурожаат рақами" :value="data.declNumber || '-'" />
@@ -157,24 +98,14 @@ onMounted(() => {
       <ACol span="24">
         <Info label="Hujjatlar" color-value="#7367F0">
           <template #value>
-            <div class="docs-links">
+            <div class="docs-links" style="display: flex; flex-direction: column;">
               <a @click="documentsRef.fetchData('passports')" class="docs-links__item">Пасспортлар</a>
-              <!-- <a @click="toggleDocument('passports')" class="docs-links__item"
-                  >Пасспортлар</a
-                > -->
-              <!-- <a
-                  @click="toggleDocument('techpassports')"
-                  class="docs-links__item"
-                  >Техпаспортлар</a
-                >
-                <a
-                  @click="toggleDocument('unauthorized')"
-                  class="docs-links__item"
-                  >Нотариф хужжатлар</a
-                >
-                <a @click="toggleDocument('crm')" class="docs-links__item"
-                  >СРМ</a
-                > -->
+              <a @click="documentsRef.fetchData('tech')" class="docs-links__item">Техпаспортлар</a>
+              <a @click="documentsRef.fetchData('licence')" class="docs-links__item">Юк ташиш рухсатномаси</a>
+              <a @click="documentsRef.fetchData('cmr')" class="docs-links__item">CMR ҳужжати</a>
+              <a @click="documentsRef.fetchData('invoice')" class="docs-links__item">Инвойс ҳужжатлар</a>
+              <a @click="documentsRef.fetchData('unauthorized')" class="docs-links__item">Нотариф ҳужжатлар</a>
+              <a @click="documentsRef.fetchData('insurance')" class="docs-links__item">Кафолат ҳужжатлар</a>
             </div>
           </template>
         </Info>
@@ -206,7 +137,7 @@ onMounted(() => {
       </AFormItem>
     </AForm>
   </Modal>
-  <DocumentsDrawer :documents="data.documents || []" ref="documentsRef" />
+  <DocumentsDrawer :documents="data.docs || []" ref="documentsRef" />
 </template>
 
 <style lang="scss" scoped>

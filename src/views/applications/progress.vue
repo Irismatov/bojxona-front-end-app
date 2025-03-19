@@ -1,12 +1,23 @@
 <script setup>
-import { useDeclarations, useChat } from "@/utils/composable"
+import { useDeclarations, useChat, useTimer } from "@/utils/composable"
 import { ref, onMounted, reactive, h, onUnmounted } from "vue";
 import ActionBtn from "@/components/local/button/action.vue";
 import { useRouter } from 'vue-router';
+import { formatTimestamp } from "@/utils/mixins"
+
 
 const router = useRouter();
 const { list, totalElements, getDeclarations, formatType } = useDeclarations();
 const chat = useChat();
+const { timers, updateTimers } = useTimer();
+let timerInterval;
+
+
+
+
+
+
+
 
 async function fetchData() {
   await getDeclarations(2, activeTab.value, { page: pagination.page - 1, size: 10 })
@@ -26,11 +37,11 @@ const columns = [
   },
   {
     title: "Тури",
-    customRender: ({ record }) => formatType(record.type),
+    customRender: ({ record }) => formatType(record.declType),
   },
   {
     title: "Рақами",
-    dataIndex: "number",
+    dataIndex: "declNumber",
   },
   {
     title: "Жўнатилган вақт",
@@ -42,7 +53,7 @@ const columns = [
   },
   {
     title: "Таймер",
-    dataIndex: "timer",
+    key: "timer",
   },
   {
     key: "action",
@@ -76,18 +87,6 @@ const handleTabChange = (value) => {
   fetchData();
 };
 
-function formatTimestamp(timestamp) {
-  const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-
-  return `${year}-${month}-${day} --- ${hours}:${minutes}`;
-}
-
 function onIncomingMessage(message) {
   list.forEach(item => {
     if (message.senderId === item.id) {
@@ -101,9 +100,14 @@ onMounted(() => {
   fetchData();
   chat.connect();
   chat.on('message', onIncomingMessage)
+  console.log(list)
+  updateTimers(list);
+  timerInterval = setInterval(updateTimers(list), 1000);
 });
 onUnmounted(() => {
   chat.disconnect();
+  // Interval to'xtatilishi kerak
+  clearInterval(timerInterval);
 })
 </script>
 
@@ -112,9 +116,8 @@ onUnmounted(() => {
   <ATable :data-source="list" :columns="columns">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
-        <p>{{ record.declId }}</p>
         <div style="display: flex; gap: 16px;">
-          <RouterLink :to="`/applications/detail/${record.id}?chat=true`">
+          <RouterLink :to="`/applications/detail/${record.declId}?chat=true`">
             <ATooltip>
               <template #title>
                 <span>Мижоздан келган хабар</span>
@@ -122,7 +125,7 @@ onUnmounted(() => {
               <ActionBtn icon="mail" :isActive="record.newMessageCount > 0" />
             </ATooltip>
           </RouterLink>
-          <RouterLink :to="`/applications/detail/${record.id}`">
+          <RouterLink :to="`/applications/detail/${record.declId}`">
             <ATooltip>
               <template #title>
                 <span>Мурожаатни кўриш</span>
@@ -131,6 +134,9 @@ onUnmounted(() => {
             </ATooltip>
           </RouterLink>
         </div>
+      </template>
+      <template v-else-if="column.key === 'timer'">
+        {{ timers[record.declId] }}
       </template>
     </template>
   </ATable>
