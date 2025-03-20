@@ -1,26 +1,17 @@
 <script setup>
-import { useDeclarations, useChat, useTimer } from "@/utils/composable"
-import { ref, onMounted, reactive, h, onUnmounted } from "vue";
+import { useDeclarations, useChat } from "@/utils/composable"
+import { ref, onMounted, reactive, onUnmounted } from "vue";
 import ActionBtn from "@/components/local/button/action.vue";
-import { useRouter } from 'vue-router';
 import { formatTimestamp } from "@/utils/mixins"
+import { useAuth } from "@/stores"
 
-
-const router = useRouter();
 const { list, totalElements, getDeclarations, formatType } = useDeclarations();
 const chat = useChat();
-const { timers, updateTimers } = useTimer();
-let timerInterval;
-
-
-
-
-
-
-
+const auth = useAuth();
 
 async function fetchData() {
   await getDeclarations(2, activeTab.value, { page: pagination.page - 1, size: 10 })
+  setupCounters();
 }
 
 const pagination = reactive({
@@ -28,7 +19,42 @@ const pagination = reactive({
   total: totalElements
 });
 
-const columns = [
+
+
+const counters = ref({});
+const counterIntervals = ref({});
+
+function setupCounters() {
+  Object.values(counterIntervals.value).forEach(interval => {
+    clearInterval(interval);
+  });
+
+  list.forEach(el => {
+    if (!el.receivedAt) return; 
+
+    const receivedTime = new Date(el.receivedAt * 1000); 
+    const now = Date.now();
+    const elapsedSeconds = Math.floor((now - receivedTime) / 1000);
+
+    counters.value[el.declId] = formatElapsedTime(elapsedSeconds);
+
+    counterIntervals.value[el.declId] = setInterval(() => {
+      const now = Date.now();
+      const elapsedSeconds = Math.floor((now - receivedTime) / 1000);
+      counters.value[el.declId] = formatElapsedTime(elapsedSeconds);
+    }, 1000);
+  });
+}
+
+function formatElapsedTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  return minutes + " мин ";
+}
+
+
+
+
+const columnsDeclarant = [
   {
     title: "№",
     customRender: ({ index }) => {
@@ -53,12 +79,48 @@ const columns = [
   },
   {
     title: "Таймер",
-    key: "timer",
+    key: "timer"
   },
   {
     key: "action",
   },
 ];
+
+
+
+const columnsAdmin = [
+  {
+    title: "№",
+    customRender: ({ index }) => {
+      return index + 1;
+    }
+  },
+  {
+    title: "Тури",
+    customRender: ({ record }) => formatType(record.declType),
+  },
+  {
+    title: "Рақами",
+    dataIndex: "declNumber",
+  },
+  {
+    title: "Жўнатилган вақт",
+    customRender: ({ record }) => formatTimestamp(record.createdAt)
+  },
+  {
+    title: "Қабул вақти",
+    customRender: ({ record }) => formatTimestamp(record.receivedAt)
+  },
+  {
+    title: "Таймер",
+    key: "timer"
+  },
+  {
+    title: "Декларант",
+    customRender: ({ record }) => record.declarant?.pinfl
+  }
+]
+
 
 const tabs = [
   {
@@ -100,23 +162,21 @@ onMounted(() => {
   fetchData();
   chat.connect();
   chat.on('message', onIncomingMessage)
-  console.log(list)
-  updateTimers(list);
-  timerInterval = setInterval(updateTimers(list), 1000);
 });
 onUnmounted(() => {
   chat.disconnect();
-  // Interval to'xtatilishi kerak
-  clearInterval(timerInterval);
-})
+  Object.values(counterIntervals.value).forEach(interval => {
+    clearInterval(interval);
+  });
+});
 </script>
 
 <template>
   <Tab :list="tabs" v-model="activeTab" @change="handleTabChange" />
-  <ATable :data-source="list" :columns="columns">
+  <ATable :pagination="false" :data-source="list" :columns="auth.user.roleId === 2 ? columnsDeclarant : columnsAdmin">
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
-        <div style="display: flex; gap: 16px;">
+        <div style="display: flex; gap: 8px;">
           <RouterLink :to="`/applications/detail/${record.declId}?chat=true`">
             <ATooltip>
               <template #title>
@@ -136,7 +196,9 @@ onUnmounted(() => {
         </div>
       </template>
       <template v-else-if="column.key === 'timer'">
-        {{ timers[record.declId] }}
+        <span style="color: red;">
+          {{ counters[record.declId] }}
+        </span>
       </template>
     </template>
   </ATable>

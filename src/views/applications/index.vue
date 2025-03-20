@@ -2,14 +2,14 @@
 import { Table } from "ant-design-vue";
 import { useModal, useDeclarations, useDeclStatusChange } from "@/utils/composable";
 import { ref, onMounted, reactive, onUnmounted } from "vue";
+import { useAuth } from "@/stores"
 
+const auth = useAuth();
 const declStatusChange = useDeclStatusChange();
 const { open, closeModal, openModal } = useModal();
 const currentItem = ref();
 const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 const modalRef = ref();
-
-
 
 async function requestToChangeStatus() {
   await changeDeclarationStatus(currentItem.value, 2, "Ushbu murojaat sizga yuklandi");
@@ -24,14 +24,12 @@ const pagination = reactive(
   }
 );
 
-
 async function fetchData() {
   await getDeclarations(1, activeTab.value, {
     page: pagination.page - 1,
     size: 10
   });
 }
-
 
 const tabs = [
   {
@@ -114,13 +112,15 @@ function formatTimestamp(timestamp) {
 }
 
 const customRow = (record) => {
-  return {
-    onClick: () => {
-      currentItem.value = record.declId;
-      modalRef.value.openModal()
-    },
-    style: {
-      cursor: 'pointer',
+  if (auth.user.roleId === 2) {
+    return {
+      onClick: () => {
+        currentItem.value = record.declId;
+        modalRef.value.openModal()
+      },
+      style: {
+        cursor: 'pointer',
+      }
     }
   }
 }
@@ -136,10 +136,9 @@ onUnmounted(() => {
 })
 
 </script>
+
 <template>
-
   <Tab :list="tabs" v-model="activeTab" @change="handleTabChange" />
-
 
   <Table :data-source="list" :columns="columns" :custom-row="customRow" :pagination="false">
 
@@ -147,26 +146,12 @@ onUnmounted(() => {
 
   <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData" />
 
-  <Modal @on-submit="requestToChangeStatus" ref="modalRef" title="Диққат" subtitle="Мазкур мурожаатни қайта ишлашга ўзингизга юклаб олишга розимисиз?">
+  <Modal @on-submit="requestToChangeStatus" ref="modalRef" title="Диққат"
+    subtitle="Мазкур мурожаатни қайта ишлашга ўзингизга юклаб олишга розимисиз?">
   </Modal>
 </template>
 
 
 <style lang="scss" scoped>
 @use "@/assets/scss/config/mixins" as *;
-
-.warning {
-  display: flex;
-  flex-direction: column;
-
-  &-action {
-    align-self: flex-end;
-    display: flex;
-    gap: 16px;
-  }
-
-
-
-
-}
 </style>

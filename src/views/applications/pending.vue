@@ -1,12 +1,14 @@
 <script setup>
-import { Table, message } from "ant-design-vue";
+import { Table } from "ant-design-vue";
 import { useDeclarations } from "@/utils/composable";
-import { ref, onMounted, computed, reactive } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import ActionBtn from "@/components/local/button/action.vue";
+import { formatTimestamp } from "@/utils/mixins"
+import { useAuth } from "@/stores"
 
 
+const auth = useAuth();
 const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
-
 const modalRef = ref();
 const currentItem = ref();
 
@@ -29,7 +31,7 @@ const pagination = reactive({
     total: totalElements
 });
 
-const columns = [
+const columnsDeclarant = [
     {
         title: "№",
         customRender: ({ index }) => {
@@ -54,7 +56,7 @@ const columns = [
     },
     {
         title: "Тугатилган вақти",
-        dataIndex: "finishedAt",
+        customRender: ({ record }) => formatTimestamp(record.finishedAt),
     },
     {
         title: "Тулов суммаси",
@@ -68,6 +70,47 @@ const columns = [
         title: "Муносабат",
         key: "action",
     },
+];
+
+const columnsAdmin = [
+    {
+        title: "№",
+        customRender: ({ index }) => {
+            return index + 1;
+        }
+    },
+    {
+        title: "Тури",
+        customRender: ({ record }) => formatType(record.type),
+    },
+    {
+        title: "Рақами",
+        dataIndex: "number",
+    },
+    {
+        title: "Жўнатилган вақт",
+        customRender: ({ record }) => formatTimestamp(record.createdAt)
+    },
+    {
+        title: "Қабул вақти",
+        customRender: ({ record }) => formatTimestamp(record.receivedAt)
+    },
+    {
+        title: "Тугатилган вақти",
+        customRender: ({ record }) => formatTimestamp(record.finishedAt),
+    },
+    {
+        title: "Тулов суммаси",
+        dataIndex: "totalAmount"
+    },
+    {
+        title: "Туланган йигим",
+        dataIndex: "paidAmount"
+    },
+    {
+        title: "Декларант",
+        customRender: ({ record }) => record.declarant?.pinfl
+    }
 ];
 
 
@@ -107,23 +150,12 @@ onMounted(() => {
     fetchData();
 });
 
-function formatTimestamp(timestamp) {
-    const date = new Date(timestamp * 1000); // UNIX timestamp sekund formatida keladi
-
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Oy 0 dan boshlanadi
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    return `${year}-${month}-${day} --- ${hours}:${minutes}`;
-}
 </script>
 
 <template>
     <Tab :list="tabs" v-model="activeTab" @change="handleTabChange" />
 
-    <Table :data-source="list" :columns="columns">
+    <Table :pagination="false" :data-source="list" :columns="auth.user.roleId === 2 ? columnsDeclarant : columnsAdmin">
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'action'">
                 <div class="action">

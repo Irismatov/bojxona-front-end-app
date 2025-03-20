@@ -5,6 +5,7 @@ import { notification, Button } from "ant-design-vue";
 import { useRouter } from "vue-router";
 import { MessageOutlined } from '@ant-design/icons-vue';
 import { useAuth } from "@/stores"
+import NotificationBox from "./_notification.vue"
 
 const chat = useChat();
 const router = useRouter();
@@ -39,6 +40,11 @@ const notify = (message) => {
   });
 };
 
+async function logout() {
+  await router.push("/auth");
+  auth.logout();
+}
+
 onMounted(() => {
   chat.connect();
   chat.on('message', notify);
@@ -52,23 +58,19 @@ onUnmounted(() => {
     <div class="header-buttons">
 
       <button class="header-notification">
-        <a-popover placement="bottom">
-          <template #content>
-            <p>Content</p>
-            <p>Content</p>
-          </template>
-          <template #title>
-            <span>Title</span>
-          </template>
-          <Icon name="notification" />
-        </a-popover>
-        <div v-if="auth.user.notificationCount > 0" class="header-notification__badge">
-          {{ auth.user.notificationCount }}
-        </div>
+        <NotificationBox />
       </button>
       <button class="header-user">
         <Icon class="header-user__icon" name="person" />
       </button>
+      <ATooltip>
+        <template #title>
+          <span>Тизимдан чиқиш</span>
+        </template>
+        <button @click="logout()" class="header-logout">
+          <Icon class="header-logout__logo" name="logout" />
+        </button>
+      </ATooltip>
     </div>
   </header>
 </template>
@@ -127,6 +129,22 @@ onUnmounted(() => {
     aspect-ratio: 1/1;
     border-radius: 50%;
     background-color: rgba(115, 103, 240, 1);
+    overflow: hidden;
+
+
+
+    .icon {
+      --icon-color: #FFF;
+      --icon-size: 20px;
+    }
+  }
+
+  &-logout {
+    @include btn-clean;
+    width: 38px;
+    aspect-ratio: 1/1;
+    border-radius: 50%;
+    background-color: rgba($color: #000000, $alpha: 0.6);
     overflow: hidden;
 
 

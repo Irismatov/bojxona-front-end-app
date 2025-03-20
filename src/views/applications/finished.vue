@@ -3,14 +3,18 @@ import { Table } from "ant-design-vue";
 import { useDeclarations } from "@/utils/composable";
 import { ref, onMounted, reactive } from "vue";
 import ActionBtn from "@/components/local/button/action.vue";
+import { formatTimestamp } from "@/utils/mixins"
+import { useAuth } from "@/stores"
 
+
+const auth = useAuth();
 const { list, totalElements, isLoading, getDeclarations, changeDeclarationStatus, formatType } = useDeclarations();
 
 const currentItem = ref();
 const modalRef = ref();
 
 async function fetchData() {
-    await getDeclarations(1, activeTab.value, {
+    await getDeclarations(4, activeTab.value, {
         page: pagination.page - 1,
         size: 10
     });
@@ -27,7 +31,43 @@ const pagination = reactive({
     total: totalElements
 });
 
-const columns = [
+const columnsDeclarant = [
+    {
+        title: "№",
+        customRender: ({ index }) => {
+            return index + 1;
+        }
+    },
+    {
+        title: "Тури",
+        customRender: ({ record }) => formatType(record.declType),
+    },
+    {
+        title: "Рақами",
+        dataIndex: "number",
+    },
+    {
+        title: "Жўнатилган вақт",
+        customRender: ({ record }) => formatTimestamp(record.createdAt),
+    },
+    {
+        title: "Қабул вақти",
+        customRender: ({ record }) => formatTimestamp(record.receivedAt),
+    },
+    {
+        title: "Тугатилган вақти",
+        customRender: ({ record }) => formatTimestamp(record.finishedAt),
+    },
+    {
+        title: "Туланган сумма",
+        dataIndex: "paidAmount"
+    },
+    {
+        key: "action",
+    },
+];
+
+const columnsAdmin = [
     {
         title: "№",
         customRender: ({ index }) => {
@@ -44,23 +84,24 @@ const columns = [
     },
     {
         title: "Жўнатилган вақт",
-        dataIndex: "createdAt",
+        customRender: ({ record }) => formatTimestamp(record.createdAt),
     },
     {
         title: "Қабул вақти",
-        dataIndex: "startedAt",
+        customRender: ({ record }) => formatTimestamp(record.receivedAt),
     },
     {
         title: "Тугатилган вақти",
-        dataIndex: "finishedAt",
+        customRender: ({ record }) => formatTimestamp(record.finishedAt),
     },
     {
         title: "Туланган сумма",
         dataIndex: "paidAmount"
     },
     {
-        key: "action",
-    },
+        title: "Декларант",
+        customRender: ({ record }) => record.declarant?.pinfl
+    }
 ];
 
 const tabs = [
@@ -100,10 +141,10 @@ onMounted(() => {
 <template>
     <Tab :list="tabs" v-model="activeTab" @change="handleTabChange" />
 
-    <Table :data-source="list" :columns="columns">
+    <Table :pagination="false" :data-source="list" :columns="auth.user.roleId === 2 ? columnsDeclarant : columnsAdmin">
         <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'action'">
-                <div style="display: flex; gap: 16px;">
+                <div style="display: flex; gap: 8px;">
                     <RouterLink :to="`/applications/detail/${record.id}`">
                         <ATooltip>
                             <template #title>
