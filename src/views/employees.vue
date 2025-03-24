@@ -38,11 +38,6 @@ const columns = [
 
 const list = ref([]);
 
-async function fetchData() {
-    const response = await axios.get("/users");
-    list.value = response.data;
-}
-
 
 const form = reactive({
     username: "",
@@ -54,11 +49,6 @@ const form = reactive({
     email: ""
 })
 
-const onFinish = async (values) => {
-    const response = await axios.post("/users", values);
-    console.log(response);
-    closeModal();
-}
 
 const onFinishFailed = (errorInfo) => {
     console.log(errorInfo);

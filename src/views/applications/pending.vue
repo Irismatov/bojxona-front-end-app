@@ -40,7 +40,7 @@ const columnsDeclarant = [
     },
     {
         title: "Тури",
-        customRender: ({ record }) => formatType(record.type),
+        customRender: ({ record }) => formatType(record.declType),
     },
     {
         title: "Рақами",
@@ -66,10 +66,10 @@ const columnsDeclarant = [
         title: "Туланган йигим",
         dataIndex: "paidAmount"
     },
-    {
-        title: "Муносабат",
-        key: "action",
-    },
+    // {
+    //     title: "Муносабат",
+    //     key: "action",
+    // },
 ];
 
 const columnsAdmin = [
@@ -81,7 +81,7 @@ const columnsAdmin = [
     },
     {
         title: "Тури",
-        customRender: ({ record }) => formatType(record.type),
+        customRender: ({ record }) => formatType(record.declType),
     },
     {
         title: "Рақами",
@@ -156,7 +156,7 @@ onMounted(() => {
     <Tab :list="tabs" v-model="activeTab" @change="handleTabChange" />
 
     <Table :pagination="false" :data-source="list" :columns="auth.user.roleId === 2 ? columnsDeclarant : columnsAdmin">
-        <template #bodyCell="{ column, record }">
+        <!-- <template #bodyCell="{ column, record }">
             <template v-if="column.key === 'action'">
                 <div class="action">
                     <ATooltip>
@@ -167,7 +167,7 @@ onMounted(() => {
                     </ATooltip>
                 </div>
             </template>
-        </template>
+        </template> -->
     </Table>
     <Pagination v-if="totalElements > 0" :pagination="pagination" :fetchData="fetchData" />
 

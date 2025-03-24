@@ -19,7 +19,15 @@ axiosInstance.interceptors.request.use(config => {
 });
 
 axiosInstance.interceptors.response.use(
-    response => response,
+    response => {
+        if (response.data.resultCode === -111) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/auth';
+        } else {
+            return response;
+        }
+    },
     error => {
         if (error.response && error.response.status === 403) {
             localStorage.removeItem('token');

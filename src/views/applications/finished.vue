@@ -76,7 +76,7 @@ const columnsAdmin = [
     },
     {
         title: "Тури",
-        customRender: ({ record }) => formatType(record.type),
+        customRender: ({ record }) => formatType(record.declType),
     },
     {
         title: "Рақами",

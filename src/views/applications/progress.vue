@@ -59,30 +59,40 @@ const columnsDeclarant = [
     title: "№",
     customRender: ({ index }) => {
       return index + 1;
-    }
+    },
+    width: 50,
   },
   {
     title: "Тури",
     customRender: ({ record }) => formatType(record.declType),
+    width: 300
   },
   {
     title: "Рақами",
     dataIndex: "declNumber",
+    width: 300
   },
   {
     title: "Жўнатилган вақт",
-    customRender: ({ record }) => formatTimestamp(record.createdAt)
+    customRender: ({ record }) => formatTimestamp(record.createdAt),
+    width: 300
   },
   {
     title: "Қабул вақти",
-    customRender: ({ record }) => formatTimestamp(record.receivedAt)
+    customRender: ({ record }) => formatTimestamp(record.receivedAt),
+    width: 300
   },
   {
     title: "Таймер",
-    key: "timer"
+    key: "timer",
+    width: 300
+  },
+  {
+
   },
   {
     key: "action",
+    width: 100
   },
 ];
 

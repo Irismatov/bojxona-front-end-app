@@ -101,11 +101,13 @@ onMounted(() => {
             <div class="docs-links" style="display: flex; flex-direction: column;">
               <a @click="documentsRef.fetchData('passports')" class="docs-links__item">Пасспортлар</a>
               <a @click="documentsRef.fetchData('tech')" class="docs-links__item">Техпаспортлар</a>
-              <a @click="documentsRef.fetchData('licence')" class="docs-links__item">Юк ташиш рухсатномаси</a>
-              <a @click="documentsRef.fetchData('cmr')" class="docs-links__item">CMR ҳужжати</a>
-              <a @click="documentsRef.fetchData('invoice')" class="docs-links__item">Инвойс ҳужжатлар</a>
-              <a @click="documentsRef.fetchData('unauthorized')" class="docs-links__item">Нотариф ҳужжатлар</a>
-              <a @click="documentsRef.fetchData('insurance')" class="docs-links__item">Кафолат ҳужжатлар</a>
+              <template v-if="data.declType === 1">
+                <a @click="documentsRef.fetchData('licence')" class="docs-links__item">Юк ташиш рухсатномаси</a>
+                <a @click="documentsRef.fetchData('cmr')" class="docs-links__item">CMR ҳужжати</a>
+                <a @click="documentsRef.fetchData('invoice')" class="docs-links__item">Инвойс ҳужжатлар</a>
+                <a @click="documentsRef.fetchData('unauthorized')" class="docs-links__item">Нотариф ҳужжатлар</a>
+                <a @click="documentsRef.fetchData('insurance')" class="docs-links__item">Кафолат ҳужжатлар</a>
+              </template>
             </div>
           </template>
         </Info>

@@ -25,7 +25,6 @@ export default function setupRouteGuards() {
 
                     return next();
                 } else {
-                    console.log(roles, "xzaxaa");
                     console.log(role);
                     console.log(auth.user.roleId)
                     return next("/error?message=Sizda ushbu sahifaga dostup yo\'q");

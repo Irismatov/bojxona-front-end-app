@@ -13,7 +13,7 @@ message.config({
     top: '0',
     right: '0',
     duration: 2,
-    maxCount: 3,
+    maxCount: 1,
     rtl: true,
     prefixCls: 'my-message',
 });
