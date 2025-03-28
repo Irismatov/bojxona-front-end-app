@@ -1,12 +1,31 @@
+const blobCache = new Map();
+
 export function getBlobUrl(base64Data) {
+
+    if (blobCache.has(base64Data)) {
+        return blobCache.get(base64Data);
+    }
     const byteCharacters = atob(base64Data);
+
     const byteNumbers = new Array(byteCharacters.length);
     for (let i = 0; i < byteCharacters.length; i++) {
         byteNumbers[i] = byteCharacters.charCodeAt(i);
     }
     const byteArray = new Uint8Array(byteNumbers);
     const blob = new Blob([byteArray], { type: "image/jpeg" });
-    return URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
+
+
+    blobCache.set(base64Data, url);
+
+    if (blobCache.size > 10) {
+        blobCache.forEach((value, key) => {
+            URL.revokeObjectURL(key);
+        });
+        blobCache.clear();
+    }
+
+    return url;
 }
 
 

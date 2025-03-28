@@ -168,10 +168,13 @@ defineExpose({ fetchData });
         <div class="slider-images__wrapper">
           <Swiper v-bind="options" @swiper="onSwiper" class="slider-images">
             <SwiperSlide v-for="item in list" :key="item.id">
+              <pre>{{ getBlobUrl(item.image) }}</pre>
               <h2 class="slider-images__name">{{ getFileTitle(item.docType) }}</h2>
               <a class="slider-images__image" :href="getBlobUrl(item.image)" target="_blank"
-                :style="`--local-image: url('${getImage(item.image)}')`">
-                <img :src="getImage(item.image)" :alt="getFileTitle(item.docType)" />
+                :style="`--local-image: url('${getBlobUrl(item.image)}')`">
+                <img :src="getBlobUrl(item.image)" :alt="getFileTitle(item.docType)" loading="lazy" />
+                <div class="swiper-lazy-preloader">
+                </div>
               </a>
             </SwiperSlide>
           </Swiper>
