@@ -119,7 +119,7 @@ onMounted(() => {
     </ARow>
   </Card>
   <ChatDrawer :isOpenStart="route.query.chat === 'true'" :newMessageCount="data.newMessageCount || 0"
-    :senderId="auth.user.id" :receiverId="data.id" />
+    :senderId="auth.user.id" :receiverId="route.params.id" />
 
 
   <Modal title="Диққат" ref="cancelAppRef">

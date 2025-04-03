@@ -4,6 +4,7 @@ import { useModal, useChat } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import { formatISO8601 } from '@/utils/mixins';
 import { useAuth } from '@/stores';
+import { getBlobUrl } from "@/utils/mixins";
 const { open, toggleModal, openModal, closeModal } = useModal();
 const auth = useAuth();
 
@@ -70,7 +71,10 @@ async function sendMessage() {
             selectedFile.value = null;
         }
     } else {
-        message = { senderId: props.senderId, receiverId: props.receiverId, content: newMessage.value, isRead: false };
+        message = {
+            declarationId: props.receiverId,
+            content: newMessage.value
+        }
         chat.sendMessage(message);
         messages.value.push(message);
     }
@@ -87,15 +91,26 @@ async function sendMessage() {
     });
 }
 
+async function getMessageImg(id) {
+    const response = await axios.get(`/chat/file?messageId=${id}`);
+    console.log(response.data.file)
+    return "data:image/jpeg;base64," + response.data.file;
+}
+
 async function fetchData(append = false) {
     if (isLoading.value || (!hasMore.value && append)) return;
 
     isLoading.value = true;
     try {
-        const response = await axios.get(`messages/${props.senderId}/${props.receiverId}`, {
-            params: { page: page.value, size: pageSize }
-        });
-        const newMessages = response.data.content || response.data;
+        const response = await axios.post(`/chat/declarant`,
+            {
+                userUuid: "a3343846-a477-431a-9ce7-2b43f3f1367d",
+                declId: "9935d53c-45be-475b-8004-85405b834524"
+            },
+            {
+                params: { page: page.value, size: pageSize }
+            });
+        const newMessages = response.data.messages || response.data;
 
         if (newMessages.length < pageSize) hasMore.value = false;
 
@@ -221,16 +236,15 @@ onUnmounted(() => {
             <div v-if="isLoading && messages.length === 0" class="loading-indicator"> <a-spin size="large" /></div>
             <div class="chat-box" ref="chatBoxRef">
                 <div v-for="(message, index) in messages" :key="index" class="chat-message"
-                    :class="message.senderId === props.senderId ? 'sent' : 'received'">
-                    <a target="_blank" class="chat-message__file" v-if="message.attachment"
-                        :href="message.attachment.downloadUrl">
-                        <Icon name="paper-clip" />
-                        <span>{{ message.attachment.fileName }}</span>
-                    </a>
+                    :class="message.ownerType === 0 ? 'sent' : 'received'">
+                    <template v-if="message.contentType === 1">
+                        <img :src="getMessageImg(message.messageId)" />
+                    </template>
                     <span v-if="message.content" class="chat-message__text">{{ message.content }}</span>
                     <span class="chat-message__time">{{ formatISO8601(message.timestamp) }}</span>
                 </div>
             </div>
+
             <div v-if="selectedFile" class="chat-file">
                 <span class="chat-file__name">{{ selectedFile.name }}</span>
                 <button @click="selectedFile = null" class="chat-file__clear">✕</button>

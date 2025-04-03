@@ -3,17 +3,20 @@ import { ref, onMounted } from 'vue';
 import SockJS from 'sockjs-client'
 import { Client } from '@stomp/stompjs';
 import axios from "@/plugins/axios"
+import plainAxios from "axios"
 
-const senderId = 'b621f93b-1f8b-4633-8afe-4e0f8c3063b2';
-const receiverId = '324787d6-45d5-42be-8e8a-54ff3db37dab';
+const senderId = '6ea7f115-981e-43f2-adb1-b2583074c1c9';
+const declId = '9935d53c-45be-475b-8004-85405b834524';
 const client = ref(null);
 const isConnected = ref(null);
 
 
 
+
+
 function setSocket() {
     client.value = new Client({
-        webSocketFactory: () => new SockJS(`http://localhost:8081/ws?userId=${senderId}`),
+        webSocketFactory: () => new SockJS(`http://localhost:8585/ws?userId=${senderId}`),
         debug: function (str) {
             console.log(str)
         }
@@ -44,17 +47,14 @@ const newMessage = ref(''); // Yangi xabar uchun input qiymati
 const sendMessage = () => {
     if (client.value && isConnected.value) {
         const message = {
-            senderId: senderId,
-            receiverId: receiverId,
+            declId: declId,
             content: newMessage.value,
-            timestamp: Date.now(),
-            isRead: false
+            ownerType: 1
         };
         client.value.publish({
-            destination: '/app/chat',
+            destination: '/app/send-message',
             body: JSON.stringify({
-                senderId: senderId,
-                receiverId: receiverId,
+                declarationId: message.declId,
                 content: newMessage.value
             })
         });
@@ -63,11 +63,32 @@ const sendMessage = () => {
     }
 };
 
-async function fetchData() {
-    const response = await axios.get(`messages/${senderId}/${receiverId}`);
-    messages.value = response.data;
-}
+const username = "70861023";
+const password = "KJobnCMPTK";
 
+// Base64 formatga o'tkazish
+const basicAuth = "Basic " + btoa(`${username}:${password}`);
+
+async function fetchData() {
+    try {
+        const response = await plainAxios.post(
+            "http://localhost:8585/api/chat", // ✅ URL
+            { // ✅ BODY (data)
+                userUuid: "a3343846-a477-431a-9ce7-2b43f3f1367d",
+                declId: "9935d53c-45be-475b-8004-85405b834524"
+            },
+            { // ✅ HEADERS
+                headers: {
+                    Authorization: basicAuth,
+                    "Content-Type": "application/json" // JSON formatda yuborish
+                }
+            }
+        );
+        messages.value = response.data.messages;
+    } catch (error) {
+        console.error("Xatolik:", error);
+    }
+}
 
 onMounted(() => {
     fetchData();
@@ -81,9 +102,9 @@ onMounted(() => {
         <h2>Chat</h2>
         <div class="messages">
             <div v-for="(message, index) in messages" :key="index"
-                :class="['message', message.senderId === senderId ? 'sent' : 'received']">
+                :class="['message', message.ownerType === 1 ? 'sent' : 'received']">
                 <span class="content">{{ message.content }}</span>
-                <span class="timestamp">{{ message.timestamp }}</span>
+                <span class="timestamp">{{ message.instime }}</span>
             </div>
         </div>
         <div class="input-area">

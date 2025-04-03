@@ -14,7 +14,7 @@ export function useChat() {
 
     function connect() {
         client.value = new Client({
-            webSocketFactory: () => new SockJS(`http://localhost:8081/ws?userId=${auth.user.id}`),
+            webSocketFactory: () => new SockJS(`http://localhost:8585/ws?userId=${auth.user.id}`),
             debug: function (str) {
                 console.log(str);
             },
@@ -27,6 +27,7 @@ export function useChat() {
 
             client.value.subscribe(`/user/queue/messages`, (message) => {
                 const incoming = JSON.parse(message.body);
+                console.log(incoming);
                 emitter.emit('message', incoming);
             })
         };
@@ -41,7 +42,7 @@ export function useChat() {
     function sendMessage(message) {
         if (isConnected.value) {
             client.value.publish({
-                destination: '/app/chat',
+                destination: '/app/send-message',
                 body: JSON.stringify(message)
             });
         } else {
