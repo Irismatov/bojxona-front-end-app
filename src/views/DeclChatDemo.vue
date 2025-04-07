@@ -1,42 +1,43 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import SockJS from 'sockjs-client'
-import { Client } from '@stomp/stompjs';
+import { Client, Stomp } from '@stomp/stompjs';
 import axios from "@/plugins/axios"
 import plainAxios from "axios"
 
-const senderId = '6ea7f115-981e-43f2-adb1-b2583074c1c9';
+const senderId = 'a3343846-a477-431a-9ce7-2b43f3f1367d';
 const declId = '9935d53c-45be-475b-8004-85405b834524';
 const client = ref(null);
 const isConnected = ref(null);
+
+const socket = ref();
+const stompClient = ref();
 
 
 
 
 
 function setSocket() {
-    client.value = new Client({
-        webSocketFactory: () => new SockJS(`http://localhost:8585/ws?userId=${senderId}`),
-        debug: function (str) {
-            console.log(str)
-        }
-    });
-    client.value.onConnect = function (frame) {
-        console.log("Connected", frame);
+
+    socket.value = new WebSocket(`ws://localhost:8585/ws?userId=${senderId}`);
+
+    client.value = Stomp.over(socket.value);
+
+    client.value.connect({
+        Authorization: "Bearer " + "yourJwtToken"
+    }, function (frame) {
+        console.log("WebSocketga ulandi: " + frame);
         isConnected.value = true;
-        client.value.subscribe(`/user/queue/messages`, (message) => {
-            const parsedMessage = JSON.parse(message.body);
-            messages.value.push(parsedMessage);
-        })
-    }
+        client.value.subscribe(`/user/queue/messages`, function (message) {
+            console.log("(shaxsiy user habar: {})", message);
+            let data = JSON.parse(message.body);
+            messages.value.push(data);
+        });
 
-    client.value.onStompError = function (frame) {
-        console.log('Broker reported error' + frame.headers['message']);
-        console.log('Additional details' + frame.body);
-        isConnected.value = false;
-    }
-
-    client.value.activate();
+    }, function (error) {
+        console.error("WebSocket ulana olmadi:", error);
+        alert("WebSocket ulana olmadi! Server ishlayotganini tekshiring.");
+    });
 }
 
 const messages = ref([
@@ -51,15 +52,11 @@ const sendMessage = () => {
             content: newMessage.value,
             ownerType: 1
         };
-        client.value.publish({
-            destination: '/app/send-message',
-            body: JSON.stringify({
-                declarationId: message.declId,
-                content: newMessage.value
-            })
-        });
+        client.value.send(`/app/send-message`, {}, JSON.stringify(message));
         messages.value.push(message);
         newMessage.value = '';
+    } else {
+        alert("Web socket ulanishni tekshiring");
     }
 };
 

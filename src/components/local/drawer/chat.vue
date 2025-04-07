@@ -4,7 +4,6 @@ import { useModal, useChat } from "@/utils/composable";
 import axios from "@/plugins/axios";
 import { formatISO8601 } from '@/utils/mixins';
 import { useAuth } from '@/stores';
-import { getBlobUrl } from "@/utils/mixins";
 const { open, toggleModal, openModal, closeModal } = useModal();
 const auth = useAuth();
 
@@ -72,8 +71,9 @@ async function sendMessage() {
         }
     } else {
         message = {
-            declarationId: props.receiverId,
-            content: newMessage.value
+            declId: props.receiverId,
+            content: newMessage.value,
+            ownerType: 0
         }
         chat.sendMessage(message);
         messages.value.push(message);
@@ -91,11 +91,6 @@ async function sendMessage() {
     });
 }
 
-async function getMessageImg(id) {
-    const response = await axios.get(`/chat/file?messageId=${id}`);
-    console.log(response.data.file)
-    return "data:image/jpeg;base64," + response.data.file;
-}
 
 async function fetchData(append = false) {
     if (isLoading.value || (!hasMore.value && append)) return;
@@ -104,8 +99,7 @@ async function fetchData(append = false) {
     try {
         const response = await axios.post(`/chat/declarant`,
             {
-                userUuid: "a3343846-a477-431a-9ce7-2b43f3f1367d",
-                declId: "9935d53c-45be-475b-8004-85405b834524"
+                declId: props.receiverId
             },
             {
                 params: { page: page.value, size: pageSize }
@@ -140,18 +134,6 @@ async function fetchData(append = false) {
     }
 }
 
-async function loadMoreMessages() {
-    if (!hasMore.value || isLoading.value) return;
-    page.value += 1;
-    await fetchData(true);
-}
-
-function handleScroll() {
-    if (chatBoxRef.value && chatBoxRef.value.scrollTop <= 50 && !isLoading.value && hasMore.value) {
-        loadMoreMessages();
-    }
-}
-
 function uploadFile(event) {
     selectedFile.value = event.target.files[0];
 }
@@ -163,13 +145,6 @@ function onOpen() {
     localCount.value = -props.newMessageCount;
     openModal();
     if (props.receiverId) fetchData();
-
-    nextTick(() => {
-        if (chatBoxRef.value && !scrollEventAdded.value) {
-            chatBoxRef.value.addEventListener('scroll', handleScroll);
-            scrollEventAdded.value = true;
-        }
-    });
 }
 
 function onClose() {
@@ -179,21 +154,8 @@ function onClose() {
 }
 
 function onIncomingMessage(incoming) {
+    console.log("isworking")
     messages.value.push(incoming);
-    localCount.value += 1;
-    nextTick(() => {
-        if (chatBoxRef.value) {
-            console.log(chatBoxRef.value.scrollTop);
-            console.log(chatBoxRef.value.scrollHeight);
-            console.log(chatBoxRef.value.clientHeight);
-            console.log(chatBoxRef.value.scrollTop);
-
-            const isAtBottom = chatBoxRef.value.scrollTop + chatBoxRef.value.clientHeight >= chatBoxRef.value.scrollHeight - 150;
-            if (isAtBottom) {
-                chatBoxRef.value.scrollTop = chatBoxRef.value.scrollHeight;
-            }
-        }
-    });
 }
 
 onMounted(() => {
@@ -204,18 +166,11 @@ onMounted(() => {
         if (props.receiverId) fetchData();
         else isLoading.value = true;
     }
-    nextTick(() => {
-        if (chatBoxRef.value && !scrollEventAdded.value) {
-            chatBoxRef.value.addEventListener('scroll', handleScroll);
-            scrollEventAdded.value = true;
-        }
-    });
 });
 
 onUnmounted(() => {
     chat.disconnect();
     if (chatBoxRef.value && scrollEventAdded.value) {
-        chatBoxRef.value.removeEventListener('scroll', handleScroll);
         scrollEventAdded.value = false;
     }
 });
@@ -238,7 +193,7 @@ onUnmounted(() => {
                 <div v-for="(message, index) in messages" :key="index" class="chat-message"
                     :class="message.ownerType === 0 ? 'sent' : 'received'">
                     <template v-if="message.contentType === 1">
-                        <img :src="getMessageImg(message.messageId)" />
+                        <img class="chat-box__img" :src="'data:image/jpeg;base64,' + message.file" />
                     </template>
                     <span v-if="message.content" class="chat-message__text">{{ message.content }}</span>
                     <span class="chat-message__time">{{ formatISO8601(message.timestamp) }}</span>
@@ -359,6 +314,10 @@ onUnmounted(() => {
         gap: 8px;
         height: calc(100% - 60px);
         position: relative;
+
+        &__img {
+            width: 100%;
+        }
     }
 
     &-message {
