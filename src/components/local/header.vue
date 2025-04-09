@@ -1,16 +1,37 @@
 <script setup>
-import { useChat } from "@/utils/composable";
-import { onMounted, h, onUnmounted } from "vue";
+import { onMounted, h, onUnmounted, ref } from "vue";
 import { notification, Button } from "ant-design-vue";
 import { useRouter } from "vue-router";
 import { MessageOutlined } from '@ant-design/icons-vue';
 import { useAuth } from "@/stores"
 import NotificationBox from "./_notification.vue"
+import { Stomp } from "@stomp/stompjs";
 
-const chat = useChat();
 const router = useRouter();
 const auth = useAuth();
 
+const isConnected = ref(false);
+const socket = ref(null);
+const client = ref(null);
+
+
+function connect() {
+  socket.value = new WebSocket(`ws://localhost:8585/ws?userId=${auth.user.id}`);
+  client.value = Stomp.over(socket.value);
+
+  client.value.connect({
+    Authorization: "Bearer " + "yourJwtToken"
+  }, function (frame) {
+    client.value.subscribe(`/user/queue/notifications`, function (message) {
+      console.log("(shaxsiy user habar: {})", message);
+      let data = JSON.parse(message.body);
+    });
+    isConnected.value = true;
+  }, function (error) {
+    console.error("WebSocket ulana olmadi:", error);
+    alert("WebSocket ulana olmadi! Server ishlayotganini tekshiring.");
+  });
+}
 
 
 
@@ -46,11 +67,7 @@ async function logout() {
 }
 
 onMounted(() => {
-  chat.connect();
-  chat.on('message', notify);
-})
-onUnmounted(() => {
-  chat.disconnect();
+  connect();
 })
 </script>
 <template>
